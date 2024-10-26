@@ -1,0 +1,2137 @@
+%!PS
+
+% dump disck copy images
+
+%PICT file
+%/BlockFileName (/Users/arethusa/Downloads/Omega/Omega-1) def
+
+% diskimage file
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/MFSImages/ppspt.image) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/MFSImages/MDS2.image) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/MFSImages/MOvies.image) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/MFSImages/*.image) def
+
+/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Brown Box/Box.left/*.image) def
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Brown Box/Box.left/Thunderware.image) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Brown Box/Box.left/MDA TIFF JPEG.image) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/MFSLives/Sample.img) def
+
+% blown file  (smi?  Sea? )
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_1.img) def
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/adelmouse.im) def
+
+% big disk images
+%/BlockFileName (/Volumes/adelwise040331/Adelwise.img) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Adelwise.img) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Disk Tools PPC.img) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/system 7.img) def
+
+% seems to be a DOS disk
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/TESTD.img) def
+
+
+% should be diskcopy 6.3.3 images 
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/BMUG Graphic-1.img) def
+
+%/BlockFileName (/Volumes/ESYSTORE/blue disks/single.side/02.single side.img) def
+
+%/BlockFileName (/Volumes/Sync040322/overture/TESTD.img) def
+%/BlockFileName (/Volumes/Fiordiligi040322/A2E/BMUG Graphic-1.img) def
+
+%/BlockFileName (/Volumes/Fiordiligi040322/blue disks/*.img) def
+
+%/BlockFileName (/Volumes/ESYSTORE/BBindrII/*.img) def
+%/BlockFileName (/Volumes/ESYSTORE/black disks/*.img) def
+%/BlockFileName (/Volumes/ESYSTORE/blackdisk2/*.img) def
+%/BlockFileName (/Volumes/ESYSTORE/blue disks/*.img) def
+%/BlockFileName (/Volumes/ESYSTORE/blue disks/athena194/*.img) def
+%/BlockFileName (/Volumes/ESYSTORE/blue disks/single.side/*.img) def
+%/BlockFileName (/Volumes/ESYSTORE/white disks/*.img) def
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/A2E/Catakig 1.15/Disks/*.img) def
+
+%/BlockFileName (/Users/arethusa/Downloads/tifalize.img) def
+%/BlockFileName (/Users/arethusa/Documents/tifalize.img) def
+%/BlockFileName (/Volumes/sync040513/tifalize.img) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/tifalize.dmg) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Calibration.img) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/QuickDraw GX 116.img) def
+
+
+/verbose false def
+/verbose1 false def
+
+/writeLog false def
+
+/DBGPatData false def
+/DBGLoader false def
+
+/DBGMemPtr false def
+/ListByClass true def
+
+/DBGTraceBack false def
+
+/DBGInstDec false def
+/DBGInstEdge false def
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 ge { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec02 { (00) 2 string copy dup 3 -1 roll 16#0FF and =string cvs 2 1 index length sub exch putinterval } bind def
+
+
+/pDec2 { (  ) 2 string copy dup 3 -1 roll 16#0FF and =string cvs 2 1 index length sub exch putinterval } bind def
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/MonthNames [(    ) (Jan ) (Feb ) (Mar ) (Apr ) (May ) (Jun )
+					(Jul ) (Aug ) (Sep ) (Oct ) (Nov ) (Dec ) ] def	 
+					
+/printDateStamp {
+	dup 0 ne {
+		16#FFFFFFFF and 2082844800 sub  unix2c 
+		MonthNames idate 1 get get print 
+		idate 2 get pDec2 print (,) print
+		idate 0 get =string cvs print ( at ) print
+	
+		idate 3 get dup 0 ge { 
+			pDec02 print (:) print
+			idate 4 get dup 0 ge {
+				pDec02 print
+			}{
+				pop
+				(<Invalid ninute>) print
+			}ifelse
+		}{
+			pop
+			(<Invalid hour>) print
+		}ifelse
+		(   ) print
+	}{
+		pop
+		( <* Invalid date *> ) print
+	}ifelse
+	
+	
+} def
+
+
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+/HFSMasterDirectory {
+
+/xAddrIdx exch def
+/rawData$ exch def
+
+/MFD 16#400 def
+
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drSigWord: 16#) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drSigWord exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drSigWord pWord =
+} if
+
+	drSigWord 16#4244 eq {
+
+
+xAddrIdx MFD add pLong print (: ) print
+( HFS ) print (Master Directory block: ) =
+
+% drCrDate   4
+%(drCrDate: ) print
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drCrDate exch def		
+	/xAddrIdx xAddrIdx 4 add def
+%			drCrDate  printDateStamp %pLong == %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+
+%000006:<B82C5695>
+% drLsBkUp   4
+%(drLsMod: ) print
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drLsMod exch def		
+	/xAddrIdx xAddrIdx 4 add def
+%		drLsMod printDateStamp %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+%() =
+
+% drAtrb     2
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drAtrb:     0x) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drAtrb exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drAtrb pWord print ( ) print
+%    Volume attributes. Currently the following bits are defined:
+%     	Bit	Meaning
+%     	7	Set if the volume is locked by hardware
+	drAtrb 16#0080 and 0 eq { } {(HWlock ) print} ifelse
+%     	8	Set if the volume was successfully unmounted
+	drAtrb 16#0100 and 0 eq { (mounted ) print} {(unmounted ) print} ifelse
+%     	9	Set if the volume has had its bad blocks spared
+	drAtrb 16#0200 and 0 eq { } {(bad blocks ) print} ifelse
+%     	15	Set if the volume is locked by software
+	drAtrb 16#8000 and 0 eq { () =} {(SWlock) =} ifelse
+} if
+
+% drNmFiles  2
+%    The number of files in the root directory. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drNmFiles:  ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drNmFiles exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drNmFiles ==
+} if
+
+% drDirSt    2 drVBMSt
+%    The first block of the volume bitmap. This field always contains 3 in the current implementation. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drVBMSt:    0x) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drVBMSt exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drVBMSt pAddr =
+} if
+
+% drBlLen    2 drAllocPtr
+%    The number of the allocation block at which the next allocation search will begin. Used internally. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drAllocPtr: ) print 
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drAllocPtr exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drAllocPtr pAddr =
+} if
+
+% drAlBlks   2 drNmAlBlks
+%    The number of allocation blocks in the volume. Because the value in this field is an integer, a volume can contain at most 65,535 allocation blocks. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drNmAlBlks: ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drNmAlBlks exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drNmAlBlks =string cvs print ( ) print  drNmAlBlks 512 mul ==
+} if
+
+% drAlBklSiz 4
+%    The allocation block size (in bytes). This value must always be a multiple of 512 bytes. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drAlBklSiz: ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drAlBklSiz exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drAlBklSiz ==
+} if
+
+%drClpSiz
+%    The default clump size. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drClpSiz: ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drClpSiz exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+		drClpSiz ==
+} if
+
+%drAlBlSt
+%    The location of the first allocation block in the volume. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drAlBlSt:   0x) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drAlBlSt exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drAlBlSt pAddr =
+} if
+
+%drNxtCNID
+%    The next unused catalog node ID (directory ID or file ID). 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drNxtCNID:  ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drNxtCNID exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drNxtCNID ==
+} if
+
+%drFreeBks
+%    The number of unused allocation blocks on the volume. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drFreeBks:  ) print 
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drFreeBks exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drFreeBks  =string cvs print (   ) print drFreeBks drAlBklSiz mul ==
+} if
+
+%drVN
+%    The volume name. This field consists of a length byte followed
+%    by 27 bytes. Note that the volume name can occupy at most
+%    27 characters; this is an exception to the normal file and directory name limit of 31 characters. 
+rawData$ xAddrIdx get /VolumeNameLen exch def
+rawData$ xAddrIdx 1 add VolumeNameLen getinterval /VolumeName exch def
+	/xAddrIdx xAddrIdx 28 add def
+%(VolumeName: ) print VolumeName =
+	% volume Name is not a variable length here.
+
+%drVolBkUp
+%    The date and time of the last volume backup. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drVolBkUp: ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /drVolBkUp exch def		
+	/xAddrIdx xAddrIdx 4 add def
+
+verbose3 {
+	drVolBkUp printDateStamp %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+() =
+} if
+
+
+%drVSeqNum
+%    Volume backup sequence number. Used internally. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drVSeqNum: ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drVSeqNum exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+		drVSeqNum ==
+} if
+
+%drWrCnt
+%    The volume write count (that is, the number of times the volume has been written to). 
+% some disks seem to put a date stamp here
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drWrCnt:    ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /drWrCnt exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drWrCnt  =string cvs print (   ) print drWrCnt printDateStamp () =
+} if
+
+%drXTClpSize
+%    The clump size for the extents overflow file. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drXTClpSize: ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drXTClpSize exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+		drXTClpSize ==
+} if
+
+%drCTClpSize
+%    The clump size for the catalog file. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drCTClpSize: ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drCTClpSize exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+		drCTClpSize ==
+} if
+
+%drNmRtDirs
+%    The number of directories in the root directory. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drNmRtDirs: ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drNmRtDirs exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drNmRtDirs ==
+} if
+
+%drFilCnt
+%    The number of files on the volume. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drFilCnt:   ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drFilCnt exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drFilCnt ==
+} if
+
+%drDirCnt
+%    The number of directories on the volume. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drDirCnt:   ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drDirCnt exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drDirCnt ==
+} if
+
+
+%drFndrInfo
+%    Information used by the Finder. See the chapter "Finder Interface" in Inside Macintosh: Macintosh Toolbox Essentials for details on
+%    Finder information. 
+verbose3 {
+(\ndrFndrInfo: ) =
+} if
+	rawData$ xAddrIdx 32 getinterval /drFndrInfo exch def 
+verbose3 {
+	drFndrInfo xAddrIdx MFD add dumpHex
+	() =
+} if
+	/xAddrIdx xAddrIdx 32 add def
+
+%drVCSize 2
+%    The size (in allocation blocks) of the volume cache. Used internally. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drVCSize:   ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drVCSize exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drVCSize ==
+} if
+
+%drVBMCSize 2
+%    The size (in allocation blocks) of the volume bitmap cache.
+%    Used internally. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drVBMCSize: ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drVBMCSize exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drVBMCSize ==
+} if
+%drCtlCSize 2
+%    The size (in allocation blocks) of the common volume cache.
+%    Used internally. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drCtlCSize: ) print
+} if
+	[ 16#86 rawData$ xAddrIdx 2 getinterval {} forall ] makestring cvx exec /drCtlCSize exch def		
+	/xAddrIdx xAddrIdx 2 add def
+verbose3 {
+	drCtlCSize ==
+} if
+
+%drXTFlSize 4
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drXTFlSize: 16#) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drXTFlSize exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drXTFlSize pWord print ( ) print drXTFlSize ==
+} if
+
+%    The size (in allocation blocks) of the extents overflow file. 
+%    First extent record for the extents overflow file. An extent record is an array of three extents. See "Extents Overflow Files" on page 2-74 for a description of extents and extent records. 
+%drXTExtRec  2 X 2 X 3   arrary ofextent descriptors
+% offset = ( extents start block number + extent block number ) x allocation block size;
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drXTExtRec: <) print
+} if
+rawData$ xAddrIdx 12 getinterval /drXTExtRec exch def
+	/xAddrIdx xAddrIdx 12 add def
+verbose3 {
+	drXTExtRec $ =
+} if
+
+%    The size (in allocation blocks) of the catalog file. 
+%drCTFlSize 4
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drCTFlSize: ) print
+} if
+	[ 16#84 rawData$ xAddrIdx 4 getinterval {} forall ] makestring cvx exec /drCTFlSize exch def		
+	/xAddrIdx xAddrIdx 4 add def
+verbose3 {
+	drCTFlSize pWord print ( ) print drCTFlSize ==
+} if
+
+%drCTExtRec  2 X 2 X 3   arrary ofextent descriptors for root level directory?
+%    First extent record for the catalog file. 
+verbose3 {
+xAddrIdx MFD add pLong print (: ) print
+(drCTExtRec: <) print
+} if
+rawData$ xAddrIdx 12 getinterval /drCTExtRec exch def
+	/xAddrIdx xAddrIdx 12 add def
+verbose3 {
+drCTExtRec $ =
+} if
+() =
+%(VolumeName: ) print 
+VolumeName print  (    ) print
+drLsMod printDateStamp
+drCrDate  printDateStamp
+%(\nAllocaton Block: ) =
+(\n) =
+
+	}{
+		(Not HFS: ) =
+	}ifelse
+
+} def
+
+
+/dumpNode {
+%() =
+			
+%ndFLink: LongInt; forward link}
+%(ndFLink: ) print
+			[ 16#84 rawData$ 0 4 getinterval {} forall ] makestring cvx exec /ndFLink exch def
+%			ndFLink pLong =
+					
+%ndBLink: LongInt; {backward link}
+%(ndBLink: ) print
+			[ 16#84 rawData$ 4 4 getinterval {} forall ] makestring cvx exec /ndBLink exch def
+%			ndBLink pLong =
+					
+%ndType: SignedByte; {node type}
+%(ndType: ) print
+			rawData$ 8 get 16#FF and /ndType exch def
+verbose1 {
+			ndType pHex print ( ) print
+}if
+			<< % >
+				16#00 (index node)
+				16#01 (header node)
+				16#02 (map node)
+				16#FF (leaf node)
+			>> ndType 2 copy known {
+verbose1 {
+				get print ( ) print
+}{
+pop pop
+
+} ifelse
+%ndNHeight: SignedByte; {node level}
+%(ndNHeight: ) print
+				rawData$ 9 get /ndNHeight exch def
+%			ndNHeight =
+			
+%ndNRecs: Integer; {number of records in node}
+%(ndNRecs: ) print
+				[ 16#86 rawData$ 10 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /ndNRecs exch def
+verbose1 {
+				ndNRecs ==
+} if			
+%ndResv2: Integer; {reserved}
+%(ndResv2: ) print
+				[ 16#86 rawData$ 12 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /ndResv2 exch def
+%			ndResv2 pWord =
+			
+%(...\noffsets: ) =
+
+
+%(rec2Offset: ) print
+				[ 16#86 rawData$ 506 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /rec2Offset exch def
+%			rec2Offset pAddr =
+%(rec1Offset: ) print
+				[ 16#86 rawData$ 508 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /rec1Offset exch def
+%			rec1Offset pAddr =
+%(rec0Offset: ) print
+				[ 16#86 rawData$ 510 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /rec0Offset exch def
+%			rec0Offset pAddr =
+
+			rec0Offset 16#0E ne {
+verbose1 {
+				(corrupted Node: ) =
+}{
+	%pop pop
+} ifelse
+				/ndNRecs 0 def
+			} if 
+			
+			% first node of catalog file should always be a header node
+			% {B*-tree header}
+
+%() =
+			}{
+				pop pop
+verbose1 {
+				(Invalid node Header: ) =
+} if				
+				/ndNRecs 0 def
+				%DumpHex
+				%exit
+			}ifelse
+			
+
+
+} def
+
+/dumpNodeKey {
+
+%(Key Address: ) print
+%recAddr pAddr print (: ) =
+			
+
+%ckrKeyLen: SignedByte;    {key length}
+%(ckrKeyLen: ) print
+	/ckrKeyLen rawData$ recAddr get 16#FF and def
+	/recAddr recAddr 1 add def
+%	ckrKeyLen ==
+	
+	% if 0 it is a deleted record
+	ckrKeyLen 0 ne {
+	
+%ckrResrv1: SignedByte;    {reserved}
+%(ckrResrv1: ) print
+		/ckrResrv1 rawData$ recAddr get 16#FF and def
+		/recAddr recAddr 1 add def
+%		ckrResrv1 ==
+	
+%ckrParID:  LongInt;       {parent directory ID}
+%(ckrParID: ) print
+		[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /ckrParID exch def
+		/recAddr recAddr 4 add def
+%		ckrParID pLong print ( parent directory ID) =
+	
+
+%ckrCName:  Str31;         {catalog node name}
+		/ckrCNameIdx rawData$ recAddr get 16#FF and def
+		/recAddr recAddr 1 add def
+		%ckrCNameIdx ==
+
+%(ckrCName: ) print
+		/ckrCName rawData$ recAddr ckrCNameIdx getinterval def
+		/recAddr recAddr ckrCNameIdx add def
+%		ckrCName ==
+	
+	
+		% make sure we are on an even boundry
+		recAddr 1 and 1 eq {
+			/recAddr recAddr 1 add def
+		}if
+	}{
+		/ckrCName (*Deleted_Record*) def
+%ckrParID:  LongInt;       {parent directory ID}
+%(ckrParID: ) print
+%		[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /ckrParID exch def
+%		/recAddr recAddr 4 add def
+%		ckrParID pLong print ( parent directory ID) =
+%/recAddr recAddr 1 add def
+	
+
+%ckrCName:  Str31;         {catalog node name}
+%		/ckrCNameIdx rawData$ recAddr get 16#FF and def
+%		/recAddr recAddr 1 add def
+		%ckrCNameIdx ==
+
+%(ckrCName: ) print
+%		/ckrCName rawData$ recAddr ckrCNameIdx getinterval def
+%		/recAddr recAddr ckrCNameIdx add def
+%		ckrCName ==
+		
+%		/ckrKeyLen 37 def
+		
+	}ifelse
+
+} def
+
+/dumpLeafCatNode {
+	
+	dumpNodeKey		
+
+% gets messy here as there are 4 types of data that can happen
+	ckrKeyLen 0 ne {
+
+
+%    cdrFThdRec);
+%=           {catalog data records}
+
+%000050:<0025432BFF800B7F00667F00007F0000> % .%C+??..f....
+%000060:<402AEF80E07F00447F00007F00007C2B> % @*??.D....|+
+%000070:<FF800405EB81FF010407801D402E0E98> % ??..??...?.@..?
+
+
+%000080:<02><17>546865566F6C756D655365747469> % ..TheVolumeSetti
+%000090:<6E6773466F6C646572><40>2E1C412E2184> % ngsFolder@..A.!?
+%0000A0:<38BCC6F84C0003804E24888050630095> % 8???L..?N$??Pc.?
+%0000B0:<80>
+%0000B1:<110863<8B><0B><5469666620706173732033> % ?..c?.Tiff pass3 
+%0000C1: <08><57402E5D8822AD314F43AD972FAD> % 3
+
+
+%cdrType: SignedByte; {record type}
+%recAddr pAddr print (: ) =
+%(cdrType: ) print
+			/cdrType rawData$ recAddr get 16#FF and def
+			/recAddr recAddr 1 add def
+%			cdrType ==
+
+%cdrResrv2: SignedByte; {reserved}
+%(cdrResrv2: ) print
+			/cdrResrv2 rawData$ recAddr get 16#FF and def
+			/recAddr recAddr 1 add def
+%			cdrResrv2 ==
+
+%CASE CatDataType OF
+			<< % >
+			1 { %(% cdrDirRec {directory record}) =
+
+% dirFlags: Integer; {directory flags}
+%(\tdirFlags: ) print
+			[ 16#86 rawData$ recAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /dirFlags exch def
+			/recAddr recAddr 2 add def
+%			dirFlags pWord print ( directory flags) =
+
+% The directory valence (the number of files in this directory). The directory ID.
+% dirVal:   Integer; {directory valence}
+%(\tdirVal: ) print
+			[ 16#86 rawData$ recAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /dirVal exch def
+			/recAddr recAddr 2 add def
+%			dirVal pWord print ( directory valence) =
+
+% dirDirID: LongInt; {directory ID}
+%(\tdirDirID: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /dirDirID exch def
+			/recAddr recAddr 4 add def
+%			dirDirID pLong print ( file ID) =
+
+% dirCrDat: LongInt; {date and time of creation}
+%(\tdirCrDat: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /dirCrDat exch def
+			/recAddr recAddr 4 add def
+			%dirCrDat pLong print ( date and time of creation) =
+
+% dirMdDat: LongInt; {date and time of last modification}
+%(\tdirMdDat: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /dirMdDat exch def
+			/recAddr recAddr 4 add def
+			%dirMdDat pLong print ( date and time of last modification) =
+
+% dirBkDat: LongInt; {date and time of last backup}
+%(\tdirBkDat: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /dirBkDat exch def
+			/recAddr recAddr 4 add def
+			%dirBkDat pLong print ( date and time of last backup) =
+
+% dirUsrInfo: DInfo; {Finder information}
+%(\tdirUsrInfo: <) print
+			/dirUsrInfo rawData$ recAddr 8 getinterval def
+			/recAddr recAddr 8 add def
+			%dirUsrInfo $ print ( Finder information) =
+
+% dirFndrInfo: DXInfo; {additional Finder information}
+%(\tdirFndrInfo: <) print
+			/dirFndrInfo rawData$ recAddr 16 getinterval def
+			/recAddr recAddr 16 add def
+			%dirFndrInfo $ print ( additional Finder information) =
+			
+% dirResrv: ARRAY[1..4] OF LongInt); {reserved}
+%(\tdirResrv: <) print
+			/dirResrv rawData$ recAddr 8 getinterval def
+			/recAddr recAddr 8 add def
+			%dirResrv $ print ( reserved) =
+
+
+			/thdFileName [ 8#133 ckrCName {} forall 8#135] makestring def
+		
+			/NameBlock [32 {32} repeat ] makestring def
+			NameBlock 0 thdFileName putinterval
+
+			NameBlock print
+			
+			%/TotSz filLgLen filRLgLen add def
+			%TotSz 9216 lt {
+			%	TotSz pDec print ( bytes   ) print
+			                     (         ) print
+			%}{
+			%	TotSz 1024 div cvi pDec print ( KB      ) print
+			%}ifelse
+			(       )  print
+		
+			filMdDat printDateStamp
+			filCrDat printDateStamp
+		
+			() =
+			%fiUsrWds_Type print (   ) print
+			%fiUsrWds_Creator =
+
+			
+				% make sure we are on an even boundry
+			
+			
+				recAddr 1 and 1 eq {
+					/recAddr recAddr 1 add def
+				}if
+				
+			}
+  
+			2 { %(%cdrFilRec: {file record}) =
+			
+% filFlags: SignedByte; {file flags}
+%(\tfilFlags: ) print
+			/filFlags rawData$ recAddr get 16#FF and def
+			/recAddr recAddr 1 add def
+%			filFlags pHex =
+
+
+%Bit Meaning
+%0 If set, file is locked and cannot be written to.
+%1 If set, a file thread record exists for this file.
+%7 If set, the file record is used
+
+% filTyp: SignedByte; {file type}
+%(\tfilTyp: ) print
+			/filTyp rawData$ recAddr get 16#FF and def
+			/recAddr recAddr 1 add def
+%			filTyp pHex =
+
+% filUsrWds: FInfo; {Finder information}
+%recAddr =string cvs print
+%(\tfilUsrWds: ) print
+			/filUsrWds$ rawData$ recAddr 8 getinterval def
+			/recAddr recAddr 8 add def
+			
+%(fiUsrWds \(Type\): ) print
+			filUsrWds$ 0 4 getinterval /fiUsrWds_Type exch def
+%		fiUsrWds_Type  =
+
+%(fiUsrWds \(Creator\): ) print
+			filUsrWds$ 4 4 getinterval /fiUsrWds_Creator exch def
+%		fiUsrWds_Creator  =
+			
+%			filUsrWds$ =
+
+%(\tfilUsrWds?: <) print
+			/filUsrWdsX rawData$ recAddr 8 getinterval def
+			/recAddr recAddr 8 add def
+%			filUsrWdsX $ =
+			
+
+% filFlNum: LongInt; {file ID}
+%recAddr =string cvs print
+%(\tfilFlNum: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filFlNum exch def
+			/recAddr recAddr 4 add def
+%			filFlNum pLong print ( file ID) =
+			
+% filStBlk: Integer; {first alloc. blk. of data fork}
+%recAddr =string cvs print
+%(\tfilStBlk: ) print
+			[ 16#86 rawData$ recAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filStBlk exch def
+			/recAddr recAddr 2 add def
+%			filStBlk pAddr print ( first alloc. blk. of data fork) =
+
+% filLgLen: LongInt; {logical EOF of data fork}
+%recAddr =string cvs print
+%(\tfilLgLen: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filLgLen exch def
+			/recAddr recAddr 4 add def
+%			filLgLen pLong print ( logical EOF of data fork) =
+			
+% filPyLen: LongInt; {physical EOF of data fork}
+%recAddr =string cvs print
+%(\tfilPyLen: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filPyLen exch def
+			/recAddr recAddr 4 add def
+%			filPyLen pLong print ( physical EOF of data fork) =
+			
+% filRStBlk: Integer; {first alloc. blk. of resource fork}
+%recAddr =string cvs print
+%(\tfilRStBlk: ) print
+			[ 16#86 rawData$ recAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filRStBlk exch def
+			/recAddr recAddr 2 add def
+%			filRStBlk pAddr print ( first alloc. blk. of resource fork) =
+
+% filRLgLen: LongInt; {logical EOF of resource fork}
+%recAddr =string cvs print
+%(\tfilRLgLen: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filRLgLen exch def
+			/recAddr recAddr 4 add def
+%			filRLgLen pLong print ( logical EOF of resource fork) =
+
+% filRPyLen: LongInt; {physical EOF of resource fork}
+%recAddr =string cvs print
+%(\tfilRPyLen: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filRPyLen exch def
+			/recAddr recAddr 4 add def
+%			filRPyLen pLong print ( physical EOF of resource fork) =
+
+% filCrDat: LongInt; {date and time of creation}
+%recAddr =string cvs print
+%(\tfilCrDat: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filCrDat exch def
+			/recAddr recAddr 4 add def
+%			filCrDat pLong print ( ) print filCrDat printDateStamp ( date and time of creation) =
+
+% filMdDat: LongInt {date and time of last modification}
+%recAddr =string cvs print
+%(\tfilMdDat: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filMdDat exch def
+			/recAddr recAddr 4 add def
+%			filMdDat pLong print ( ) print filMdDat printDateStamp( date and time of last modification) =
+
+% filBkDat: LongInt {date and time of last backup}
+%recAddr =string cvs print
+%(\tfilBkDat: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filBkDat exch def
+			/recAddr recAddr 4 add def
+%			filBkDat pLong print ( ) print filBkDat printDateStamp ( date and time of last backup) =
+
+% filFndrInfo: FXInfo {additional Finder information}
+%(\tfilFndrInfo?: <) print
+			/filFndrInfo rawData$ recAddr 16 getinterval def
+			/recAddr recAddr 16 add def
+%			filFndrInfo $ =
+
+% filClpSize: Integer {file clump size}
+%recAddr =string cvs print
+%(\tfilClpSize: ) print
+			[ 16#86 rawData$ recAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filClpSize exch def
+			/recAddr recAddr 2 add def
+%			filClpSize =string cvs print ( file clump size) =
+
+% filExtRec: ExtDataRec; {first data fork extent record}
+%recAddr =string cvs print
+%(\tfilExtRec: <) print
+			rawData$ recAddr 12 getinterval /filExtRec exch def
+			/recAddr recAddr 12 add def
+%			filExtRec $ =
+
+% filRExtRec: ExtDataRec; {first resource fork extent record}
+%recAddr =string cvs print
+%(\tfilRExtRec: <) print
+			rawData$ recAddr 12 getinterval /filRExtRec exch def
+			/recAddr recAddr 12 add def
+%			filRExtRec $ =
+%recAddr =string cvs print
+% filResrv:      LongInt);   {reserved}
+%(\tfilResrv: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /filResrv exch def
+			/recAddr recAddr 4 add def
+%			filResrv pLong print ( reserved) =
+
+%recAddr pAddr print (: ) =
+%() =
+%ckrCName ==
+
+			% filter non printable characters from file dumphex
+			
+			% this is a good place where one would put a unicode hook.
+
+			/filtFileName [ ckrCName
+				{
+					dup 32 lt {
+						pop 46
+					}if
+				}forall] makestring def
+
+
+
+			/NameBlock [32 {32} repeat ] makestring def
+			NameBlock 0 filtFileName putinterval
+		
+			NameBlock print
+			/TotSz filLgLen filRLgLen add def
+			TotSz 9216 lt {
+				TotSz pDec print ( bytes   ) print
+			}{
+				TotSz 1024 div cvi pDec print ( KB      ) print
+			}ifelse
+		
+			filMdDat printDateStamp
+			filCrDat printDateStamp
+		
+			fiUsrWds_Type print (   ) print
+			fiUsrWds_Creator =
+
+
+
+			}
+			
+			3 { %(%cdrThdRec:  {directory thread record}) =
+% thdResrv: ARRAY[1..2] OF LongInt;
+%            {reserved}
+%(\tthdResrv: <) print
+			rawData$ recAddr 8 getinterval /thdResrv exch def
+			/recAddr recAddr 8 add def
+%			thdResrv $ =				
+
+% thdParID: LongInt;    {parent ID for this file}
+%(\tthdParID: ) print
+			[ 16#84 rawData$ recAddr 4 getinterval {} forall ] makestring cvx exec /thdParID exch def
+			/recAddr recAddr 4 add def
+%			thdParID pLong print ( parent ID for this file) =
+			
+% thdCName: Str31);     {name of this file}
+			/thdCNameIdx rawData$ recAddr get 16#FF and def
+			/recAddr recAddr 1 add def
+			%ckrCNameIdx ==
+%(\tthdCName: ) print
+			/thdCName rawData$ recAddr thdCNameIdx getinterval def
+			/recAddr recAddr thdCNameIdx add def
+%			thdCName ==
+			% wrap braces arround name to indicate directory
+			/thdFileName [ 8#133 thdCName {} forall 8#135] makestring def
+			
+	
+			/NameBlock [32 {32} repeat ] makestring def
+			NameBlock 0 thdFileName putinterval
+			NameBlock =
+			
+			% make sure we are on an even boundry
+			
+			
+			recAddr 1 and 1 eq {
+				/recAddr recAddr 1 add def
+			}if
+
+
+			}
+			
+            4 { (%cdrFThdRec: {file thread record}) =
+% fthdResrv: ARRAY[1..2] OF LongInt;
+% {reserved}
+
+% fthdParID: LongInt; {parent ID for this directory}
+% fthdCName: Str31); {name of this directory}
+ 
+			}
+
+			
+			>> 	cdrType 2 copy known {
+				get exec
+			}{
+				pop pop 
+				(Illegal type: ) print cdrType pHex print ( ) print 
+				thdCName () eq {() = exit} if  % could be compressed image
+			
+				/thdFileName [ 8#133 thdCName {} forall 8#135] makestring def
+			
+	
+				/NameBlock [32 {32} repeat ] makestring def
+				NameBlock 0 thdFileName putinterval
+				NameBlock = 
+%				(Illegal type) =
+			}ifelse		 		
+
+  		}{
+(key len 0: ) print ckrCName =
+  		}ifelse
+ 		
+
+} def
+
+BlockFileName
+{
+	/dfn exch def 
+%dfn == flush
+
+	% extract filename from path
+	
+
+
+	/TFRN dfn (/..namedfork/rsrc) strcat def
+	
+
+%dfn print
+	dfn status {
+%	dfn print 
+	[dfn 12 { (/) search not {exit}if exch pop exch} repeat ] dup length 1 sub get print
+
+( data fork: ) print
+	4 array astore /fStatsData exch def  % file is readable 
+	%fStatsData 3 get pLong print (->) print 
+	
+	fStatsData 3 get 2082844800 add
+	/adjModTs exch def 
+	
+	%adjModTs pLong print ( ) print
+	%fStatsData ==
+	%(modified timestamp: ) print fStatsData 2 get unix2c %idate ==
+	adjModTs printDateStamp 
+	%(created timestamp: ) print fStatsData 2 get unix2c %idate ==
+	%printDateStamp
+%	 () =
+%pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+%TFRN print
+	TFRN status {
+%( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+%	fStatsRSRC ==
+%(->) =
+%pstack	
+	}{
+%dfn print 
+( no file resource.) =
+	}ifelse
+
+
+
+/tf dfn (r) file def
+
+
+%16#4C4B HFS boot block
+%16#4C4B -- seen on MFS as well
+
+	/blockBuffer 512 string def
+
+%(% last block:) =
+	
+%	tf fStatsData 1 get 512 sub setfileposition
+	/zeroSectorOffset 0 def  % add this to calculate block address for disk images with a header
+
+%tf 16#400 setfileposition
+	
+	tf 16#54 string readstring {
+		%0 16#54 getinterval 
+		/rawData$ exch def
+		
+%(% read signature from file) =
+	
+		/xAddrx 0 def
+verbose {
+		rawData$ xAddrx dumpHex
+} if 	
+		[ 16#86 rawData$ 0 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drSigWord exch def		
+		%drSigWord pWord print 
+		
+		<< % >
+		16#4244 { ( HFS Master Directory block) print}
+		16#D2D7 { ( MFS Volume Control Block) print }
+		16#4C4B { ( BootBlock ) print tf 1024 setfileposition }
+		16#9BEB { ( DOS FAT ) print tf 0 setfileposition}
+		>> drSigWord 2 copy known {
+			get exec
+		}{
+			pop pop
+			%( not system disk: \n) =
+
+			[ 16#86 rawData$ 16#52 2 getinterval {} forall ] makestring cvx exec /MagicNumber exch def		
+			%MagicNumber pWord print 
+		
+			MagicNumber 16#0100 eq {
+				(Diskcopy 4.2 Image: ) =
+				
+				(Disk image name: ) print
+				rawData$ 1 rawData$ 0 get getinterval /VolumeName exch def% first byte is the pascal length of the disk image name
+				VolumeName =
+				
+				(Data Size \(in Bytes\): ) print
+				[ 16#84 rawData$ 16#40 4 getinterval {} forall ] makestring cvx exec /DataSize exch def		
+				DataSize ==
+
+				(Tag Size \(in Bytes\):  ) print
+				[ 16#84 rawData$ 16#44 4 getinterval {} forall ] makestring cvx exec /TagSize exch def		
+				DataSize ==
+
+				(DataChecksum: 0x) print
+				[ 16#84 rawData$ 16#48 4 getinterval {} forall ] makestring cvx exec /DataChecksum exch def		
+				DataChecksum pLong =
+
+				(TagChecksum: 0x) print
+				[ 16#84 rawData$ 16#4B 4 getinterval {} forall ] makestring cvx exec /TagChecksum exch def		
+				TagChecksum pLong =
+
+
+				(Encoding: 0x) print
+				/Encoding rawData$ 16#50 get def
+				Encoding pHex print
+		% unpack encoding
+
+				<< %>
+					00 ( GCR CLV ssdd \(400k\))
+					01 ( GCR CLV dsdd \(800k\))
+					02 ( MFM CAV dsdd \(720k\))
+					03 ( MFM CAV dshd \(1440k\))
+				>> Encoding 2 copy known {
+					get =
+				}{
+					pop pop
+					(Not a floppy disk;) =
+				}ifelse
+
+
+				(Format: 0x) print
+				/Format rawData$ 16#51 get def
+				Format pHex print
+		
+				<< %>
+					16#02 ( Mac 400k)
+					16#12 ( Lisa 400k \(observed, documentation error claims this is for mac 400k disks, but this is wrong\))
+					16#22 ( Disk formatted as Mac 800k)
+					16#24 ( Disk formatted as Prodos 800k \(AppleIIgs format\))
+					16#96 ( INVALID \(Disk was misformatted or had GCR 0-fill \(0x96 which represents data of 0x00\))		
+				>> Format 2 copy known {
+					get =
+				}{
+					pop pop
+					%(Not a floppy disk;) =
+					%Values for bitfield:
+					%76543210
+					%||||||||
+					%|||\\\\\- These 5 bits are sector interleave factor:
+					%||| settingof02means2:1interleave:0 8 19 2103114125 136 147 15
+					%||| settingof04means4:1interleave:0 4 81215 91326 10143 7 1115
+					%||\------ This bit indicates whether a disk is 2 sided or not. 0 = 1 sided, 1 = 2 sided.
+					%\\------- always 0, as GCR nybbles are only 6 bits
+					(CGR format nybble) =
+
+				}ifelse
+		
+		
+
+				(Magic Number \(Private word\): 0x) print
+				[ 16#86 rawData$ 16#52 2 getinterval {} forall ] makestring cvx exec /MagicNumber exch def		
+				MagicNumber pWord =
+				
+				() =
+				
+				/zeroSectorOffset tf fileposition def
+
+				% skip over the boot sector
+				tf zeroSectorOffset 1024 add setfileposition
+
+		
+			}{
+			
+				% look at last block for a dmg header (trailer)
+				( not system disk: ) print drSigWord pWord =
+			
+				drSigWord 0 ne {
+			
+					rawData$ xAddrx dumpHex
+
+				} if
+				
+				
+				(% last block:) =
+				/xAddr fStatsData 1 get 1 512 mul sub def
+				tf xAddr setfileposition
+				
+	
+				tf blockBuffer readstring {
+					/rawData$ exch def
+verbose {	
+					rawData$ xAddr dumpHex
+() =
+} if
+					/rawIDX 0 def  
+%				typedef struct {
+%  uint8_t  Signature[4];           // magic 'koly'
+(Signature: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /Signature exch def		
+			/rawIDX rawIDX 4 add def
+			Signature pLong =
+			
+			Signature 16#6B6F6C79 eq {
+
+%  uint32_t Version;                // 4 (as of 2013)
+(Version: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /Version exch def		
+			/rawIDX rawIDX 4 add def
+			Version pLong =
+
+%  uint32_t HeaderSize;             // sizeof(this) =  512 (as of 2013)
+(HeaderSize: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /HeaderSize exch def		
+			/rawIDX rawIDX 4 add def
+			HeaderSize pLong =
+			
+%  uint32_t Flags;                 
+(Flags: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /Flags exch def		
+			/rawIDX rawIDX 4 add def
+			Flags pLong =
+
+%  uint64_t RunningDataForkOffset;
+(RunningDataForkOffset: <) print
+			/RunningDataForkOffset rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			RunningDataForkOffset $ =
+			
+%  uint64_t DataForkOffset;         // usually 0, beginning of file
+(DataForkOffset: <) print
+			/DataForkOffset rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			DataForkOffset $ =
+			
+%  uint64_t DataForkLength;
+(DataForkLength: <) print
+			/DataForkLength rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			DataForkLength $ =
+			
+%  uint64_t RsrcForkOffset;         // resource fork offset and length
+(RsrcForkOffset: <) print
+			/DataForkLength rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			DataForkLength $ =
+			
+%  uint64_t RsrcForkLength;        
+(RsrcForkLength: <) print
+			/RsrcForkLength rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			RsrcForkLength $ =
+			
+%  uint32_t SegmentNumber;          // Usually 1, can be 0
+(SegmentNumber: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /SegmentNumber exch def		
+			/rawIDX rawIDX 4 add def
+			SegmentNumber pLong =
+
+%  uint32_t SegmentCount;           // Usually 1, can be 0
+(SegmentCount: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /SegmentCount exch def		
+			/rawIDX rawIDX 4 add def
+			SegmentCount pLong =
+
+%  uuid_t   SegmentID; 
+(SegmentID: <) print
+			/SegmentID rawData$ rawIDX 16 getinterval def
+			/rawIDX rawIDX 16 add def
+			SegmentID $ =
+			
+%  uint32_t DataChecksumType;       // Data fork checksum
+(DataChecksumType: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /DataChecksumType exch def		
+			/rawIDX rawIDX 4 add def
+			DataChecksumType pLong =
+
+%  uint32_t DataChecksumSize;
+(DataChecksumSize: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /DataChecksumSize exch def		
+			/rawIDX rawIDX 4 add def
+			DataChecksumSize pLong =
+
+%  uint32_t DataChecksum[32];
+(DataChecksum: ) print
+			[
+			32 {
+				[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec
+				/rawIDX rawIDX 4 add def 
+			} repeat
+			] /DataChecksum exch def		
+			
+			DataChecksum ==
+
+%  uint64_t XMLOffset;              // Position of XML property list in file
+(XMLOffset: <) print
+			/XMLOffset rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			XMLOffset $ =
+
+%  uint64_t XMLLength; 
+(XMLLength: <) print
+			/XMLLength rawData$ rawIDX 8 getinterval def
+			/rawIDX rawIDX 8 add def
+			XMLLength $ =
+
+%  uint8_t  Reserved1[120];
+(Reserved1: \n<) print
+			/Reserved1 rawData$ rawIDX 120 getinterval def
+			/rawIDX rawIDX 120 add def
+			Reserved1 $ =
+
+%  uint32_t ChecksumType;           // Master checksum
+(ChecksumType: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /ChecksumType exch def		
+			/rawIDX rawIDX 4 add def
+			ChecksumType pLong =
+
+%  uint32_t ChecksumSize;
+(ChecksumSize: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /ChecksumSize exch def		
+			/rawIDX rawIDX 4 add def
+			ChecksumSize pLong =
+
+%  uint32_t Checksum[32];
+			[
+			32 {
+				[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec
+				/rawIDX rawIDX 4 add def 
+			} repeat
+			] /Checksum exch def		
+			
+			Checksum ==
+
+%  uint32_t ImageVariant;           // Unknown, commonly 1
+(ImageVariant: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /ImageVariant exch def		
+			/rawIDX rawIDX 4 add def
+			ImageVariant pLong =
+
+%  uint64_t SectorCount;
+(SectorCount: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /SectorCount exch def		
+			/rawIDX rawIDX 4 add def
+			SectorCount pLong =
+
+%  uint32_t reserved2;
+(reserved2: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /reserved2 exch def		
+			/rawIDX rawIDX 4 add def
+			reserved2 pLong =
+
+%  uint32_t reserved3;
+(reserved3: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /reserved3 exch def		
+			/rawIDX rawIDX 4 add def
+			reserved3 pLong =
+
+%  uint32_t reserved4;
+(reserved4: ) print
+			[ 16#84 rawData$ rawIDX 4 getinterval {} forall ] makestring cvx exec /reserved4 exch def		
+			/rawIDX rawIDX 4 add def
+			reserved4 pLong =
+
+%} __attribute__((packed, scalar_storage_order("big-endian"))) UDIFResourceFile;
+
+
+() =
+			tf 0 setfileposition
+			
+			%tf fStatsData 1 get 1 512 mul sub setfileposition
+
+			tf 16 512 mul string readstring {
+				/rawData$ exch def
+				
+				/xAddrx 0 def
+				DumpHex
+			}{
+(blach.) =			
+			}ifelse
+
+pstack stop	
+
+			}{
+				(try reading block 2 could be a corrupted 6.3.3 image: ) =
+				tf 1024 setfileposition
+			
+			}ifelse
+	
+				}{
+(% can not read data from file) =
+	
+				}ifelse
+
+
+
+		
+				
+			
+			}ifelse
+
+
+		}ifelse
+
+
+		/xAddrx tf fileposition def
+
+		%tf blockBuffer readstring {
+		tf 1024 string readstring {
+			%0 16#54 getinterval 
+			/rawData$ exch def
+
+			%DumpHex
+
+			[ 16#86 rawData$ 0 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drSigWord exch def		
+			%drSigWord pWord print 
+			
+			drSigWord 16#4C4B eq {
+				( BootBlock: ) =
+				rawData$ xAddrx dumpHex
+
+				%tf 1024 setfileposition
+				tf blockBuffer  readstring {
+					%0 16#54 getinterval 
+					/rawData$ exch def
+verbose {
+					rawData$ xAddrx dumpHex
+} if
+
+					tf blockBuffer readstring {
+						/rawData$ exch def
+
+						[ 16#86 rawData$ 0 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /drSigWord exch def		
+						drSigWord pWord print 
+
+
+					}{
+						(File read error Volume control sector:) =
+					}ifelse
+				}{
+					(File read error Boot sector:) =
+				}ifelse
+			
+			}if
+		
+			<< % >
+			16#4244 {
+				HFSMasterDirectory
+			}
+			
+			
+			
+			
+			 
+			16#D2D7 {
+				( MFS ) print %(Volume Control Block: ) =
+		% drCrDate   4
+%(drCrDate: ) print
+		[ 16#84 rawData$ 2 4 getinterval {} forall ] makestring cvx exec /drCrDate exch def		
+%		drCrDate printDateStamp %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+		
+		% drLsBkUp   4
+%(drLsBkUp: ) print
+		[ 16#84 rawData$ 6 4 getinterval {} forall ] makestring cvx exec /drLsBkUp exch def		
+%		drLsBkUp printDateStamp %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+		
+		% drAtrb     2
+%(drAtrb: 0x) print
+		[ 16#86 rawData$ 10 2 getinterval {} forall ] makestring cvx exec /drAtrb exch def		
+%		drAtrb pWord =
+
+		% drNmFiles  2
+%(drNmFiles: ) print
+		[ 16#86 rawData$ 12 2 getinterval {} forall ] makestring cvx exec /drNmFiles exch def		
+%		drNmFiles ==
+
+		% drDirSt    2
+%(drDirSt: 0x) print
+		[ 16#86 rawData$ 14 2 getinterval {} forall ] makestring cvx exec /drDirSt exch def		
+%		drDirSt pAddr =
+
+		% drBlLen    2
+%(drBlLen: ) print
+		[ 16#86 rawData$ 16 2 getinterval {} forall ] makestring cvx exec /drBlLen exch def		
+%		drBlLen ==
+
+		% drAlBlks   2
+%(drAlBlks: ) print
+		[ 16#86 rawData$ 18 2 getinterval {} forall ] makestring cvx exec /drAlBlks exch def		
+%		drAlBlks ==
+
+		% drAlBklSiz 4
+%(drAlBklSiz: ) print
+		[ 16#84 rawData$ 20 4 getinterval {} forall ] makestring cvx exec /drAlBklSiz exch def		
+%		drAlBklSiz ==
+		
+		% drClpSiz   4
+%(drClpSiz: ) print
+		[ 16#84 rawData$ 24 4 getinterval {} forall ] makestring cvx exec /drClpSiz exch def		
+%		drClpSiz ==
+		
+		% drAlBlSt   2
+%(drAlBlSt: 0x) print
+		[ 16#86 rawData$ 28 2 getinterval {} forall ] makestring cvx exec /drAlBlSt exch def		
+%		drAlBlSt pAddr =
+
+		% drNxtFNum  4
+%(drNxtFNum: ) print
+		[ 16#84 rawData$ 30 4 getinterval {} forall ] makestring cvx exec /drNxtFNum exch def		
+%		drNxtFNum ==
+		
+		% drFreeBks  2
+%(drFreeBks: ) print
+		[ 16#86 rawData$ 34 2 getinterval {} forall ] makestring cvx exec /drFreeBks exch def		
+%		drFreeBks == 
+
+		% drVn       1+n
+%(drVn: ) print
+		rawData$ 37 rawData$ 36 get getinterval /drVn exch def% first byte is the pascal length of the disk image name
+		drVn print (   ) print
+		drCrDate printDateStamp 
+		drLsBkUp printDateStamp
+		
+
+() =
+
+%DumpHex
+
+	/BytesRemaining 512 def
+
+	/ValidEntries drNmFiles def
+
+	%DeskTop                            8771 bytes   Jun 23,1995   FNDR)
+	(Name                               Size         Date Modified           Date Created   type   creator) =
+	(-----------------------------------------------------------------------------------------------------) = 
+
+{
+
+	% read the entry directly so we can loop through the directory
+	% the filenames make it a variable length record
+
+	tf 51 string readstring {
+		/rawData$ exch def
+	
+%		DumpHex
+
+% Block 4/n  File Directory
+%   	- 52 bytes   
+		% fiFlags    1
+%(fiFlags: ) print
+		rawData$ 0 get /fiFlags exch def
+%		fiFlags pHex =
+		
+		% check for active entry
+		fiFlags 16#80 and 16#80 eq {
+			/ValidEntries ValidEntries 1 sub def
+		} if
+		
+		% fiTyp      1
+%(fiTyp: ) print
+		rawData$ 1 get /fiTyp exch def
+%		fiTyp pHex =
+
+		% fiUsrWds   16
+%(fiUsrWds \(Type\): ) print
+		rawData$ 2 4 getinterval /fiUsrWds_Type exch def
+%		fiUsrWds_Type  =
+
+%(fiUsrWds \(Creator\): ) print
+		rawData$ 6 4 getinterval /fiUsrWds_Creator exch def
+%		fiUsrWds_Creator  =
+				
+		% fiFiNum    4
+%(fiFiNum: ) print
+		[ 16#84 rawData$ 18 4 getinterval {} forall ] makestring cvx exec /fiFiNum exch def		
+%		fiFiNum ==
+		
+		% fiStBlk    2
+%(fiStBlk: ) print
+		[ 16#86 rawData$ 22 2 getinterval {} forall ] makestring cvx exec /fiStBlk exch def		
+%		fiStBlk pAddr print (: ) =
+
+		% fiLgLen    4
+%(fiLgLen: ) print
+		[ 16#84 rawData$ 24 4 getinterval {} forall ] makestring cvx exec /fiLgLen exch def		
+%		fiLgLen ==
+
+		% fiPyLen    4
+%(fiPyLen: ) print
+		[ 16#84 rawData$ 28 4 getinterval {} forall ] makestring cvx exec /fiPyLen exch def		
+%		fiPyLen ==
+
+		% fiRSBlk    2
+%(fiRSBlk: ) print
+		[ 16#86 rawData$ 32 2 getinterval {} forall ] makestring cvx exec /fiRSBlk exch def		
+%		fiRSBlk pAddr print (: ) =
+
+		% fiRLgLen    4
+%(fiRLgLen: ) print
+		[ 16#84 rawData$ 34 4 getinterval {} forall ] makestring cvx exec /fiRLgLen exch def		
+%		fiRLgLen ==
+
+		% fiRPyLen    4
+%(fiRPyLen: ) print
+		[ 16#84 rawData$ 38 4 getinterval {} forall ] makestring cvx exec /fiRPyLen exch def		
+%		fiRPyLen ==
+		
+		% fiCrDat    4
+%(fiCrDat: ) print
+		[ 16#84 rawData$ 42 4 getinterval {} forall ] makestring cvx exec /fiCrDat exch def		
+%		fiCrDat 16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+		
+		% fiMdDat    4
+%(fiMdDat: ) print
+		[ 16#84 rawData$ 46 4 getinterval {} forall ] makestring cvx exec /fiMdDat exch def		
+%		fiMdDat 16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+
+		% fiNamLen     1+n
+%(fiNamLen:) print
+		rawData$ 50 get /fiNamLen exch def
+%		fiNamLen ==
+		
+		/BytesRemaining BytesRemaining 51 fiNamLen add sub def
+		
+		fiNamLen 0 ne {
+		
+%(fiName$: ) print
+		% now we can read the actual file name
+		tf fiNamLen string readstring {
+			/fiName$ exch def
+%			fiName$ print
+
+			/NameBlock [32 {32} repeat ] makestring def
+			NameBlock 0 fiName$ putinterval
+			
+			NameBlock print
+			/TotSz fiLgLen fiRLgLen add def
+			TotSz 9216 lt {
+				TotSz pDec print ( bytes   ) print
+			}{
+				TotSz 1024 div cvi pDec print ( KB      ) print
+			}ifelse
+			
+			fiMdDat printDateStamp
+			fiCrDat printDateStamp
+			
+			fiUsrWds_Type print (   ) print
+			fiUsrWds_Creator =
+
+
+		}{
+(% read error: ) =
+		}ifelse
+		
+		% a strange effect  the directory entry must be even  since the fixed
+		% record is 51 bytes an odd number,  Even file names need to be padded
+		
+		fiNamLen 2 mod 0 eq {
+			/fiPad tf read pop def  % should check for read errors
+%(% pad byte: 0x) print fiPad pHex =
+		/BytesRemaining BytesRemaining 1 sub def
+
+		} if
+		}{
+			/fiName$ (*Deleted*) def
+		} ifelse
+		
+		% another strange effect is entries can not cross block boundies
+		% so we have to keep track of how many bytes remain  If this is less than
+		% 51 we need to skip to the next block
+		
+		BytesRemaining 51 lt {
+%(NextBlock: ) print 
+			tf BytesRemaining string readstring pop pop % $ =
+			/BytesRemaining 512 def
+		
+		}if
+		
+
+%() =
+		ValidEntries 0 le {
+			exit
+		} if
+	
+	}{
+(% can not read data from file) =
+	}ifelse
+
+} loop		
+
+() =
+				
+			} 
+			
+			16#9BEB {
+%				( MS DOS FAT: ) print
+%tf fileposition pAddr print			
+				%DumpHex
+				
+%(OS Name: ) print
+				rawData$ 16#4 8 getinterval [ exch
+				{
+					dup 32 lt {
+						pop 46
+					}if
+				}forall] makestring /FatOS exch def
+				
+%(Volume Name: ) print
+				rawData$ 16#25 8 getinterval [ exch
+				{
+					dup 32 lt {
+						pop 46
+					}if
+				}forall] makestring /FatName exch def
+
+%(Fat string: ) print
+				rawData$ 16#30 5 getinterval [ exch
+				{
+					dup 32 lt {
+						pop 46
+					}if
+				}forall] makestring /FatType exch def
+				
+				FatType print ( ) print FatName =
+
+%(MagicNumber: ) print
+				rawData$ 16#1F1 2 getinterval /magicFat exch def
+				
+				
+%					tf 0 setfileposition
+
+%					tf blockBuffer readstring {
+						%0 16#54 getinterval 
+%						/rawData$ exch def
+%						DumpHex
+%					}{
+%				(% can not read data from file) =	
+%					}ifelse
+	
+
+%pstack stop
+
+			}
+			>> drSigWord 2 copy known {
+				get exec
+			}{
+				exch pop
+				( Unable to identify disk image format: ) print pWord =
+				%DumpHex
+				% could try Fat16 etc
+				% also pianodisk yamaha 
+				% may have some prodos info or apple ][
+
+			}ifelse
+
+
+		}{
+			(% read error) =
+		}ifelse				
+
+
+	
+	}{
+(% unable to read file) =
+	
+	}ifelse	
+	
+tf closefile
+
+() =
+pstack 
+tf closefile
+} 380 string filenameforall	
+	
+
+%(000002: ) print rawData$ 2 get pHex =
+
+%000002:<A009FBC2>
+		% drCrDate   4
+%(drCrDate: ) print
+%		[ 16#84 rawData$ 2 4 getinterval {} forall ] makestring cvx exec /drCrDate exch def		
+%		drCrDate  printDateStamp %pLong == %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+		
+%000006:<B82C5695>
+		% drLsBkUp   4
+%(drLsBkUp: ) print
+%		[ 16#84 rawData$ 6 4 getinterval {} forall ] makestring cvx exec /drLsBkUp exch def		
+%		drLsBkUp printDateStamp %16#FFFFFFFF and 2082844800 sub  unix2c idate ==
+%() =
+%00000A:<00000002><0003> %?.?¸,V?......
+%000010:<0000031A><0000>02000000080000040000> % ................
+%000020:<0045><0000>
+%000024:<0D> % .E...
+%000025 :<322E73696E676C65207369> 2.single si
+%000030:<64650000000000000000000000000000> % de..............
+%000040:<000000000000>
+%		rawData$ 16#27 31 getinterval /VolNamBfr exch def
+%(VolNam: ) print
+%		[VolNamBfr{dup 0 eq {pop exit}if}forall] makestring =
+
+%000046:<9DAFEE17><00000C000000> % ......???.......
+%000050:<0C0000090000002B0000000900000000> % .......+........
+%000060:<00000000000000020000000000000000> % ................
+%000070:<00000000000000000000000000000000> % ................
+%000080:<000000000C0000000006000000000000> % ................
+%000090:<000000003C0000060006001B000600C2> % ....<..........?
+
+
+	

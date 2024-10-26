@@ -1,0 +1,467 @@
+%!PS
+
+% blown file  (smi?  Sea? ) -- to far gone to recover?
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_1) def
+
+% file found in above
+/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/kodak_lut_cineon_2_Film_Scan/5242/0019.cin) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/PCD4050 Utilities/CAL Instructions.bmp) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/CAL Instructions.bmp) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak Build-It/MAC/ARRANGIT/ARRANGIT.SEA;1) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/Kodak ICC Photo CD.sea) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_mac_os9.zip) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/scnMCal.PPC) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/RFS3570.SEA) def
+
+
+% backcheck some compression variations
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/0019.cin.sit) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon.zip) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon133.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon152.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon152.sea) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.PPC.sit) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.zip) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/trace.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal133.cpt) def
+
+%ADC image  -- usually human readable fragments visible
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Adelwise.img) def
+
+
+
+% split the 4050 file into chunks
+
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000000_0x00000000) def	% 23MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000001_0x015B0000) def	% 965KB graphic fragment
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000002_0x0169BA00) def	% 17KB prob graphic
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5274/0019.cin) def % 10MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5242/0017.cin) def % 13MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000004_0x02C9FA00) def	% 512b
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5274/0020.cin) def % 13MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000005_0x038CFA00) def	% 512b
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5242/0018.cin) def % 13MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000006_0x044FFA00) def	% 512b
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5274/0021.cin) def % 13MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000007_0x0512FA00) def	% 512b
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5242/0019.cin) def % 13MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000008_0x05D5FA00) def	% 512b
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/kodaklutcineon2/5274/0022.cin) def % 13MB
+%/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000009_0x0698FA00) def	% 3.7NB graphic fragment
+
+
+
+/verbose false def
+
+/writeLog false def
+
+/DBGPatData false def
+/DBGLoader false def
+
+/DBGMemPtr false def
+/ListByClass true def
+
+/DBGTraceBack false def
+
+/DBGInstDec false def
+/DBGInstEdge false def
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 gt { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+
+	/hasRSRC true def
+
+(->) =
+pstack	
+	}{
+( no file resource.) =
+		/hasRSRC false def
+	}ifelse
+
+%<< /PageSize [ 612 792] >> setpagedevice % default  -- should restore for normal use
+
+
+
+	% could it be that simple? 
+	/tf BlockFileName (r) file  def
+%	/tf BlockFileName (r) file /RunLengthDecode filter def
+%	/tf BlockFileName (r) file /LZWDecode filter def
+	
+	%/xAddr tf fileposition def
+	/xAddr  0 def
+	
+	
+		% some cartouches around 015EBE00
+	% long word (4 byte) structured patterns with 7x bit set
+%		   C    E    0    2    4    6    8    A	
+%015EBEC0:<4A0A B2D4 6B94 953C 779B 171C 
+%                                        7A9C 77AC> % J...k..<w...z.w.
+%015EBED0:<7A9C 77CC 7B5C 37DC 7C9C 97F0 7B9C B7C4> % z.w.{\7.|...{...
+%015EBEE0:<7B9C 97E0 7B5C 87C4 7ADC 97CC 7C9C 77E8> % {...{\..z...|.w.
+
+% waterfalls are around 016A3E44
+
+	
+	
+	%0169FC20 0169FED0 
+	
+	% possible image 01A6F6C0
+	
+	
+	%02C9FC20  kodaklutcineon2 GenesisPlus
+	%038CFED0 044FFC20 044FFED0 0512FC20 0512FED0 05D5FC30 05D5FED0
+
+
+
+%	tf 16#015EBEC4 setfileposition
+	
+	% dump the bits as an image to see if there are any patterns
+
+	/DeviceGray setcolorspace
+	%/DeviceRGB setcolorspace
+	currentpagedevice /PageSize get cvx exec 
+	cvi /tileStripH exch def
+	cvi pop 512 /tileStripW exch def
+	
+	
+%	/tileStripW 640 def
+%	/tileStripH 792 def
+	 {
+		0 0 translate
+		tileStripW tileStripH scale
+	
+		/blkString tileStripW tileStripH mul string def
+
+	
+		/n 0 def
+		<< % >
+			/ImageType 1
+			/Width tileStripW /Height tileStripH
+			/BitsPerComponent 1
+			/Decode [1 0 ]%0 1 0 1]
+			/ImageMatrix [tileStripW 0 0 tileStripH neg 0 tileStripH]
+			/DataSource  tf  %n get /n n 1 add def}
+			/MultipleDataSource false
+		>> image
+	
+		%tileStripW tileStripH  8
+		%[tileStripW 0 0 tileStripH neg 0 0 tileStripH]
+		%{tf blkString readstring pop }
+		%image
+	
+		{tf fileposition} stopped {pop /cfp fStatsData 1 get def}{/cfp exch def} ifelse
+		
+		cfp pLong print (: ) print cfp ==
+	
+		showpage
+		
+		cfp fStatsData 1 get ge {exit} if
+		
+	} loop
+
+	tf closefile
+
+

@@ -1,0 +1,876 @@
+% dump a possibly corrupted zip archive
+
+/BlockFileName (/Users/Arethusa/Documents/PCDDocs&Tools/Maurice/4050.ZIP) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak_Display_Manager/KLMS_V2.2_MainApp_mac.zip) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak_Color_Films_E-77.zip) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/E-66.zip) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak-Build-Arrange-It.zip) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/MFSImages/mac_rom_archive_-_as_of_8-19-2011.zip) def
+
+%/BlockFileName (/Volumes/cheapblue32/DT0398.zip) def
+%/BlockFileName (/Volumes/cheapblue32/END.zip) def
+
+%/BlockFileName (/Volumes/cheapblue32/hapsim203.zip) def
+
+%/BlockFileName (/Volumes/cheapblue32/WurlitzerBandOrgan.zip) def
+
+/Verbose true def
+
+/writeLog false def
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 ge { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec02 { (00) 2 string copy dup 3 -1 roll 16#0FF and =string cvs 2 1 index length sub exch putinterval } bind def
+
+
+/pDec2 { (  ) 2 string copy dup 3 -1 roll 16#0FF and =string cvs 2 1 index length sub exch putinterval } bind def
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/MonthNames [(    ) (Jan ) (Feb ) (Mar ) (Apr ) (May ) (Jun )
+					(Jul ) (Aug ) (Sep ) (Oct ) (Nov ) (Dec ) ] def	 
+					
+/printDateStamp {
+	dup 0 ne {
+		16#FFFFFFFF and 2082844800 sub  unix2c 
+		MonthNames idate 1 get get print 
+		idate 2 get pDec2 print (,) print
+		idate 0 get =string cvs print ( at ) print
+	
+		idate 3 get dup 0 ge { 
+			pDec02 print (:) print
+			idate 4 get dup 0 ge {
+				pDec02 print
+			}{
+				pop
+				(<Invalid ninute>) print
+			}ifelse
+		}{
+			pop
+			(<Invalid hour>) print
+		}ifelse
+		(   ) print
+	}{
+		pop
+		( <* Invalid date *> ) print
+	}ifelse
+	
+	
+} def
+
+%16#3295
+/DOSDate {
+	dup -9 bitshift 16#7F and 1980 add /DOSYear exch def
+	dup -5 bitshift 16#0F and /DOSMonth exch def
+	16#1F and /DOSDay exch def
+	
+	MonthNames DOSMonth get print 
+	DOSDay pDec2 print (,) print
+	DOSYear =string cvs %print ( at ) print
+
+} def
+
+% 16#B4F8
+/DOSTime {
+	dup -11 bitshift 16#1F and /DOSHour exch def
+	dup -5 bitshift 16#3F and /DOSMinute exch def
+	16#1F and 2 mul /DOSSeconds exch def
+	
+	DOSHour pDec02 print (:) print
+	DOSMinute pDec02 
+
+} def
+
+
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+(->) =
+pstack	
+	}{
+( no file resource.) =
+	}ifelse
+
+
+/dumpEndCentralDir {
+
+%( error reading central directory: ) =
+% read until eof
+() =
+
+%  4.3.16  End of central directory record:
+
+		/xAddr 0 def
+
+%      end of central dir signature    4 bytes  (0x06054b50)
+(end of central dir signature  ) print
+			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipsig exch def
+			/xAddr xAddr 4 add def
+			zipsig pLong =
+
+
+%     number of this disk             2 bytes
+(number of this disk: ) print
+			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zDiskNo exch def
+			/xAddr xAddr 2 add def
+			zDiskNo ==
+
+%      number of the disk with the
+%      start of the central directory  2 bytes
+(disk number of the start of central directory: ) print
+			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zDiskCent exch def
+			/xAddr xAddr 2 add def
+			zDiskCent ==
+
+%      total number of entries in the
+%      central directory on this disk  2 bytes
+(central directory on this disk: ) print
+			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zCentOd exch def
+			/xAddr xAddr 2 add def
+			zCentOd ==
+
+%      total number of entries in
+%      the central directory           2 bytes
+(total number of entries: ) print
+			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /totEntries exch def
+			/xAddr xAddr 2 add def
+			totEntries ==
+
+%      size of the central directory   4 bytes
+(size of the central directory: ) print
+			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zCentDirSz exch def
+			/xAddr xAddr 4 add def
+			zCentDirSz ==
+
+%      offset of start of central
+%      directory with respect to
+%      the starting disk number        4 bytes
+(offset of start of central directory: ) print
+			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zCentDirLoc exch def
+			/xAddr xAddr 4 add def
+			zCentDirLoc pLong =
+			
+%      .ZIP file comment length        2 bytes
+(ZIP file comment length: ) print
+			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zdCmtLen exch def
+			/xAddr xAddr 2 add def
+			zdCmtLen ==
+
+%      .ZIP file comment       (variable size)
+ 
+
+} def
+
+/dumpCentralDirectory {
+	/xAddr 0 def
+
+%       central file header signature   4 bytes  (0x02014b50)
+%(central file header signature: ) print
+	[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipsig exch def
+	/xAddr xAddr 4 add def
+%	zipsig pLong =
+	
+%       version made by                 2 bytes
+%(version made by: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipMadeBy exch def
+	/xAddr xAddr 2 add def
+%	zipMadeBy pWord print ( ) print zipMadeBy 16#FF and 10 div =string cvs print ( ) print
+%	<< % >
+%		0 ( MS-DOS and OS/2 \(FAT / VFAT / FAT32 file systems\))
+%		1 ( Amiga)                     2 ( OpenVMS)
+%		3 ( UNIX )                     4 ( VM/CMS)
+%		5 ( Atari ST)                  6 ( OS/2 H.P.F.S.)
+%		7 ( Macintosh)                 8 ( Z-System)
+%		9 ( CP/M)                     10 ( Windows NTFS)
+%		11 ( MVS \(OS/390 \( Z/OS\))  12 ( VSE)
+%		13 ( Acorn Risc)              14 ( VFAT)
+%		15 ( alternate MVS)           16 ( BeOS)
+%		17 ( Tandem)                  18 ( OS/400)
+%		19 ( OS X \(Darwin\))
+%	>> zipMadeBy -8 bitshift 16#FF and 2 copy known {
+%		get =
+%	}{
+%		pop pop
+%		() =
+%	} ifelse
+
+%      version needed to extract       2 bytes
+%(version needed to extract: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipVer exch def
+	/xAddr xAddr 2 add def
+%	zipVer pWord print ( ) print zipVer 16#FF and 10 div ==
+	
+%      general purpose bit flag        2 bytes
+%(general purpose bit flag: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipFlag exch def
+	/xAddr xAddr 2 add def
+%	zipFlag pWord =
+	
+%      compression method              2 bytes
+%(compression method  : ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipMethod exch def
+	/xAddr xAddr 2 add def
+%	zipMethod pWord =
+
+% date and time use DOS format			
+%      last mod file time              2 bytes
+%(last mod file time: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipModTime exch def
+	/xAddr xAddr 2 add def
+%	zipModTime DOSTime =
+	
+%      last mod file date              2 bytes
+%(last mod file date: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipModDate exch def
+	/xAddr xAddr 2 add def
+%	zipModDate DOSDate =
+	
+%      crc-32                          4 bytes
+%(crc-32: ) print
+	[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipCRC32 exch def
+	/xAddr xAddr 4 add def
+%	zipCRC32 pLong =
+
+%      compressed size                 4 bytes
+%(compressed size: ) print
+	[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipSize exch def
+	/xAddr xAddr 4 add def
+%	zipSize ==
+
+%      uncompressed size               4 bytes
+%(uncompressed size: ) print
+	[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipUSize exch def
+	/xAddr xAddr 4 add def
+%	zipUSize ==
+	
+%      file name length                2 bytes
+%      extra field length              2 bytes
+%(file name length: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zfIdx exch def
+	/xAddr xAddr 2 add def
+%	zfIdx ==
+
+%	   extra field length: 
+%(extra field length: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zMdIdx exch def
+	/xAddr xAddr 2 add def
+%	zMdIdx ==
+
+%	For MS-DOS, the low order byte is the MS-DOS directory attribute byte.
+	
+	% for unix
+% may be in octal
+	
+%#define S_IFIFO  0010000  /* named pipe (fifo) */
+%#define S_IFCHR  0020000  /* character special */
+%#define S_IFDIR  0040000  /* directory */
+%#define S_IFBLK  0060000  /* block special */
+%#define S_IFREG  0100000  /* regular */
+%#define S_IFLNK  0120000  /* symbolic link */
+%#define S_IFSOCK 0140000  /* socket */
+
+	
+%	TTTTsstrwxrwxrwx0000000000ADVSHR
+%	^^^^____________________________ file type as explained above
+%	    ^^^_________________________ setuid, setgid, sticky
+%	       ^^^^^^^^^________________ permissions
+%	                ^^^^^^^^________ This is the "lower-middle byte" your post mentions
+%	                        ^^^^^^^^ DOS attribute bits
+
+	
+%        file comment length             2 bytes
+%(file comment length: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zCmtIdx exch def
+	/xAddr xAddr 2 add def
+%	zCmtIdx ==
+	
+%        disk number start               2 bytes
+%(disk number start: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zDskSt exch def
+	/xAddr xAddr 2 add def
+%	zDskSt ==
+	
+%        internal file attributes        2 bytes
+%(internal file attributes: ) print
+	[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zIFilAttrib exch def
+	/xAddr xAddr 2 add def
+%	zIFilAttrib pWord =
+	
+%        external file attributes        4 bytes
+%(external file attributes: ) print
+	[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zEFilAttrib exch def
+	/xAddr xAddr 4 add def
+%	zEFilAttrib pLong =
+	
+%        relative offset of local header 4 bytes
+%(relative offset of local header: ) print
+	[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /fHeaderOffset exch def
+	/xAddr xAddr 4 add def
+%	fHeaderOffset pLong =
+	
+%(xAddr: ) print xAddr  pAddr print (: ) print xAddr ==
+
+%      file name (variable size)
+	%/fileNameEntry rawData$ xAddr zfIdx getinterval def
+	tf zfIdx string readstring {
+		/fileNameEntry  exch def
+		%/xAddr xAddr zfIdx add def
+		%() =
+		
+
+		/lastNameCharIDX fileNameEntry length 1 sub def
+
+		zipUSize 0 eq {
+		
+		
+			fileNameEntry lastNameCharIDX get 47 eq {
+				% is a directory
+				
+				% extract folder name from path name by searching backwards
+				lastNameCharIDX 1 sub -1 0 {
+					/separatorIdx exch def
+					fileNameEntry separatorIdx get 47 eq {exit} if
+				} for
+				
+				% no root directory mark
+				separatorIdx 0 eq { /separatorIdx -1 def} if
+				
+				/DirName$ fileNameEntry separatorIdx 1 add lastNameCharIDX separatorIdx sub  1 sub getinterval def
+				
+				/NameBlock [8#133 37 {32} repeat] makestring def
+				NameBlock 1 DirName$ putinterval
+				NameBlock DirName$ length 1 add 8#135 put
+			
+				(\033\1331;32m) print NameBlock print (\033\1330m) print
+				
+				% no size for directories
+				(                 ) print
+			
+				zipModDate DOSDate print ( at ) print
+				zipModTime DOSTime =
+
+				
+
+			}{
+
+
+					% some system files have a return at the end of the name
+					% might be a way to hide the file
+					fileNameEntry lastNameCharIDX get 13 eq {
+						% hacky way to check for this
+						% some files have mac style names with tradmarks and other
+						% symbols,  so we can not simpy kill unprintable
+						% chars.  It is possible some files may
+						% have returns other than in the last character
+						% We may want to color these as they do tend
+						% to happen on system files
+						
+						%/lastNameCharIDX lastNameCharIDX 1 sub def
+						
+						/fileNameEntry fileNameEntry 0 lastNameCharIDX getinterval def
+						/lastNameCharIDX fileNameEntry length 1 sub def
+
+%fileNameEntry ==
+
+%tf closefile
+%pstack stop
+
+					}if
+
+					% extract folder name from path name by searching backwards
+					lastNameCharIDX -1 0 {
+						/separatorIdx exch def
+						fileNameEntry separatorIdx get 47 eq {exit} if
+					} for
+	%separatorIdx ==				
+					% no root directory mark
+					separatorIdx 0 eq { /separatorIdx -1 def} if
+				
+					/DirName$ fileNameEntry separatorIdx 1 add lastNameCharIDX separatorIdx sub  getinterval def
+				
+					/NameBlock [39 {32} repeat ] makestring def
+					NameBlock 0 DirName$ putinterval
+
+					% look for files that would be hidden on Mac
+					DirName$ 0 get 46 eq {
+						(\033\1331;35m) print 
+						NameBlock print
+						(\033\1330m) print
+					}{
+						(\033\1331;31m) print  NameBlock print   (\033\1330m) print
+					}ifelse
+
+					zipUSize 9216 lt {
+						zipUSize pDec print ( bytes   ) print
+					}{
+						zipUSize 1024 div cvi pDec print ( KB      ) print
+					}ifelse
+
+					zipModDate DOSDate print ( at ) print
+					zipModTime DOSTime =
+
+%tf closefile
+%pstack stop
+			
+			} ifelse
+		}{
+
+				% extract folder name from path name by searching backwards
+				lastNameCharIDX -1 0 {
+					/separatorIdx exch def
+					fileNameEntry separatorIdx get 47 eq {exit} if
+				} for
+%separatorIdx ==				
+				% no root directory mark
+				separatorIdx 0 eq { /separatorIdx -1 def} if
+				
+				/DirName$ fileNameEntry separatorIdx 1 add lastNameCharIDX separatorIdx sub  getinterval def
+				
+				DirName$ length 37 gt {
+					/uberLongFilename DirName$ dup length string copy def
+					/DirName$ DirName$ 0 37 getinterval def
+					DirName$ 34 (...) putinterval
+				}if
+
+				
+				/NameBlock [39 {32} repeat ] makestring def
+				NameBlock 0 DirName$ putinterval
+
+				% look for files that would be hidden on Mac
+				DirName$ 0 get 46 eq {
+					(\033\1331;33m) print 
+					NameBlock print
+					(\033\1330m) print
+				}{
+					NameBlock print
+				}ifelse
+
+				zipUSize 9216 lt {
+					zipUSize pDec print ( bytes   ) print
+				}{
+					zipUSize 1024 div cvi pDec print ( KB      ) print
+				}ifelse
+
+				zipModDate DOSDate print ( at ) print
+				zipModTime DOSTime =
+
+%tf closefile
+%pstack stop
+			
+		} ifelse
+		%() =
+	}{
+(corrupted directory entry: ) =
+exit
+	}ifelse
+
+	zMdIdx 0 ne {
+%      extra field (variable size)
+	%/extraFieldEntry rawData$ xAddr zMdIdx getinterval def
+%(extra field: ) print
+		/feildAddr tf fileposition def
+		tf zMdIdx string readstring {
+			/extraFieldEntry exch def
+			%/xAddr xAddr zMdIdx add def
+			%(<) print 
+%			extraFieldEntry feildAddr dumpHex
+		}{
+(corrupted directory entry: ) =
+exit
+		}ifelse
+	}if
+
+	zCmtIdx 0 ne {
+%      file comment (variable size)
+		tf zCmtIdx string readstring {
+			/fileComment exch def
+			%/xAddr xAddr zMdIdx add def
+%			(<) print fileComment $ =
+		}{
+(corrupted directory entry: ) =
+exit
+		}ifelse
+	}if
+
+} def
+
+
+/tf BlockFileName (r) file def
+
+
+%	/blockBuffer 512 string def
+	
+%	tf 1 512 mul string readstring {
+%		/rawData$ exch def
+	
+%		rawData$ 0 dumpHex
+		
+		
+%() =		
+		
+%	 4.3.7  Local file header:
+%		/xAddr 0 def
+
+%      local file header signature     4 bytes  (0x04034b50)
+%(local file header signature: ) print
+%			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipsig exch def
+%			/xAddr xAddr 4 add def
+%			zipsig pLong =
+
+%      version needed to extract       2 bytes
+%(version needed to extract: ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipVer exch def
+%			/xAddr xAddr 2 add def
+%			zipVer pWord print ( ) print zipVer ==
+			
+%      general purpose bit flag        2 bytes
+%(general purpose bit flag: ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipFlag exch def
+%			/xAddr xAddr 2 add def
+%			zipFlag pWord =
+			
+%      compression method              2 bytes
+%(compression method  : ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipMethod exch def
+%			/xAddr xAddr 2 add def
+%			zipMethod pWord =
+			
+%      last mod file time              2 bytes
+%(last mod file time: ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipModTime exch def
+%			/xAddr xAddr 2 add def
+%			zipModTime DOSTime = %pWord =
+			
+%      last mod file date              2 bytes
+%(last mod file date: ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zipModDate exch def
+%			/xAddr xAddr 2 add def
+%			zipModDate DOSDate =
+			
+%      crc-32                          4 bytes
+%(crc-32: ) print
+%			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipCRC32 exch def
+%			/xAddr xAddr 4 add def
+%			zipCRC32 pLong =
+
+%      compressed size                 4 bytes
+%(compressed size : ) print
+%			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipSize exch def
+%			/xAddr xAddr 4 add def
+%			zipSize ==
+
+%      uncompressed size               4 bytes
+%(uncompressed size : ) print
+%			[ 16#85 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /zipUSize exch def
+%			/xAddr xAddr 4 add def
+%			zipUSize ==
+			
+%      file name length                2 bytes
+%      extra field length              2 bytes
+%(file name length: ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zfIdx exch def
+%			/xAddr xAddr 2 add def
+%			zfIdx ==
+
+%(extra field length: ) print
+%			[ 16#87 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /zMdIdx exch def
+%			/xAddr xAddr 2 add def
+%			zMdIdx ==
+
+%      file name (variable size)
+%			/fileNameEntry rawData$ xAddr zfIdx getinterval def
+%			/xAddr xAddr zfIdx add def
+%			fileNameEntry =
+
+
+%			zMdIdx 0 ne {
+%(extra field \(variable size\): ) print
+%				/feildAddr xAddr def
+%				/extraFieldEntry rawData$ xAddr zMdIdx getinterval def
+%				/xAddr xAddr zMdIdx add def
+%				extraFieldEntry feildAddr dumpHex
+%			}if
+
+	
+%	}{
+%(% can not read data from file) =
+	
+%	}ifelse
+	
+	% magic marker found empirically by block dump
+	% 0CE76370:<504B0102140314000000000007943036> % PK...........?06
+
+
+	% to find central directiry look for a signature 16#06054B50
+	% that should be around 22 bytes from the end of the file
+	% if there are comments which could push this back farther
+	% one has to seach back through the data for the signature.
+	
+	% alteritive would be to read in the last block then
+	% use the postscrip search function to match the magic marker
+	% then calculate the position from the remaining bytes.
+	
+	% most of this is academic, there are plenty of Zip readers out there.
+
+
+(\n% End of Catalog data:) =
+
+
+%	/backBlock fStatsData 1 get 512 sub def
+	/backBlock fStatsData 1 get 22 sub def
+	%/backBlock 16#0D0CD604 def
+	
+	tf backBlock setfileposition
+	
+	tf 22 string readstring {
+		/rawData$ exch def
+	
+		rawData$ backBlock dumpHex
+		
+		dumpEndCentralDir
+		
+		() =
+
+		zipsig  16#06054B50 eq {
+
+			tf zCentDirLoc setfileposition
+		
+			(Name                                       Size        Date Modified           Date Created   type   creator) =
+			(------------------------------------------------------------------------------------------------------------) = 
+
+			zCentOd {
+			/backBlock tf fileposition def
+
+			tf 46 string readstring {
+				/rawData$ exch def
+	
+%				rawData$ backBlock dumpHex
+		
+%() =
+
+				dumpCentralDirectory
+
+
+				}{
+() =
+
+					/rawData$ exch def
+
+					rawData$ 0 dumpHex
+
+					dumpEndCentralDir
+					exit
+				}ifelse
+
+			} repeat
+		
+		}{
+(% there may be a comment at the end --skip back and look for signature: ) =
+		
+		}ifelse
+		
+		
+	
+	}{
+(% can not read data from file) =
+	
+	}ifelse
+
+
+
+tf closefile
+
+

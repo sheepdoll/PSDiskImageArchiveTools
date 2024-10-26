@@ -1,0 +1,1402 @@
+%!PS
+
+% Reader for cineon files.   The 4050_1 contains unconpressed cineon file.
+%
+% quite possibly this is where the matrix came from as cineon files look like
+% the matrix streams.
+
+
+% blown file  (smi?  Sea? ) -- to far gone to recover?
+/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_1) def
+
+% file found in above
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/kodak_lut_cineon_2_Film_Scan/5242/0019.cin) def
+
+
+% cineon keys can be found around the following offsets
+
+	
+		% some cartouches around 015EBE00
+	% long word (4 byte) structured patterns with 7x bit set
+%		   C    E    0    2    4    6    8    A	
+%015EBEC0:<4A0A B2D4 6B94 953C 779B 171C 
+%                                        7A9C 77AC> % J...k..<w...z.w.
+%015EBED0:<7A9C 77CC 7B5C 37DC 7C9C 97F0 7B9C B7C4> % z.w.{\7.|...{...
+%015EBEE0:<7B9C 97E0 7B5C 87C4 7ADC 97CC 7C9C 77E8> % {...{\..z...|.w.
+
+% waterfalls are around 016A3E44
+/cinOffsets [
+16#0169FC00	% 19
+16#0206FC00 % 17
+16#02C9FC00 % 20
+16#038CFC00 % 18
+16#044FFC00 % 21
+16#0512FC00 % 19
+16#05D5FC00 % 22
+] def
+
+	
+	%0169FC20 0169FED0 02C9FC20  kodaklutcineon2 GenesisPlus
+	%038CFED0 044FFC20 044FFED0 0512FC20 0512FED0 05D5FC30 05D5FED0
+
+
+% these file were used to see if 4051_1 is a sit or zip archive
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/PCD4050 Utilities/CAL Instructions.bmp) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/CAL Instructions.bmp) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak Build-It/MAC/ARRANGIT/ARRANGIT.SEA;1) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/Kodak ICC Photo CD.sea) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_mac_os9.zip) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/scnMCal.PPC) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/RFS3570.SEA) def
+
+
+% backcheck some compression variations
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/0019.cin.sit) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon.zip) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon133.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon152.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon152.sea) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.PPC.sit) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.zip) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/trace.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal133.cpt) def
+
+%ADC image  -- usually human readable fragments visible
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/Adelwise.img) def
+
+
+
+
+/verbose false def
+/verbose1 true def
+/verbose2 true def
+
+/writeLog false def
+
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 ge { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+
+	/hasRSRC true def
+
+(->) =
+pstack	
+	}{
+( no file resource.) =
+		/hasRSRC false def
+	}ifelse
+
+%<< /PageSize [ 612 792] >> setpagedevice % default  -- should restore for normal use
+
+
+
+	% could it be that simple? 
+	/tf BlockFileName (r) file  def
+%	/tf BlockFileName (r) file /RunLengthDecode filter def
+%	/tf BlockFileName (r) file /LZWDecode filter def
+	
+	%/xAddr tf fileposition def
+	
+	tf cinOffsets 6 get setfileposition
+	
+	/xAddr  0 def
+	
+	
+	% read 1K header block
+	
+	tf 2048 string readstring /EOF exch def /Header$ exch def
+	
+verbose {
+	Header  xAddr dumpHex
+}if
+
+
+() =
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Magic number:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Magic exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Magic pLong print Magic 16#802A5FD7 eq {
+		(\tCineon 'draft' image file.) =
+	}{
+		(not a Cineon file.) =
+		pstack stop
+	}ifelse
+} if
+
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Offset:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Offset exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Offset pLong print (\tOffset to image data in bytes: ) print Offset ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Generic:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Generic exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Generic pLong print (\tGeneric \(fixed format\) section header length in bytes: ) print Generic ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Industry:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Industry exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Industry pLong print (\tIndustry Specific \(fixed format\) section header length: ) print Industry ==
+} if
+
+
+verbose1 {
+xAddr  pDec print (: ) print
+(VarLen:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /VarLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	VarLen pLong print (\tLength in bytes of variable length section: ) print VarLen ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Total: \t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Total exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Total pLong print (\tTotal image file size in bytes:) print Total ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Version: \t") print				
+} if
+	Header$ xAddr 8 getinterval  /Version$ exch def
+	/xAddr xAddr 8 add def
+	[
+	Version$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /Version$ exch def
+verbose1 {
+	Version$ print ("\t\tVersion number of header format.) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(ImageName: \t) print				
+} if
+	Header$ xAddr 100 getinterval  /ImageName$ exch def
+	/xAddr xAddr 100 add def
+	[
+	ImageName$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /ImageName$ exch def
+verbose1 {
+	(") print ImageName$ print ("\tImage filename) =
+} if
+ 
+verbose1 {
+xAddr  pDec print (: ) print
+(CreationDate: \t") print				
+} if
+	Header$ xAddr 12 getinterval  /CreationDate$ exch def
+	/xAddr xAddr 12 add def
+	[
+	CreationDate$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /CreationDate$ exch def
+verbose1 {
+	CreationDate$ print ("\tCreation date - eg. “yyyy:mm:dd”) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(CreationTime: \t") print				
+} if
+	Header$ xAddr 12 getinterval  /CreationTime$ exch def
+	/xAddr xAddr 12 add def
+	[
+	CreationTime$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /CreationTime$ exch def
+verbose1 {
+	CreationTime$ print ("\tCreation time - eg. “hh:mm:ssxxx” \(xxx - time zone, eg. EST\)) =
+} if
+ 
+verbose1 {
+xAddr  pDec print (: ) print
+(RFU:\t) print				
+} if
+	Header$ xAddr 36 getinterval  /RFU1$ exch def
+	/xAddr xAddr 36 add def
+verbose1 {
+	(\tReserved for future use.) =
+verbose {
+	RFU1$ xAddr 36 sub dumpHex
+}if
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(orientation: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /orientation exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	(Line scan direction Page scan direction) =
+	[ 
+		(\t\t\t0 = left to righttop to bottom)
+		(\t\t\t1 = left to rightbottom to top)
+		(\t\t\t2 = right to lefttop to bottom)
+		(\t\t\t3 = right to leftbottom to top)
+		(\t\t\t4 = top to bottomleft to right)
+		(\t\t\t5 = top to bottomright to left)
+		(\t\t\t6 = bottom to topleft to right)
+		(\t\t\t7 = bottom to topright to left)
+	] orientation get = 
+	
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(channels: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /channels exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	channels ==
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(UNUSED1: \t16#) print				
+} if
+	[ 16#86 Header$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /UNUSED1 exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	UNUSED1 pWord print (\tUNUSED \(2 byte space for word allignment\)) =
+}if
+
+
+% there are up to 8 channels each channel is 28 bytes
+
+/ChannelDict 10 dict def
+
+1 1 8 {
+
+	10 dict begin
+
+	/thisChannel exch def
+(\nChannel ) print thisChannel =string cvs =
+	
+
+	ChannelDict thisChannel currentdict put
+	
+
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Channel1B0: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /Channel1B0 exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	Channel1B0 pDec3 print (\tChannel ) print thisChannel =string cvs print ( designator - Byte 0 \(See Table 1\)) =
+		(\t\t\t) print 
+		Channel1B0 pDec3 print 
+		Channel1B0 0 eq {
+			( - Universal metric) =
+		}{
+			(vendor specific) =
+			<<
+				0 ( - Kodak)
+			>>  Channel1B0 2 copy known {
+				get =
+			}{
+				pop pop
+				( Vendor defined) =		
+			}ifelse
+		}ifelse
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Channel1B1: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /Channel1B1 exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	Channel1B1 pDec3 print (\tChannel ) print thisChannel =string cvs print ( designator - Byte 1 \(See Table 1\)) =
+		(\t\t\t) print
+		Channel1B1 pDec3 print
+		Channel1B0 0 eq {
+			%(  0 - Universal metric) print
+			
+			<<
+				0 ( - B&W)
+				1 ( - red \(r,g,b printing density\))
+				2 ( - green \(r,g,b printing density\))
+				3 ( - blue \(r,g,b printing density\))
+				4 ( - red \(r,g,b CCIR XA/11\))
+				5 ( - green \(r,g,b CCIR XA/11\)) 
+				6 ( - blue \(r,g,b CCIR XA/11\)) 
+     
+			>>  Channel1B1 2 copy known {
+				get =
+			}{
+				pop pop
+				%
+				 ( - TBD - reserved) =	
+			}ifelse
+		}{	
+				( - Vendor defined) =		
+		}ifelse
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(bpp: \t\t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /bpp exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	bpp pDec3 print (\tBits per pixel - channel ) print thisChannel =string cvs  =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(UNUSED2: \t16#) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /UNUSED2 exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	UNUSED2 pHex print (\tUNUSED \(1 byte space for word allignment\)) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(PixPl: \t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /PixPl exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	PixPl pLong print (\tPixels per line - channel ) print thisChannel =string cvs print (: ) print PixPl ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(LPI: \t\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /LPI exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	LPI pLong print (\tLines per image - channel ) print thisChannel =string cvs print (: ) print LPI ==
+} if
+
+% the following four are floating point
+verbose1 {
+xAddr  pDec print (: ) print
+(MinDataVal: \t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse  /MinDataVal exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	MinDataVal =string cvs print (\tMinimum data value - channel ) print thisChannel =string cvs print (: ) print MinDataVal ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(MinQuantity:\t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse /MinQuantity exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	MinQuantity =string cvs print (\tMinimum quantity represented - channel ) print thisChannel =string cvs print (: ) print MinQuantity ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(MaxDataVal: \t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse /MaxDataVal exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	MaxDataVal =string cvs print (\tMaximum data value - channel ) print thisChannel =string cvs print (: ) print MaxDataVal ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(MaxQuantity:\t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse /MaxQuantity exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	MaxQuantity =string cvs print (\tMaximum quantity represented - channel ) print thisChannel =string cvs print (: ) print MaxQuantity ==
+} if
+
+	xAddr
+	end
+	/xAddr exch def
+
+} for
+
+() =
+
+verbose1 {
+xAddr  pDec print (: ) print
+(WhitePoint: \t<) print				
+} if
+	Header$ xAddr 8 getinterval   /WhitePoint$ exch def
+	/xAddr xAddr 8 add def
+	[
+	[ 16#8A WhitePoint$ 0 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse
+	[ 16#8A WhitePoint$ 4 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse 
+	] /WhitePointMtx exch def
+	
+verbose1 {
+	WhitePoint$ $ print (> White point \(color temperature\) - x,y pair: ) print WhitePointMtx ==
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(RedPrimary: \t<) print				
+} if
+	Header$ xAddr 8 getinterval   /RedPrimary$ exch def
+	/xAddr xAddr 8 add def
+	[
+	[ 16#8A RedPrimary$ 0 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse
+	[ 16#8A RedPrimary$ 4 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse 
+	] /RedPrimaryMtx exch def
+verbose1 {
+	RedPrimary$ $ print (> Red primary chromaticity - x,y pair: ) print RedPrimaryMtx ==
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(GreenPrimary: \t<) print				
+} if
+	Header$ xAddr 8 getinterval   /GreenPrimary$ exch def
+	/xAddr xAddr 8 add def
+	[
+	[ 16#8A GreenPrimary$ 0 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse
+	[ 16#8A GreenPrimary$ 4 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse 
+	] /GreenPrimaryMtx exch def
+verbose1 {
+	GreenPrimary$ $ print (> Green primary chromaticity - x,y pair: ) print GreenPrimaryMtx ==
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(BluePrimary: \t<) print				
+} if
+	Header$ xAddr 8 getinterval  /BluePrimary$ exch def
+	/xAddr xAddr 8 add def
+	[
+	[ 16#8A BluePrimary$ 0 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse
+	[ 16#8A BluePrimary$ 4 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse 
+	] /BluePrimaryMtx exch def
+verbose1 {
+	BluePrimary$ $ print (> Blue primary chromaticity - x,y pair: ) print BluePrimaryMtx ==
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(LabelText: \t) print				
+} if
+	Header$ xAddr 200 getinterval  /LabelText$ exch def
+	/xAddr xAddr 200 add def
+	
+	%LabelTextLen 0 def
+	[
+	LabelText$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /LabelText0$ exch def
+verbose1 {
+	(") print LabelText0$ print (")  =
+}if
+
+
+verbose1 {
+xAddr  pDec print (: ) print
+(RFU2:\t) print				
+} if
+	Header$ xAddr 28 getinterval  /RFU2$ exch def
+	/xAddr xAddr 28 add def
+verbose1 {
+	(\tReserved for future use.) =
+verbose {
+	RFU2$ xAddr 28 sub dumpHex
+}if
+}if
+
+%Data interleave ( if all channels are not the same spatial resolution, data interleave must be 2,channel interleave )
+
+(\nImage Data Format Information :) =
+
+verbose1 {
+xAddr  pDec print (: ) print
+(DataInterleave:) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /DataInterleave exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	DataInterleave pDec3 print 
+	<<
+		0 ( = pixel interleave \(rgbrgbrgb...\)) 
+		1 ( = line interleave \(rrr.ggg.bbb.rrr.ggg.bbb.\))
+		2 ( = channel interleave \(rrr..ggg..bbb..\))
+	>> DataInterleave 2 copy known {
+		get =
+	}{
+		pop pop
+		( = user defined.) =
+	}ifelse
+
+}if
+
+
+%Packing (See note 1)
+verbose1 {
+xAddr  pDec print (: ) print
+(Packing: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /Packing exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	Packing pDec3 print 
+	<<
+ 
+		0 ( = use all bits \(bitfields\) - TIGHTEST - no byte, word or longword boundaries)
+		1 ( = byte \(8 bit\) boundaries - left justified)
+		2 ( = byte \(8 bit\) boundaries - right justified)
+		3 ( = word \(16 bit\) boundaries - left justified)
+		4 ( = word \(16 bit\) boundaries - right justified)
+		5 ( = longword \(32 bit\) boundaries - left justified)
+		6 ( = longword \(32 bit\) boundaries - right justified) 
+	>> Packing 2 copy known {
+		get =
+	}{
+		pop pop
+		(\tHigh order bit = 0 - pack at most one pixel per cell \n\t\t\t\tHigh order bit = 1 - pack as many fields as possible \n\t\t\t\t\tper cell) =
+	}ifelse
+
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(SignedData: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /SignedData exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	SignedData pDec3 print 
+	%Data signed or unsigned
+	SignedData 0 eq {
+		( = unsigned) =
+	}{
+		( = signed) =
+	}ifelse
+}if		 
+
+verbose1 {
+xAddr  pDec print (: ) print
+(ImageSense: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /ImageSense exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	ImageSense pDec3 print 
+	
+	ImageSense 0 eq {
+		( = positive image) =
+	}{
+		( = negative image) =
+	}ifelse
+}if		 
+
+verbose1 {
+xAddr  pDec print (: ) print
+(EOLPad:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /EOLPad exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	EOLPad pLong print ( End of line padding - number of bytes.) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(EOC:\t\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /EOC exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	EOC pLong print ( End of channel padding - number of bytes.) =
+	
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(RFU3:\t) print				
+} if
+	Header$ xAddr 20 getinterval   /RFU3$ exch def
+	/xAddr xAddr 20 add def
+verbose1 {
+	(\tReserved for future use.) =
+verbose {
+	RFU3$ xAddr 20 sub dumpHex
+}if
+}if
+ 
+(\n\nImage Origination Information :) =
+
+verbose1 {
+xAddr  pDec print (: ) print
+(XOffset:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec  /XOffset exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	XOffset pLong print ( correlate digital data to source media.) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(YOffset:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec  /YOffset exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	YOffset pLong print ( correlate digital data to source media.) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(ImageName2: \t) print				
+} if
+	Header$ xAddr 100 getinterval  /ImageName2$ exch def
+	/xAddr xAddr 100 add def
+	[
+	ImageName2$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /ImageName2$ exch def
+verbose1 {
+	ImageName2$ =
+} if
+ 
+verbose1 {
+xAddr  pDec print (: ) print
+(CreationDate2: ) print				
+} if
+	Header$ xAddr 12 getinterval  /CreationDate2$ exch def
+	/xAddr xAddr 12 add def
+	[
+	CreationDate2$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /CreationDate2$ exch def
+verbose1 {
+	CreationDate2$ print (\tCreation date - eg. “yyyy:mm:dd”) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(CreationTime2: ) print				
+} if
+	Header$ xAddr 12 getinterval  /CreationTime2$ exch def
+	/xAddr xAddr 12 add def
+	[
+	CreationTime2$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /CreationTime2$ exch def
+verbose1 {
+	CreationTime2$ print (\tCreation time - eg. “hh:mm:ssxxx” \(xxx - time zone, eg. EST\)) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(InputDevice: \t) print				
+} if
+	Header$ xAddr 64 getinterval  /InputDevice$ exch def
+	/xAddr xAddr 64 add def
+	[
+	InputDevice$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /InputDevice0$ exch def
+verbose1 {
+	(") print InputDevice0$ print (")  =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(ModelNumber: \t) print				
+} if
+	Header$ xAddr 32 getinterval  /ModelNumber$ exch def
+	/xAddr xAddr 32 add def
+	[
+	ModelNumber$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /ModelNumber0$ exch def
+verbose1 {
+	(") print ModelNumber0$ print (")  =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(SerialNumber: \t) print				
+} if
+	Header$ xAddr 32 getinterval  /SerialNumber$ exch def
+	/xAddr xAddr 32 add def
+	[
+	SerialNumber$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /SerialNumber0$ exch def
+verbose1 {
+	(") print SerialNumber0$ print (")  =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(XdevicePitch:\t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse /XdevicePitch exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	XdevicePitch =string cvs print ( X input device pitch \(samples/mm.\)) =
+	% ( X determined by image orientation ) 
+
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(YdevicePitch:\t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse /YdevicePitch exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	YdevicePitch =string cvs print ( Y input device pitch \(samples/mm.\)) =
+	% ( Y determined by image orientation ) 
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(CDGamma:\t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse /CDGamma exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	CDGamma =string cvs print ( Image gamma of capture device.) =
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(RFU4:\t) print				
+} if
+	Header$ xAddr 40 getinterval   /RFU4$ exch def
+	/xAddr xAddr 40 add def
+verbose1 {
+	(\tReserved for future use.) =
+verbose {
+	RFU4$ xAddr 40 sub dumpHex
+}if
+}if
+
+(\n\nSection 2 - Motion Picture Industry Specific (Fixed Format) :)=
+
+verbose1 {
+xAddr  pDec print (: ) print
+(MFGIDcode: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /MFGIDcode exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	MFGIDcode pDec3 print ( Film mfg. ID code - 2 digit code from KEYKODE) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(FilmType: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /FilmType exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	FilmType pDec3 print ( Film type - 2 digit code from KEYKODE) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(PerfOffset: \t) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /PerfOffset exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	PerfOffset pDec3 print ( Offset in perfs - 2 digit code from KEYKODE) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(UNUSED3: \t16#) print				
+} if
+	Header$ xAddr 1 getinterval  0 get /UNUSED3 exch def
+	/xAddr xAddr 1 add def
+verbose1 {
+	UNUSED3 pHex print ( 1 byte space for word allignment) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Prefix:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Prefix exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Prefix pLong print ( - 6 digit code from KEYKODE: ) print Prefix ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(FlCount:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /FlCount exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	FlCount pLong print ( Count - 4 digit code from KEYKODE: ) print FlCount ==
+} if
+
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Format: \t") print				
+} if
+	Header$ xAddr 32 getinterval  /Format$ exch def
+	/xAddr xAddr 32 add def
+	[
+	Format$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /Format$ exch def
+verbose1 {
+	Format$ print (" Format - eg. “ACADEMY, ”VISTAVISION“, etc.) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(FramePosition:\t16#) print				
+} if
+	[ 16#84 Header$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /FramePosition exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	FramePosition pLong print ( Frame position in sequence ) print FramePosition ==
+} if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(FrameRate:\t) print				
+} if
+	[ 16#8A Header$ xAddr 4 getinterval {} forall ] makestring dup <8A7F800000> eq {pop 0.0}{cvx exec}ifelse  /FrameRate exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	FrameRate =string cvs print ( Frame rate of original \(frames per second\)) = % print FrameRate ==
+} if
+
+
+verbose1 {
+xAddr  pDec print (: ) print
+(FrAttribute: \t") print				
+} if
+	Header$ xAddr 32 getinterval  /FrAttribute$ exch def
+	/xAddr xAddr 32 add def
+	[
+	FrAttribute$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /FrAttribute$ exch def
+verbose1 {
+	FrAttribute$ print (" Frame attribute - eg. “KEYFRAME”) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Slate: \t") print				
+} if
+	Header$ xAddr 200 getinterval  /Slate$ exch def
+	/xAddr xAddr 200 add def
+	[
+	Slate$ {
+		dup 255 eq {pop exit}if
+		dup 0 eq { pop exit} if
+	
+	} forall
+	] makestring /Slate$ exch def
+verbose1 {
+	Slate$ print (" Slate information) =
+}if
+
+verbose1 {
+xAddr  pDec print (: ) print
+(RFU5:\t) print				
+} if
+	Header$ xAddr 740 getinterval   /RFU5 exch def
+	/xAddr xAddr 740 add def
+verbose1 {
+	(\tReserved for future use.) =
+verbose {
+	RFU5 xAddr 740 sub dumpHex 
+}if
+}if
+
+
+
+(\n\nSection 3 - User Defined (Variable Length) :) =
+
+/Section3 tf fileposition def
+
+verbose1 {
+xAddr  pDec print (: ) print
+(VarLen: ) print VarLen ==			
+} if
+
+%24960
+	tf VarLen string readstring /EOF exch def /VarLen$ exch def
+
+verbose {
+	VarLen$ VarLen dumpHex
+}if
+
+	
+	%*** Note : For our application, this section is currently defined to contain the postage stamp image -
+	% *** eg. 96x64x3 channels (18 KBytes for 8 bit mode) oriented correctly for display..
+
+
+%pstack stop
+
+
+%	tf 16#015EBEC4 setfileposition
+	tf Section3 setfileposition
+	
+	% dump the bits as an image to see if there are any patterns
+
+	/DeviceRGB setcolorspace
+	%/DeviceRGB setcolorspace
+%	currentpagedevice /PageSize get cvx exec 
+%	cvi /tileStripH exch def
+%	cvi pop 512 /tileStripW exch def
+	
+	
+	/tileStripW 96 def
+	/tileStripH 65 def
+	 {
+		36 360 translate
+		tileStripW 4 mul tileStripH 4 mul scale
+	
+		/blkString tileStripW tileStripH mul string def
+
+	
+		/n 0 def
+		<< % >
+			/ImageType 1
+			/Width tileStripW /Height tileStripH
+			/BitsPerComponent 8
+			/Decode [0 1 0 1 0 1]
+			/ImageMatrix [tileStripW 0 0 tileStripH neg 0 tileStripH]
+			/DataSource  {tf 4 string readstring pop 1 3 getinterval } %n get /n n 1 add def}
+			/MultipleDataSource false
+		>> image
+	
+		%tileStripW tileStripH  8
+		%[tileStripW 0 0 tileStripH neg 0 0 tileStripH]
+		%{tf blkString readstring pop }
+		%image
+	
+		tf fileposition /cfp exch def
+		
+		cfp pLong print (: ) print cfp ==
+	
+		showpage
+		
+%pstack stop
+		cfp fStatsData 1 get ge {exit} if
+		
+		
+		exit
+		
+		
+	} loop
+
+
+(\n\nSection 4 - Digital Image Data) =
+	
+	tf Offset setfileposition
+	
+	/dataBytes Total Offset sub def
+	
+	tf dataBytes string readstring /EOF exch def /rawData$ exch def
+	
+verbose {
+	rawData$ 2048 dumpHex
+}if
+	
+		% postscript can do 1 2 4 8 or 12  so 10 requires some meddling
+		
+		% 01234567|89012345|67890123|45678901||23456789|	
+	
+		tf fileposition /cfp exch def
+		
+		cfp pLong print (: ) print cfp ==
+	
+
+	tf closefile
+
+

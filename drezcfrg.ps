@@ -1,0 +1,5578 @@
+%!PS
+
+% mac m68k dissasembler and resource dunper
+
+%/TFN (/Users/arethusa/Documents/pipeO/KODAK RFS 3570 Scanner Pro v3.6) def
+%/TFN (/Users/arethusa/Documents/pipeO/PCD4050 Plug-in) def
+
+%/TFN (/Users/arethusa/Documents/Watchmaking/Docs/AutoQuartz_documents/QuarkImmedia Viewer 1.5/QuarkImmedia™ Viewer 1.5) def
+
+/TFN (/Users/arethusa/Documents/PCDDocs&Tools/Kodak Build-It/MAC/ARRANGIT/ARRANGIT.SEA;1) def
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/Kodak ICC Photo CD.sea) def
+
+
+/DumpHex true def
+
+/RenderPict true def
+
+/Verbose false def
+
+/writeLog false def
+
+/DBGPatData false def
+/DBGLoader false def
+
+/DBGMemPtr true def
+/ListByClass true def
+
+/DBGTraceBack false def
+
+/DBGInstDec true def
+/DBGInstEdge true def
+
+/UseLitterals true def
+
+/thisdict (root block) def
+
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 gt { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+} bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+		
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#7F ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 255 {32} repeat ] makestring 
+/blnkbfr [ 255 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/pos exch def
+	/curpos lp def %linbfr sub def
+	{
+		curpos pos lt {
+			%linbfr curpos 32 put
+			/curpos curpos 1 add def
+			/lp lp 1 add def
+		}{
+			exit
+		}ifelse
+	} loop  
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+% support for disassebler
+
+
+
+
+/CODE 1 def
+/INSTCODE 2 def
+/DATAB 4 def
+/DATAW 8 def
+/DATAL 16 def
+/DATASTR 16#20 def
+/LBL 16#40 def
+/empty 16#80 def
+/EALBL 16#100 def
+
+
+%/flag [32768 {empty} repeat] def
+/mem [32768 {<< /flag empty >>} repeat] def
+
+/jumpTableEdges 10 dict def
+
+% this is a table of symbol entry points
+% these symbols can and should be editied manually, as this is an interactive
+% disassembler, where each time it is run this table can be edited to include more
+% descriptive hints
+
+/SymbolTable << % >
+
+	% default entry point
+	/main << % >
+		/offset 0		% this is the memory start location
+		/flags CODE
+	>>
+
+>> def
+
+% pre load memory with symbol data
+SymbolTable {
+	begin 
+
+	mem offset get begin
+		72 string cvs /SymbolName exch def
+		/flag flag LBL or def
+	end
+
+	end
+} forall
+
+% this is a dict so we can increment the counter
+/DYNSymbolName << %>
+
+	/NextSymbol 1	% label symbols counter, will be in the form L00001:
+	%use pLbl to convert this number to a string
+
+>> def
+
+% call graph  this the dicts in trace order dynamically created by the parser
+
+/CallGraph [] def
+
+
+/XMEM 10 dict def
+
+
+% formatting 'tab' positions for code display
+% constant is used for debug address info
+/addr_pos 0 def 
+/code_pos 8 12 add def
+/label_pos 20 13 add def
+/op_pos 37 13 add def
+/ear_pos 44 13 add def
+/annotate_pos 62 13 add def
+
+/trace_addr [8 {0} repeat] def
+/trace_data [8 {0} repeat] def
+
+% these are the label names for the address offset constants
+/abstracts [ /A0 /A1 /A2 /A3 /A4 /A5 /A6 /A7] def
+
+% overwrite these with global register names
+abstracts 5 /PHOTOSHOP put
+abstracts 6 /FP put	% frame pointer
+abstracts 7 /SP put
+
+
+/adr_regs[ (A0) (A1) (A2) (A3) (A4) (A5) (A6) (A7)] def
+
+/data_regs[ (D0) (D1) (D2) (D3) (D4) (D5) (D6) (D7)]def
+
+/sizes[ (.B) (.W) (.L) (.?)] def
+
+
+/OP_DEF [ 
+
+%	<< /op (storage)    /op_code 16#80000 /mask 16#80000 /d_funct /stored >>
+
+
+	<< /op (ABCD)		/op_code 16#c100 /mask 16#f1f0 /d_funct /type_14 >>
+	<< /op (ADDA)		/op_code 16#d0c0 /mask 16#f0c0 /d_funct /type_3  >>% add, adda	*/
+	<< /op (ADDX)		/op_code 16#d100 /mask 16#f130 /d_funct /type_14 >>
+	<< /op (ADD)		/op_code 16#d000 /mask 16#f000 /d_funct /type_3  >>% add, adda	*/
+	<< /op (CMPM)		/op_code 16#b108 /mask 16#f138 /d_funct /type_3 >> % type_19 fails
+	<< /op (EOR)		/op_code 16#b100 /mask 16#f100 /d_funct /type_3  >>
+	<< /op (CMP)		/op_code 16#b000 /mask 16#f100 /d_funct /type_3  >>% cmp,cmpa	*/
+
+
+	<< /op (RESET)		/op_code 16#4e70 /mask 16#ffff /d_funct /type_10 >>
+	<< /op (NOP) 		/op_code 16#4e71 /mask 16#ffff /d_funct /type_10 >>
+	<< /op (STOP)		/op_code 16#4e72 /mask 16#ffff /d_funct /type_25 >>
+	<< /op (RTE)		/op_code 16#4e73 /mask 16#ffff /d_funct /type_10 >>
+	<< /op (RTD)		/op_code 16#4e74 /mask 16#ffff /d_funct /type_10 >>% 68010+ return displacement
+	<< /op (RTS)		/op_code 16#4e75 /mask 16#ffff /d_funct /type_10 >>
+	<< /op (TRAPV)		/op_code 16#4e76 /mask 16#ffff /d_funct /type_10 >>
+	<< /op (RTR)		/op_code 16#4e77 /mask 16#ffff /d_funct /type_10 >>
+
+	<< /op (MOVEC)		/op_code 16#4e7b /mask 16#ffff /d_funct /type_68020 >>
+
+
+	<< /op (ILLEGAL)	/op_code 16#4afc /mask 16#ffff /d_funct /type_10 >>
+
+	<< /op (SWAP)		/op_code 16#4840 /mask 16#fff8 /d_funct /type_5 >>
+	<< /op (UNLK)		/op_code 16#4e58 /mask 16#fff8 /d_funct /type_9 >>
+	<< /op (LINK)		/op_code 16#4e50 /mask 16#fff8 /d_funct /type_1 >>
+
+	<< /op (TRAP) 		/op_code 16#4e40 /mask 16#fff0 /d_funct /type_24 >>
+	<< /op (%6lx MOVE %s,USP)		/op_code 16#4e60 /mask 16#fff8 /d_funct /type_28 >>%	move USP	*/
+	<< /op (%6lx MOVE USP,%s)		/op_code 16#4e68 /mask 16#fff8 /d_funct /type_28 >>%	move USP	*/
+
+	<< /op (TAS)		/op_code 16#4ac0 /mask 16#ffc0 /d_funct /type_5 >>
+	<< /op (JMP)		/op_code 16#4ec0 /mask 16#ffc0 /d_funct /type_5 >>
+	<< /op (JSR)		/op_code 16#4e80 /mask 16#ffc0 /d_funct /type_5 >>
+%	<< /op (%6lx MOVE CCR,%s)		/op_code 16#42c0 /mask 16#ffc0 /d_funct /type_26 >>%	move from ccr	*/
+%	<< /op (%6lx MOVE %s,CCR)		/op_code 16#44c0 /mask 16#ffc0 /d_funct /type_26 >>%	move to ccr	*/
+%	<< /op (%6lx MOVE SR,%s)		/op_code 16#40c0 /mask 16#ffc0 /d_funct /type_26 >>%	move from SR	*/
+%	<< /op (%6lx MOVE %s,SR)		/op_code 16#46c0 /mask 16#ffc0 /d_funct /type_26 >>%	move to SR	*/
+	<< /op (MOVE)		/op_code 16#42c0 /mask 16#ffc0 /d_funct /type_26 >>%	move from ccr	*/
+	<< /op (MOVE)		/op_code 16#44c0 /mask 16#ffc0 /d_funct /type_26 >>%	move to ccr	*/
+	<< /op (MOVE)		/op_code 16#40c0 /mask 16#ffc0 /d_funct /type_26 >>%	move from SR	*/
+	<< /op (MOVE)		/op_code 16#46c0 /mask 16#ffc0 /d_funct /type_26 >>%	move to SR	*/
+	<< /op (NBCD)		/op_code 16#4800 /mask 16#ffc0 /d_funct /type_15 >>
+	<< /op (PEA)		/op_code 16#4840 /mask 16#ffc0 /d_funct /type_5 >>
+
+	<< /op (EXT)		/op_code 16#4800 /mask 16#fe30 /d_funct /type_12 >>
+
+	<< /op (MOVEM)		/op_code 16#4880 /mask 16#fb80 /d_funct /type_23 >>
+
+	<< /op (CHK)		/op_code 16#4180 /mask 16#f1c0 /d_funct /type_16 >>
+	<< /op (LEA) 		/op_code 16#41c0 /mask 16#f1c0 /d_funct /type_2  >>
+
+
+
+	<< /op (TST)		/op_code 16#4a00 /mask 16#ff00 /d_funct /type_7  >>
+	<< /op (CLR)		/op_code 16#4200 /mask 16#ff00 /d_funct /type_15 >>
+	<< /op (NEG)		/op_code 16#4400 /mask 16#ff00 /d_funct /type_15 >>
+	<< /op (NEGX)		/op_code 16#4000 /mask 16#ff00 /d_funct /type_15 >>
+	<< /op (NOT)		/op_code 16#4600 /mask 16#ff00 /d_funct /type_15 >>
+
+
+	<< /op (DBCC)		/op_code 16#54c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBCS)		/op_code 16#55c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBEQ)		/op_code 16#57c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBF)		/op_code 16#51c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBGE)		/op_code 16#5cc8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBGT)		/op_code 16#5ec8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBHI)		/op_code 16#52c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBLE)		/op_code 16#5fc8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBLS)		/op_code 16#53c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBLT)		/op_code 16#5dc8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBMI)		/op_code 16#5bc8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBNE)		/op_code 16#56c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBPL)		/op_code 16#5ac8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBT)		/op_code 16#50c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBVC)		/op_code 16#58c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (DBVS)		/op_code 16#59c8 /mask 16#fff8 /d_funct /type_17 >>
+	<< /op (SCC)		/op_code 16#54c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SCS)		/op_code 16#55c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SEQ)		/op_code 16#57c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SF)			/op_code 16#51c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SGE)		/op_code 16#5cc0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SGT)		/op_code 16#5ec0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SHI)		/op_code 16#52c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SLE)		/op_code 16#5fc0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SLS)		/op_code 16#53c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SLT)		/op_code 16#5dc0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SMI)		/op_code 16#5bc0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SNE)		/op_code 16#56c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SPL)		/op_code 16#5ac0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (ST)			/op_code 16#50c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SVC)		/op_code 16#58c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (SVS)		/op_code 16#59c0 /mask 16#ffc0 /d_funct /type_5  >>
+	<< /op (ADDQ)		/op_code 16#5000 /mask 16#f100 /d_funct /type_6  >>
+	<< /op (MULS)		/op_code 16#c1c0 /mask 16#f1c0 /d_funct /type_16 >>
+	<< /op (MULU)		/op_code 16#c0c0 /mask 16#f1c0 /d_funct /type_16 >>
+	<< /op (EXG)		/op_code 16#c100 /mask 16#f130 /d_funct /type_18 >>
+	<< /op (AND)		/op_code 16#c000 /mask 16#f000 /d_funct /type_3  >>
+	<< /op (BCC)		/op_code 16#6400 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BCS)		/op_code 16#6500 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BEQ)		/op_code 16#6700 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BGE)		/op_code 16#6c00 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BGT)		/op_code 16#6e00 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BHI)		/op_code 16#6200 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BLE)		/op_code 16#6f00 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BLS)		/op_code 16#6300 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BLT)		/op_code 16#6d00 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BMI)		/op_code 16#6b00 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BNE)		/op_code 16#6600 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BPL)		/op_code 16#6a00 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BVC)		/op_code 16#6800 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BVS)		/op_code 16#6900 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BRA)		/op_code 16#6000 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (BSR)		/op_code 16#6100 /mask 16#ff00 /d_funct /type_8  >>
+	<< /op (DIVS)		/op_code 16#81c0 /mask 16#f1c0 /d_funct /type_16 >>
+	<< /op (DIVU)		/op_code 16#80c0 /mask 16#f1c0 /d_funct /type_16 >>
+
+	<< /op (ROL)		/op_code 16#e7c0 /mask 16#ffc0 /d_funct /type_11 >>
+	<< /op (ROXL)		/op_code 16#e5c0 /mask 16#ffc0 /d_funct /type_11 >>
+	<< /op (LSL)		/op_code 16#e3c0 /mask 16#ffc0 /d_funct /type_11 >>
+	<< /op (ASL)		/op_code 16#e100 /mask 16#f118 /d_funct /type_11 >>
+	<< /op (ASL)		/op_code 16#e1c0 /mask 16#f1c0 /d_funct /type_11 >>
+
+	<< /op (ROR)		/op_code 16#e6c0 /mask 16#ffc0 /d_funct /type_11 >>
+	<< /op (ROXR)		/op_code 16#e4c0 /mask 16#ffc0 /d_funct /type_11 >>
+	<< /op (LSR)		/op_code 16#e2c0 /mask 16#ffc0 /d_funct /type_11 >>
+	<< /op (ASR)		/op_code 16#e000 /mask 16#f118 /d_funct /type_11 >>
+	<< /op (ASR)		/op_code 16#e0c0 /mask 16#f1c0 /d_funct /type_11 >>
+
+	<< /op (LSR)		/op_code 16#e008 /mask 16#f118 /d_funct /type_11 >>
+
+	<< /op (LSL)		/op_code 16#e108 /mask 16#f118 /d_funct /type_11 >>
+
+	<< /op (ROL)		/op_code 16#e118 /mask 16#f118 /d_funct /type_11 >>
+	<< /op (ROR)		/op_code 16#e018 /mask 16#f118 /d_funct /type_11 >>
+	<< /op (ROXL)		/op_code 16#e110 /mask 16#f118 /d_funct /type_11 >>
+	<< /op (ROXR)		/op_code 16#e010 /mask 16#f118 /d_funct /type_11 >>
+%	<< /op (MOVE.B) 	/op_code 16#1000 /mask 16#f000 /d_funct /type_4  >>
+%	<< /op (MOVE.W) 	/op_code 16#3000 /mask 16#f000 /d_funct /type_4  >>
+%	<< /op (MOVE.L) 	/op_code 16#2000 /mask 16#f000 /d_funct /type_4  >>
+	<< /op (MOVE) 		/op_code 16#1000 /mask 16#f000 /d_funct /type_4  >>
+	<< /op (MOVE) 		/op_code 16#3000 /mask 16#f000 /d_funct /type_4  >>
+	<< /op (MOVE) 		/op_code 16#2000 /mask 16#f000 /d_funct /type_4  >>
+%	<< /op (MOVEQ) 		/op_code 16#7000 /mask 16#f100 /d_funct /type_22 >>
+	<< /op (MOVEQ)		/op_code 16#7000 /mask 16#f100 /d_funct /type_22 >>
+	<< /op (SBCD)		/op_code 16#8100 /mask 16#f1f0 /d_funct /type_14 >>
+	<< /op (OR)			/op_code 16#8000 /mask 16#f000 /d_funct /type_3 >>
+	<< /op (%6lx   ORI   #$%x,CCR)		/op_code 16#003c /mask 16#ffff /d_funct /type_27 >>%	ORI #<data>,CCR	*/
+	<< /op (%6lx   ORI   #$%x,SR)		/op_code 16#007c /mask 16#ffff /d_funct /type_27 >>%	ORI #data,SR		*/
+	<< /op (%6lx   EORI   #$%x,CCR)		/op_code 16#0a3c /mask 16#ffff /d_funct /type_27 >>
+	<< /op (%6lx   EORI   #$%x,SR)		/op_code 16#0a7c /mask 16#ffff /d_funct /type_27 >>
+	<< /op (%6lx   ANDI   #$%x,CCR)		/op_code 16#023c /mask 16#ffff /d_funct /type_27 >>%	ANDI #<data>,CCR	*/
+	<< /op (%6lx   ANDI   #$%x,SR)		/op_code 16#027c /mask 16#ffff /d_funct /type_27 >>%	ANDI #data,SR		*/
+%	<< /op (%6lx   MOVEP.W  %x(%s),%s)		/op_code 16#0108 /mask 16#f1f8 /d_funct /type_29 >>
+%	<< /op (%6lx   MOVEP.W   %s,%x(%s))		/op_code 16#0188 /mask 16#f1f8 /d_funct /type_29 >>
+%	<< /op (%6lx   MOVEP.L  %x(%s),%s)		/op_code 16#0148 /mask 16#f1f8 /d_funct /type_29 >>
+%	<< /op (%6lx   MOVEP.L   %s,%x(%s))		/op_code 16#01c8 /mask 16#f1f8 /d_funct /type_29 >>
+	<< /op (MOVEP.W)	/op_code 16#0108 /mask 16#f1f8 /d_funct /type_29 >>
+	<< /op (MOVEP.W)	/op_code 16#0188 /mask 16#f1f8 /d_funct /type_29 >>
+	<< /op (MOVEP.L)	/op_code 16#0148 /mask 16#f1f8 /d_funct /type_29 >>
+	<< /op (MOVEP.L)	/op_code 16#01c8 /mask 16#f1f8 /d_funct /type_29 >>
+	<< /op (BTST)		/op_code 16#0800 /mask 16#ffc0 /d_funct /type_20 >>
+	<< /op (BSET)		/op_code 16#08c0 /mask 16#ffc0 /d_funct /type_20 >>
+	<< /op (BCHG)		/op_code 16#0840 /mask 16#ffc0 /d_funct /type_20 >>
+	<< /op (BCHG)		/op_code 16#0140 /mask 16#f1c0 /d_funct /type_21 >>
+	<< /op (BCLR)		/op_code 16#0880 /mask 16#ffc0 /d_funct /type_20 >>
+	<< /op (SUBI)		/op_code 16#0400 /mask 16#ff00 /d_funct /type_13 >>
+	<< /op (EORI)		/op_code 16#0a00 /mask 16#ff00 /d_funct /type_13 >>%	eori	*/
+	<< /op (CMPI)		/op_code 16#0c00 /mask 16#ff00 /d_funct /type_13 >>
+	<< /op (ANDI)		/op_code 16#0200 /mask 16#ff00 /d_funct /type_13 >>
+	<< /op (ADDI)		/op_code 16#0600 /mask 16#ff00 /d_funct /type_13 >>
+	<< /op (ORI)		/op_code 16#0000 /mask 16#ff00 /d_funct /type_13 >>%	ORI	*/
+
+	<< /op (BTST)		/op_code 16#0100 /mask 16#f1c0 /d_funct /type_21 >>
+	<< /op (BSET)		/op_code 16#01c0 /mask 16#f1c0 /d_funct /type_21 >>
+	<< /op (BCLR)		/op_code 16#0180 /mask 16#f1c0 /d_funct /type_21 >>
+
+	<< /op (SUBQ)		/op_code 16#5100 /mask 16#f100 /d_funct /type_6  >>
+	<< /op (SUBA)		/op_code 16#90c0 /mask 16#f0c0 /d_funct /type_3  >>%	add, adda	*/
+	<< /op (SUBX)		/op_code 16#9100 /mask 16#f130 /d_funct /type_14 >>
+	<< /op (SUB)		/op_code 16#9000 /mask 16#f000 /d_funct /type_3  >>
+	
+	% toolbox traps
+	<< /op (A-TRAP)     /op_code 16#A000 /mask 16#f000 /d_funct /type_30 >>
+	
+	
+	%NULL,0,0,not_known
+
+
+] def
+
+/TOOLBOX_TRAPS << % >
+
+
+	16#A000 <<
+		/SYMName 	()
+		/logParameters	{ wrtlin}
+	>>
+
+
+	16#A01F  << % >
+ 		/SYMName 	(_DisposPtr)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A029  << % >
+ 		/SYMName 	(_HLock)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A02A  << % >
+ 		/SYMName 	(_HUnlock)
+   		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A02E  << % >
+ 		/SYMName 	(_BlockMove)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A055  << % >
+ 		/SYMName 	(_StripAddress)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A064  << % >
+ 		/SYMName 	(_MoveHHi)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A090  << % >
+ 		/SYMName 	(_SysEnvirons)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+ 
+ 
+ 	16#A122  << % >
+ 		/SYMName 	(_NewHandle)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+ 
+ 	16#A198  << % >
+ 		/SYMName 	(_HWPriv)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+ 	
+ 	16#A346  << % >
+ 		/SYMName 	(_GetOSTrapAddress )
+   		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+ 	>>
+
+	16#A600 <<
+		/SYMName 	()
+		/logParameters	{ wrtlin}
+	>>
+
+
+ 	
+	16#A746 << % >
+ 		/SYMName 	(_GetToolTrapAddress)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+	>>
+
+	16#A869 << % >
+ 		/SYMName 	(_FixRatio)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+	>>
+
+	16#A89F << % >
+ 		/SYMName 	(_Moof)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+	>>
+
+	16#A976 << % >
+ 		/SYMName 	(_GetKeys)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+	>>
+
+	16#A9A0 << % >
+ 		/SYMName 	(_GetResource)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+	>>
+
+	16#A9C9 << % >
+ 		/SYMName 	(_SysError)
+  		/logParameters	{ ( ; ) writef	SYMName writef wrtlin }		
+	>>
+
+
+
+% http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/OSUtilities/OSUtilities-170.html
+
+	16#AAFE << % >
+ 		/SYMName 	(_MixedModeMagic)
+ 		/logParameters	{
+ 		
+ 		
+ 
+( ; ) writef SYMName writef wrtlin	
+%       kRoutineDescriptorVersion,                  /* version */                   \
+
+ 		currentdict
+ 		end
+ 		/tooltrapsDict exch def
+
+% 		struct RoutineDescriptor {
+%    UInt16                          goMixedModeTrap;            /* Our A-Trap */
+%    SInt8                           version;                    /* Current Routine Descriptor version */
+%    RDFlagsType                     routineDescriptorFlags;     /* Routine Descriptor Flags */
+%    UInt32                          reserved1;                  /* Unused, must be zero */
+%    UInt8                           reserved2;                  /* Unused, must be zero */
+%    UInt8                           selectorInfo;               /* If a dispatched routine, calling convention, else 0 */
+%    UInt16                          routineCount;               /* Number of routines in this RD */
+%    RoutineRecord                   routineRecords[1];          /* The individual routines */
+%};
+
+
+
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextICodeAddr pAddr writef <28> writef nextICodeAddr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 		nextICodeAddr readDataWord /nextICodeAddr exch def /kversionFlags  exch def
+  		% look ahead and set the label
+  		mem memPtr 2 div cvi get begin
+  		/flag flag CODE INSTCODE or not and def
+  		/flag flag LBL or def
+		/SymbolName (version) def
+		/oddLabel (routineDescriptorFlags) def
+ 		
+kversionFlags -8 bitshift pHex writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos kversionFlags -8 bitshift pDec3 writef wrtlin
+
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+kversionFlags 16#FF and pHex writef
+label_pos wrtpos
+oddLabel 0 12 getinterval writef (:) writef
+op_pos wrtpos kversionFlags 16#FF pDec3 writef wrtlin
+		end
+
+		/memPtr nextICodeAddr def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		memPtr readDataLong /nextICodeAddr exch def /reserved1  exch def
+  		mem memPtr 2 div cvi get begin
+  		/flag flag CODE INSTCODE or not and def
+  		/flag flag LBL or def
+		/SymbolName (reserved1) def
+		reserved1 pWord writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos reserved1 pDec3 writef wrtlin		
+		end
+
+		/memPtr nextICodeAddr def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		memPtr readDataWord /nextICodeAddr exch def /selector_info  exch def
+ 		mem memPtr 2 div cvi get begin
+  		/flag flag CODE INSTCODE or not and def
+  		/flag flag LBL or def
+		/SymbolName (selector) def
+		selector_info pWord writef
+		% could split out reserved2 byte like the version flags
+		
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos selector_info pDec3 writef wrtlin	
+		end	
+
+		/memPtr nextICodeAddr def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		memPtr readDataWord /nextICodeAddr exch def /routineCount  exch def
+ 		mem memPtr 2 div cvi get begin
+  		/flag flag CODE INSTCODE or not and def
+  		/flag flag LBL or def
+		/SymbolName (routineCount) def
+		routineCount pWord writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos routineCount pDec3 writef wrtlin	
+		end	
+
+
+%struct RoutineRecord {
+%    ProcInfoType                    procInfo;                   /* calling conventions */
+%    SInt8                           reserved1;                  /* Must be 0 */
+%    ISAType                         ISA;                        /* Instruction Set Architecture */
+%    RoutineFlagsType                routineFlags;               /* Flags for each routine */
+%    ProcPtr                         procDescriptor;             /* Where is the thing we're calling? */
+%    UInt32                          reserved2;                  /* Must be 0 */
+%    UInt32                          selector;                   /* For dispatched routines, the selector */
+%};
+
+%/* ISA Types */
+%typedef SInt8                           ISAType;
+%enum {
+%    kM68kISA                    = 0,
+%    kPowerPCISA                 = 1
+%};
+
+%/* RTA Types */
+%typedef SInt8                           RTAType;
+%enum {
+%    kOld68kRTA                  = 0 << 4,
+%    kPowerPCRTA                 = 0 << 4,
+%    kCFM68kRTA                  = 1 << 4
+%};
+
+
+		
+		/PEA_to nextICodeAddr def  % points to self if no 68K code
+		/ManagedBlock nextICodeAddr def  % points to self if no PPC or CFM code
+		
+		/RoutineRecords [
+        routineCount 1 add  {
+        	10 dict begin
+        	%                                       /* It’s a struct */             \
+            %   (procInfo),                         /* the ProcInfo */              \
+			/memPtr nextICodeAddr def
+wrtlin % could use a format color to make it stand out	
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 			memPtr readDataLong /nextICodeAddr exch def /procInfo  exch def
+			mem memPtr 2 div cvi get begin
+ 	 		/flag flag CODE INSTCODE or not and def
+			/flag flag LBL or def
+			/SymbolName (procInfo) def
+
+procInfo pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos (16#) writef procInfo pLong writef wrtlin	
+			end	
+ 
+			/memPtr nextICodeAddr def 
+             %   GetCurrentArchitecture(),           /* ISA and RTA */               \
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextICodeAddr pAddr writef <28> writef nextICodeAddr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 			nextICodeAddr readDataWord /nextICodeAddr exch def /ISA_RTA  exch def
+ 			mem memPtr 2 div cvi get begin
+ 	 		/flag flag CODE INSTCODE or not and def
+			/flag flag LBL or def
+			/SymbolName (reserved1) def
+			/oddLabel (ISAType) def
+		
+ISA_RTA -8 bitshift pHex writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos ISA_RTA -8 bitshift pDec3 writef wrtlin
+
+
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+ISA_RTA 16#FF and pHex writef
+label_pos wrtpos
+oddLabel writef (:) writef
+op_pos wrtpos %ISA_RTA -8 bitshift pDec3 writef wrtlin
+		end
+
+
+/bCFM68kRTA false def
+/kPowerPCRTA false def
+/bOld68kRTA false def
+
+ISA_RTA 16#01 and /ISA exch def
+ISA_RTA 16#04 and /RTA exch def
+
+( ; ISA: ) writef ISA 1 eq {
+	/fISA /kPowerPCISA def
+	(kPowerPCISA ) writef
+	( RTA: ) writef RTA 4 eq {
+		/bCFM68kRTA true def
+		/fRTA /kCFM68kRTA def
+		(kCFM68kRTA ) writef
+		/kCFM68kRTA true def
+	}{
+		/kPowerPCRTA true def
+		/fRTA /kPowerPCRTA def
+		(kPowerPCRTA ) writef
+
+	}ifelse
+}{
+	/fISA /kM68kISA def
+	(kM68kISA ) writef
+	( RTA: ) writef RTA 4 eq {
+		/bCFM68kRTA true def
+		/fRTA /kCFM68kRTA def
+		(kCFM68kRTA ) writef
+	}{
+		/bOld68kRTA true def
+		/fRTA /kOld68kRTA def
+		(kOld68kRTA ) writef
+	}ifelse
+
+}ifelse
+wrtlin
+
+
+%kProcDescriptorIsAbsolute |         /* Flags - it’s absolute addr */\
+%                kFragmentIsPrepared |               /* It’s prepared */             \
+%               kUseNativeISA,                      /* Always use native ISA */     \
+
+			/memPtr nextICodeAddr def
+
+
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 			memPtr readDataWord /nextICodeAddr exch def /routineFlags  exch def
+			mem memPtr 2 div cvi get begin
+	  		/flag flag CODE INSTCODE or not and def
+			/flag flag LBL or def
+			/SymbolName (routineFlags) def
+		
+routineFlags pWord writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos %routineFlags 12 string cvs writef wrtlin	
+			end	
+
+			routineFlags 16#01 and 1 eq {
+				(kProcDescriptorIsRelative) writef
+			}{
+				(kProcDescriptorIsAbsolute) writef
+			}ifelse
+			( | ) writef
+			routineFlags 16#02 and 2 eq {
+				(kFragmentNeedsPreparing) writef
+			}{
+				(kFragmentIsPrepared) writef
+			}ifelse
+			( | ) writef
+			routineFlags 16#04 and 4 eq {
+				(kUseNativeISA) writef
+			}{
+				(kUseCurrentISA) writef
+			}ifelse
+			( | ) writef wrtlin
+
+op_pos 2 add wrtpos
+
+			routineFlags 16#08 and 8 eq {
+				(kUseNativeISA) writef
+			}{
+				(kUseCurrentISA) writef
+			}ifelse
+			( | ) writef
+
+			routineFlags 16#10 and 16#10 eq {
+				(kRoutineIsDispatchedDefaultRoutine) writef
+			}{
+				(kRoutineIsNotDispatchedDefaultRoutine) writef
+			}ifelse
+			( | ) writef wrtlin
+op_pos 4 add wrtpos
+			
+			
+			routineFlags 16#20 and 16#20 eq {
+				(kProcDescriptorIsIndex) writef=
+			}{
+				(kProcDescriptorIsProcPtr) writef
+			}ifelse
+			wrtlin
+
+
+               
+%                 (ProcPtr)(procedure),               /* the procedure */             \
+ 
+			/prevICodeAddr nextICodeAddr def
+
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+prevICodeAddr pAddr writef <28> writef prevICodeAddr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+
+ 			prevICodeAddr readDataLong /nextICodeAddr exch def /procDescriptor  exch def
+			mem prevICodeAddr 2 div cvi get begin
+	  		/flag flag CODE INSTCODE or not and def
+			/flag flag LBL or def
+			/SymbolName (procDescriptor) def
+		
+procDescriptor pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos %routineFlags 12 string cvs writef wrtlin
+			end	
+			
+			bOld68kRTA {		
+				currentdict
+				procDescriptor
+				end
+				/PEA_to exch def
+				(16#) writef PEA_to pAddr writef 
+				% get or set a symbol table entry label for this code fragment
+				mem PEA_to 2 div cvi get begin
+	
+				flag LBL and 0 eq {
+					/flag flag LBL or def
+		
+					DYNSymbolName begin
+						NextSymbol 
+						/NextSymbol NextSymbol 1 add def
+					end 
+					pLbl /SymbolName exch def
+				
+					( ) writef SymbolName writef
+				
+		
+				}if
+				end
+				wrtlin
+
+				begin
+				
+				
+			}{
+				currentdict
+				procDescriptor
+				end
+				/ManagedBlock exch def
+				(16#) writef ManagedBlock pAddr writef wrtlin
+				begin
+				
+				/nextWord procDescriptor def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+				nextWord readDataLong  /nextLong exch def /tag1 exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (tag1) def
+
+tag1 pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos 
+ 				(') writef 
+ 				[ tag1 -24 bitshift 16#FF and tag1 -16 bitshift 16#FF and
+ 				   tag1 -8 bitshift 16#FF and tag1 16#FF and] makestring writef
+				(') writef wrtlin
+				end
+				
+				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def /tag2 exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (tag2) def
+tag2 pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos 
+				(') writef 
+  				[ tag2 -24 bitshift 16#FF and tag2 -16 bitshift 16#FF and
+ 				   tag2 -8 bitshift 16#FF and tag2 16#FF and] makestring writef
+ 				(') writef wrtlin
+ 				end
+ 
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+				nextWord readDataLong  /nextLong exch def /architecture exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (architecture) def
+architecture pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos %architecture pDec3 writef 
+				(') writef 
+   				[ architecture -24 bitshift 16#FF and architecture -16 bitshift 16#FF and
+ 				   architecture -8 bitshift 16#FF and architecture 16#FF and] makestring writef
+			    (') writef wrtlin 
+			    end
+
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def /formatVersion exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (formatVersion) def
+formatVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos formatVersion pDec3 writef wrtlin
+				end
+				
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /dateTimeStamp exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (dateTimeStamp) def
+dateTimeStamp pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos %dateTimeStamp pDec3 writef wrtlin
+				end
+ 				dateTimeStamp  2082844800 sub
+				unix2c idate 
+				<5B> writef
+				{
+					pDec5 writef
+				
+				} forall
+				<5D> writef wrtlin
+
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def /oldDefVersion exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (oldDefVersion) def
+oldDefVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos oldDefVersion pDec3 writef wrtlin
+				end
+
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def /oldImpVersion exch def
+ 				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (oldImpVersion) def
+oldImpVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos oldImpVersion pDec3 writef wrtlin
+				end
+
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def /currentVersion exch def
+ 				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (currentVersion) def
+currentVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos currentVersion pDec3 writef wrtlin
+				end
+
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+				nextWord readDataWord  /nextLong exch def /sectionCount exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (sectionCount) def
+sectionCount pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos sectionCount pDec3 writef wrtlin
+				end
+
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+				nextWord readDataWord  /nextLong exch def /instSectionCount exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (instSectionCount) def
+instSectionCount pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos instSectionCount pDec3 writef wrtlin
+				end
+ 								
+ 				/nextWord nextLong def
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 				nextWord readDataLong  /nextLong exch def /reservedA exch def
+				mem nextWord 2 div cvi get begin
+		  		/flag flag CODE INSTCODE or not and def
+				/flag flag LBL or def
+				/SymbolName (reservedA) def
+reservedA pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos reservedA pDec3 writef wrtlin
+				end
+			
+%wrtlin	
+%(###) =	
+%currentdict dfa
+%(---) =	
+%pstack stop
+
+
+			}ifelse
+			
+			/prevICodeAddr nextICodeAddr def
+			
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+prevICodeAddr pAddr writef <28> writef prevICodeAddr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 
+ 			prevICodeAddr readDataLong /nextICodeAddr exch def /reserved2  exch def
+			mem prevICodeAddr 2 div cvi get begin
+	  		/flag flag CODE INSTCODE or not and def
+			/flag flag LBL or def
+			/SymbolName (reserved2) def
+		
+reserved2 pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos reserved2 pDec3 writef wrtlin	
+			end
+			
+			/prevICodeAddr nextICodeAddr def
+
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+prevICodeAddr pAddr writef <28> writef prevICodeAddr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+ 
+			prevICodeAddr readDataLong /nextICodeAddr exch def /selector  exch def
+			mem prevICodeAddr 2 div cvi get begin
+	  		/flag flag CODE INSTCODE or not and def
+			/flag flag LBL or def
+			/SymbolName (selector) def
+		
+selector pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos selector pDec3 writef wrtlin	
+			end
+
+        	currentdict
+			nextICodeAddr
+        	end
+        	/nextICodeAddr exch def
+        } repeat
+		] def
+
+%       can and should do flow control here to the function block This
+%		procedure can switch disassemblers if we want to get really fancy
+%() =
+
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop		
+		nextICodeAddr
+		tooltrapsDict begin
+		/nextICodeAddr exch def
+wrtlin
+ 	
+ 		}		
+	>>
+	
+>> def
+
+/Label_symbols << % >
+	/Labelcount 1
+
+>> def
+
+
+/nextInstance << % >
+
+	/nestInstance 0
+
+>> def
+
+
+
+/readDataWord {
+	Resources /8BAM get 16 get begin   % code seems to be in resource 16
+%	Resources /8BAc get 17 get begin   % code seems to be in resource 16
+%	16#2C add
+	/memPtr exch def
+
+%000010: <0006 2854 4E75 0000 0000 41FA FFFA 208C> % ..(TNu....A??? ?
+	
+	/wMemPtr memPtr 2 div cvi def
+
+	mem wMemPtr get begin
+	
+
+	
+
+	currentdict /blk known {
+%( overwrite overead) =
+%flag wMemPtr get pHex ==
+
+		currentdict /oddLabel known {
+
+% this is for dealing with data that is not word alinged 
+			/sInt <86> rawData$ memPtr 2 getinterval strcat def
+			/b1 sInt 1 get def
+			/b2 sInt 2 get def
+			/dw sInt cvx exec def
+			dw
+	
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack %stop
+
+		}{
+			% we have been at this memory location before no
+			% need to read it again
+			
+			dw
+%currentdict dfa
+		}ifelse
+		
+		% can also use this for call graph analysis by tracking
+		% the number of times this location is read
+		
+	}{
+
+%		flag wMemPtr 2 copy get DATAW or put
+		/blkAddr memPtr def		%can be used for displaying address offsets
+		
+		/flag flag DATAW or def
+	
+		/sInt <86> rawData$ memPtr 2 getinterval strcat def
+		/b1 sInt 1 get def
+		/b2 sInt 2 get def
+		/dw sInt cvx exec def
+		dw
+		/blk (BLkW) def
+
+	}ifelse
+
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop
+		
+	end	
+	memPtr 2 add
+	end
+
+	% on return is the next address and the data word is left on the stack
+
+}bind def
+
+/readDataLong {
+
+	Resources /8BAM get 16 get begin   % code seems to be in resource 16
+%	Resources /8BAc get 17 get begin   % code seems to be in resource 16
+%	16#2C add 
+	/memPtr exch def
+	
+	/wMemPtr memPtr 2 div cvi def
+
+	mem wMemPtr get begin
+
+	flag empty and empty eq {
+
+%		flag wMemPtr 2 copy get DATAW or put
+		/blkAddr memPtr def		%can be used for displaying address offsets
+		
+		/flag flag DATAL DATAW or or def
+	
+		/sInt <84> rawData$ memPtr 4 getinterval strcat def
+		/b1 sInt 1 get def
+		/b2 sInt 2 get def
+		/b3 sInt 3 get def
+		/b4 sInt 4 get def
+		/dl sInt cvx exec def
+		dl
+		/blk (BLkL) def
+		/dw [16#86 b1 b2] makestring cvx exec def
+
+		
+		mem wMemPtr 1 add get begin 
+		/blkAddr memPtr def		%can be used for displaying address offsets
+		/flag flag DATAL DATAW or or def
+		/dl dl def
+		/b1 b1 def
+		/b2 b2 def
+		/b3 b3 def
+		/b4 b4 def		
+		/blk (BLkL) def
+		/dw [16#86 b3 b4] makestring cvx exec def
+		
+		end
+	}{
+		
+		flag DATAL and 0 eq {
+			/sLong <84> rawData$ memPtr 4 getinterval strcat def
+			/dl sLong cvx exec def
+			/flag flag DATAL or def
+		}if
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop	
+		dl
+	}ifelse	
+		
+	end	
+	memPtr 4 add
+	end
+
+	% on return is the next address and the data word is left on the stack
+
+} bind def
+
+
+/type_1 {
+
+% link
+
+	/the_reg code 16#07 and def		%	get register number	*/
+
+	nextICodeAddr readDataWord /nextICodeAddr exch def  /displacement exch def
+
+DBGMemPtr {	
+	displacement 16#FFFF and pWord writef
+} if
+	/op_text op dup length string copy def 
+
+	/p1 adr_regs the_reg get dup length string copy def
+
+	/p2 (#) displacement =string cvs strcat def % dup length string copy def
+
+% list instruction line for pass 1 debuging 	
+	%sprintf(s,"%6lx   %s  %s,#$%x",adr,table[index].op,adr_regs[the_reg],*c);
+	%memPtr 2 sub pAddr print (: )  
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+/find_abstract {
+
+/abstractName (#TBRW -- to be re written) def
+
+} bind def
+
+/effective_address {
+
+	10 dict begin 
+	
+	/op_mode exch def
+	/ea exch def
+
+%(EA: ) print count ==
+	
+	/mode ea 16#38 and -3 bitshift def
+	/reg ea 16#07 and def
+
+	/memPtr exch def
+	/newMemPtr memPtr def
+
+	/xdata () def  % extra decoded argument bytes
+	
+	<< % >
+
+		0	{ /s data_regs reg get def
+		}
+
+		1	{ /s adr_regs reg get def		
+		}
+
+		2	{ /s (\() adr_regs reg get strcat (\)) strcat def	
+		} % address indirect
+
+		3	{ /s (\() adr_regs reg get strcat (\)+) strcat def 
+		}
+
+		4	{ /s (-\() adr_regs reg get strcat (\)) strcat def 
+		}
+
+		5	% address with displacement	
+			{
+				% next mem location
+				memPtr readDataWord /newMemPtr exch def  /displacement exch def
+
+DBGMemPtr {
+%this is debug print for pass 1 annotation
+displacement 16#FFFF and pWord writef 
+} if
+				/s (#) displacement =string cvs strcat 
+				(\() strcat adr_regs reg get strcat (\)) strcat def
+
+
+				reg 5 eq {
+
+					A5_Table displacement 2 copy known {
+						/sx s def	
+						get begin Ident  
+						(:) search {
+						3 1 roll pop pop (\(A5\)) strcat
+						
+						}if 
+						
+						
+						end /s exch def
+					}{
+						pop pop
+					}ifelse
+				} if				
+			}
+
+		6	% indexed address with displacement
+			{
+%mode_6
+				memPtr readDataWord /newMemPtr exch def  /a exch def
+DBGMemPtr {
+a pWord writef % pass 1 debug
+} if				
+				/displacement  a  16#ff and def
+				/index_reg  a 16#7000 and -12 bitshift def
+				/index_reg_ind a 16#8000 and -15 bitshift def
+				/index_size a 16#8000 and -11 bitshift def
+			
+				index_size 0 eq {
+					/s1 (.W) def
+				}{
+					/s1 (.L) def
+				}ifelse
+
+				index_reg_ind 0 eq {
+					%	data reg is index reg
+					/s (16#) displacement index_size 0 eq {pWord}{pLong}ifelse strcat 
+					(\() adr_regs reg get strcat (\),[) strcat strcat
+					data_regs index_reg get strcat  (]) strcat def
+					%s1 strcat
+					%sprintf(s,"$%x(%s,%s%s)",displacement,adr_regs[reg],data_regs[index_reg],s1);
+%pstack
+				}{
+					%	address reg is index reg	
+					/s (16#) displacement index_size 0 eq {pWord}{pLong}ifelse strcat 
+					(\() adr_regs reg get strcat (\),[) strcat strcat
+					adr_regs index_reg get strcat  (]) strcat def
+					%s1 strcat
+					%sprintf(s,"$%x(%s,%s%s)",displacement,adr_regs[reg],adr_regs[index_reg],s1);
+				}ifelse
+%s ==
+			}
+
+		7	% other modes	
+			{
+			
+%(\n%EA7 ) print reg ==
+				<< % >
+				
+				0 % absolute short
+					{
+						memPtr readDataWord /newMemPtr exch def  /a exch def
+DBGMemPtr {
+a pWord writef % pass 1 debug
+} if
+						/s (16#) a pWord strcat def 
+						 %(.S) strcat
+						
+						% sprintf(s,"$%lx.S",(long)short_adr);
+					}
+				1 % absolute long
+					{
+						
+						memPtr readDataLong /newMemPtr exch def  /a exch def
+DBGMemPtr {
+a pLong writef % pass 1 debug						
+} if
+						/s (16#) a pLong strcat def 
+						% (.L) strcat
+						%sprintf(s,"$%lx.L",a1);
+					}
+					
+				2	%program counter with displacement
+					{
+						memPtr readDataWord /newMemPtr exch def  /displacement exch def
+DBGMemPtr {
+displacement pWord writef % pass 1 debug
+} if						
+						%/label_position ifil fileposition displacement add 2 sub def
+					
+						/label_position memPtr displacement add def
+					
+						/s (16#) label_position 12 string cvs strcat
+						(\(PC\)) strcat def
+
+% look up label here -- add placeholder
+						mem label_position 2 div cvi get begin
+						/EAparameter s def
+							
+						flag LBL and LBL eq {
+							/flag flag EALBL or def
+								
+							currentdict
+							SymbolName
+							end
+							/s exch def
+							begin
+								
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop							
+						}{
+							/flag flag LBL or EALBL or def
+							/SymbolName (EA) label_position pAddr strcat def
+					
+						}ifelse
+						
+						end
+
+						%a1 = (long)a + (long)displacement;
+						%sprintf(s,"$%lx(PC)",a1);
+					}
+
+				3
+					{
+%mode73	
+						memPtr readDataWord /newMemPtr exch def  /a exch def
+DBGMemPtr {
+a pWord writef % pass 1 debug
+} if						
+						/a1 a  16#ff and def
+						/index_reg  a 16#7000 and -12 bitshift def
+						/index_reg_ind a 16#8000 and -15 bitshift def
+						/index_size a 16#8000 and -11 bitshift def
+
+%wrtlin pstack stop					
+						/a1 a1 memPtr add def
+						
+						/s (16#) a1 12 string cvs strcat (\(PC,) strcat def 
+					
+						index_size 0 eq {
+							/s1 (.W) def
+						}{
+							/s1 (.L) def
+						}ifelse
+
+% look up label here -- add placeholder
+%						Label_symbols a1 2 copy known {}{} ifelse
+
+			
+						index_reg_ind 0 eq {
+							%	data reg is index reg
+							/s s data_regs index_reg get strcat s1 strcat (\)) strcat def
+							%sprintf(s,"$%lx(PC,%s%s)",a1,data_regs[index_reg],s1);
+						}{
+							%	address reg is index reg	
+							/s s adr_regs index_reg get strcat s1 strcat (\)) strcat def
+							%sprintf(s,"$%lx(PC,%s%s)",a1,adr_regs[index_reg],s1);
+						}ifelse
+							
+					}
+				
+				4	% Immediate Data
+					{
+%mode74
+						%/*
+						%** This one is tough
+						%*/
+						op_mode LONG_SIZE eq {
+
+							memPtr readDataLong /newMemPtr exch def  /Immediate_Data exch def
+DBGMemPtr {
+Immediate_Data pLong writef % debug pass 1
+}if
+							/s (#16#) Immediate_Data pLong strcat 
+							%(.L) strcat
+							 def 
+
+							%sprintf(s,"#$%lx.L",a1);
+						}{
+
+							op_mode WORD_SIZE eq op_mode BYTE_SIZE eq or {
+								memPtr readDataWord /newMemPtr exch def  /Immediate_Data exch def
+DBGMemPtr {
+Immediate_Data pWord writef % debug pass 1
+}if
+								
+								op_mode WORD_SIZE eq {
+									/s (#16#) Immediate_Data pWord strcat
+									%(.W) strcat 
+									def 
+									%sprintf(s,"#$%x.W",displacement);
+								}{
+									op_mode BYTE_SIZE eq {
+										/s (#16#) Immediate_Data pHex strcat
+										%(.B) strcat 
+										def 
+										%sprintf(s,"#$%x.B",displacement);
+									}if
+								}ifelse
+							}if
+						}ifelse
+					}
+			>> reg 2 copy known {
+				get exec
+			}{
+				pop pop  /s (Bad register mode:) reg 7 string cvs strcat def
+			}ifelse
+		}
+	>> mode 2 copy known {
+		get exec
+	}{
+		pop pop (bad mode) == %exit
+	}ifelse
+
+	%	/*	end of switch mode	*/
+%(xEA ) print count ==
+
+	s
+
+	newMemPtr
+	currentdict
+	end
+	/eaDict exch def
+
+
+} bind def
+
+/mode_2_helper {
+
+	% resolves symbols from absolute address
+	% returns value if in file or was set before
+
+	0  % there is no trace address to help
+	/abstractName (NONAME) def
+
+} bind def
+
+
+/type_2 {
+%(%type_2) print
+
+%	LEA 
+
+
+	/dest_reg code 16#0e00 and -9 bitshift def	%	/*	get destination reg	*/
+	/source code 16#3f and def					%	/*	this is an effective address	*/
+
+	/sTrace_mode source 16#38 and -3 bitshift def
+	/sTrace_reg source 16#07 and def
+
+	% memPtr points to instruction so we need to increment it to the data argument
+	nextICodeAddr source 0 effective_address /nextICodeAddr exch def
+	/e_a exch def %(c,e_a,source,index,0);	/*	do effective address	*/
+
+
+/annotate ( ; ) def
+
+	% modes 0 1 invalid
+
+	sTrace_mode 2 eq  {
+Verbose {
+/annotate annotate (%mode2 ) strcat def
+}if
+
+		/annotate annotate (\() strcat abstracts sTrace_reg get 14 string cvs strcat
+		(\)) strcat def
+		/indirect trace_addr sTrace_reg get def
+
+		mode_2_helper
+
+		trace_addr dest_reg 3 -1 roll put
+		
+			
+	}if
+	
+	%modes 3 and 4 invalid
+
+	sTrace_mode 5 eq  {
+Verbose {
+/annotate annotate (%mode5 ) strcat def
+}if
+	
+		 /offset  eaDict /displacement get def
+		 
+		 /annotate annotate (16#) strcat offset pWord strcat (\() strcat
+		  abstracts sTrace_reg get 14 string cvs strcat
+		 (\) ) strcat def
+	
+		/indirect trace_addr sTrace_reg get offset  add def
+		
+		mode_2_helper 
+		trace_addr dest_reg 3 -1 roll put
+		
+%		/annotate annotate ( ) strcat abstractName strcat def
+%		abstracts dest_reg abstractName cvn put
+
+%abstracts ==
+%annotate =		
+%pstack stop		
+		
+	} if
+
+	sTrace_mode 6 eq  {
+Verbose {
+/annotate annotate (%mode6 ) strcat def
+} if
+
+		eaDict begin
+		displacement
+		index_reg_ind 
+		index_reg
+		end 
+		/iTrace_reg exch def
+		/iIDX exch def
+		/displacement exch def
+		
+		/offset iIDX 0 eq {trace_data}{trace_addr}ifelse iTrace_reg get def
+
+		/annotate annotate displacement pWord strcat (\() strcat
+		abstracts sTrace_reg get 14 string cvs strcat
+		(\)[) strcat 
+		iIDX 0 eq {data_regs}{adr_regs}ifelse iTrace_reg get strcat
+		(] ) strcat def 
+
+		/indirect 
+		trace_addr sTrace_reg get displacement offset add add
+		def
+
+		mode_2_helper 
+		trace_addr dest_reg 3 -1 roll put
+		
+%		/annotate annotate ( ) strcat abstractName strcat def
+%		abstracts dest_reg abstractName cvn put
+		
+		
+%abstracts ==
+%annotate =		
+%pstack stop		
+
+
+	} if
+
+
+	sTrace_mode 7 eq {
+	
+		sTrace_reg 0 eq sTrace_reg 1 eq and {
+		% not found iin code
+Verbose {
+/annotate annotate (%mode701 ) strcat def
+} if
+
+ 
+ 			trace_addr dest_reg eaDict /a get put
+abstracts ==
+%annotate =		
+%pstack stop		
+
+		}if
+
+
+		sTrace_reg 2 eq  {
+Verbose {
+/annotate annotate (%mode72 ) strcat def
+}if
+
+			/indirect eaDict /label_position get def
+			/annotate annotate indirect pAddr strcat
+			def
+%annotate ==
+%			indirect 16#3A ge {
+%				/indirect indirect 4088 add def
+%			}if
+%currentdict dfa 
+%annotate =						
+%			mode_2_helper pop %pAddr == 
+%			/annotate annotate ( ) strcat abstractName strcat def
+%			abstracts dest_reg abstractName cvn put
+	
+			trace_addr dest_reg indirect put
+
+%abstracts ==
+%annotate =		
+%pstack stop		
+
+		} if
+
+		sTrace_reg 3 eq  {
+Verbose {
+/annotate annotate (%mode73 ) strcat def
+}if
+
+		eaDict begin
+		a1
+		index_reg_ind 
+		index_reg
+		end 
+		/iTrace_reg exch def
+		/iIDX exch def
+		/indirect exch def
+		
+		/annotate annotate ( ) strcat indirect pAddr strcat
+		([) strcat 
+		iIDX 0 eq {data_regs}{adr_regs}ifelse iTrace_reg get strcat
+		(] ) strcat def 
+		
+%		mode_2_helper pop %pAddr == 
+%		/annotate annotate ( ) strcat abstractName strcat def
+%		abstracts dest_reg abstractName cvn put
+	
+		trace_addr dest_reg indirect put
+				
+%abstracts ==
+%annotate =		
+%pstack stop	
+		}if
+
+
+	}if
+
+	/op_text op dup length string copy def 
+
+	/p1 e_a dup length string copy def
+
+	/p2 adr_regs dest_reg get dup length string copy def
+
+%	sprintf(s,"%6lx   %s %s,%s",adr,table[index].op,e_a,adr_regs[dest_reg]);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} bind def
+
+
+/type_3_helper {
+
+%annotate print
+%op print ( helper) =
+	% address register
+	dir 0 eq {
+
+		% data register
+		op (ADDA) eq {
+			trace dest_reg 2 copy get value add dup /value exch def put	
+		} if
+
+		op (SUBA) eq {
+			trace dest_reg 2 copy get value sub dup /value exch def put
+		} if
+
+		op (CMPA) eq {
+			trace dest_reg  get value add /value exch def %put
+		} if
+
+		op (CMP) eq {
+			trace dest_reg  get value add /value exch def %put
+		} if
+
+		% data register
+		op (ADD) eq {
+			trace dest_reg 2 copy get value add dup /value exch def put
+		} if
+
+		op (SUB) eq {
+%(issub) =
+%currentdict dfa
+			trace dest_reg 2 copy get  value sub dup /value exch def put 
+		} if
+
+		op (AND) eq {
+			trace dest_reg 2 copy get  value and dup /value exch def put 
+		} if
+
+		op (OR) eq {
+			trace dest_reg 2 copy get  value or dup /value exch def put 
+		} if
+
+		op (EOR) eq {
+			trace dest_reg 2 copy get  value xor dup /value exch def put 
+		} if
+
+	
+	}{
+		/annotate annotate ( << == swap == >> ) strcat def
+		% data register
+		op (ADD) eq {
+			trace sTrace_reg 2 copy get value add dup /value exch def put
+		} if
+
+		op (SUB) eq {
+			trace sTrace_reg 2 copy get value sub dup /value exch def put
+		} if
+
+		op (AND) eq {
+			trace sTrace_reg 2 copy get  value and dup /value exch def put 
+		} if
+
+		op (OR) eq {
+			trace sTrace_reg 2 copy get  value or dup /value exch def put 
+		} if
+
+		op (EOR) eq {
+			trace sTrace_reg 2 copy get  value xor dup /value exch def put 
+		} if
+
+
+	}ifelse
+	
+	/annotate annotate regs dest_reg get strcat
+	( = 16#) strcat value
+	<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+	strcat def
+} def
+
+/type_3 {
+%(%type 3) =
+
+	/dest_reg code 16#0e00 and -9 bitshift def %	/*	get destination reg	*/
+	/source code 16#3f and def				   % 	/*	this is an effective address	*/
+	/op_mode code 16#01c0 and -6 bitshift def  %	/*	get op mode	*/
+
+	op_mode 3 eq op_mode 7 eq or {			   %	adda type instructions
+
+		/dir 0 def
+		/regs adr_regs def
+		/trace trace_addr def
+		op_mode 3 eq {
+			/size 1 def		% word
+		}{
+			/size 2 def		% long
+		}ifelse
+	}{	
+		/regs data_regs def
+		/trace trace_data def
+		/size op_mode 3 and def
+		/dir  op_mode 4 and -2 bitshift def %	/*	direction	*/
+		%/op_mode 0 xlate_size def
+	}ifelse
+	
+	%/op_mode 0 xlate_size def
+
+	/sTrace_mode source 16#38 and -3 bitshift def
+	/sTrace_reg source 16#07 and def
+
+	op_mode 3 eq op_mode 7 eq or op (CMPM) eq and {
+		/op (CMPA) def
+	}if
+
+
+	op_mode 4 eq op_mode 5 eq op_mode 6 eq or or sTrace_mode 1 eq and op (CMPM) eq and  {
+		/op (CMPM) def
+		/e_a (bunch of work here to fix) def
+%pstack stop
+	}{
+	
+		nextICodeAddr source 0 xlate_size effective_address /nextICodeAddr exch def
+		/e_a exch def  %(c,e_a,source,index,op_mode);	/*	do effective address	*/
+
+%memPtr DBGMemPtr print ( ) print
+%op print ( ) print e_a print (,) print data_regs dest_reg get = 
+
+%count 0 gt {(~-~) = pstack stop} if
+
+
+Verbose {
+	/annotate 
+	( sT: r: op: sz: )  sTrace_mode pHex strcat
+	(,)  sTrace_reg pHex strcat strcat
+	( ) strcat
+	(,)  op_mode pHex strcat strcat
+	(,)  size pHex strcat strcat 
+	def
+}{
+%	op_mode 4 eq {/size 0 def}if 
+%annotate =
+/annotate ( ; ) def
+}ifelse
+
+	<< % > sTrace_mode
+	0	{
+	
+			dir 0 eq {
+				/value trace_data sTrace_reg get def
+			}{
+				/value trace_data dest_reg get def
+			}ifelse
+			
+			type_3_helper			
+			
+	}
+	1	{
+	
+			dir 0 eq {
+				/value trace_addr sTrace_reg get def
+			}{
+				/value trace_addr dest_reg get def
+			}ifelse
+			
+			type_3_helper			
+			
+	}
+	
+	2	{
+			% address indirect
+			/indirect trace_addr sTrace_reg get def
+		
+%annotate ==
+%pstack stop			
+			XMEM indirect 2 copy known {
+				get begin  
+
+				currentdict /value known not {
+				
+					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+
+				type_3_helper			
+
+				end
+
+			}{
+
+				exch begin		% open the XMEM dictionary
+								% memory location is still on stack
+	
+				10 dict begin	% create a new code label
+				
+				/value 0 def % can get value from file if over 0
+				/annotate annotate (!) strcat def
+
+				type_3_helper
+				
+				currentdict 
+				end
+
+				def
+				end
+			}ifelse
+ 
+	}
+	3	{
+			% address indirect with post increment 
+			/indirect trace_addr sTrace_reg get def
+
+%annotate ==
+%pstack stop			
+
+
+			XMEM indirect 2 copy known {
+				get begin  
+
+				currentdict /value known not {
+				
+					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+
+				type_3_helper			
+
+				end
+
+			}{
+
+				exch begin		% open the XMEM dictionary
+								% memory location is still on stack
+	
+				10 dict begin	% create a new code label
+				
+				/value 0 def % can get value from file if over 0
+				/annotate annotate (!) strcat def
+
+				type_3_helper
+				
+				currentdict 
+				end
+
+				def
+				end
+			}ifelse
+
+						
+			/indirect indirect [1 2 4] size get add def %/sizes
+
+			trace_addr sTrace_reg indirect put
+
+			/annotate annotate  adr_regs sTrace_reg get strcat
+			 ( = 16#) strcat indirect pAddr strcat def
+ 
+	}
+	
+	4	{
+			% address indirect with pre decrement 
+			/indirect trace_addr sTrace_reg get def
+
+			/indirect indirect [1 2 4] size get  sub def
+
+			trace_addr sTrace_reg indirect put
+
+annotate ==
+pstack stop			
+
+			XMEM indirect 2 copy known {
+				get begin  
+
+				currentdict /value known not {
+				
+					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+
+				type_3_helper			
+
+				end
+
+			}{
+
+				exch begin		% open the XMEM dictionary
+								% memory location is still on stack
+	
+				10 dict begin	% create a new code label
+				
+				/value 0 def % can get value from file if over 0
+				/annotate annotate (!) strcat def
+
+				type_3_helper
+				
+				currentdict 
+				end
+
+				def
+				end
+			}ifelse
+
+ 
+	}
+
+	5	{
+			% address indirect with displacement
+			/indirect trace_addr sTrace_reg get 
+			eaDict /displacement get add
+			def
+			
+			% this is the one we want to abstract
+%annotate ==
+%pstack stop			
+
+			XMEM indirect 2 copy known {
+				get begin  
+
+				currentdict /value known not {
+				
+					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+
+				type_3_helper			
+				annotate
+				end
+
+			}{
+
+				exch begin		% open the XMEM dictionary
+								% memory location is still on stack
+	
+				10 dict begin	% create a new code label
+				
+				/value 0 def % can get value from file if over 0
+				/annotate annotate (!) strcat def
+
+				type_3_helper
+				
+				currentdict 
+				annotate
+				end
+				3 1 roll % pstack stop
+				def
+				end
+			}ifelse
+			/annotate exch def
+ 
+	}
+
+	6	{
+			% address indirect with  index displacement
+%mode_6
+			/indirect 
+			trace_addr sTrace_reg get 
+			eaDict begin
+			displacement
+			trace_data index_reg get add add
+			end 
+			def
+
+%annotate ==
+%pstack stop			
+
+
+			XMEM indirect 2 copy known {
+				get begin  
+
+				currentdict /value known not {
+				
+					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+
+				type_3_helper			
+
+				end
+
+			}{
+
+				exch begin		% open the XMEM dictionary
+								% memory location is still on stack
+	
+				10 dict begin	% create a new code label
+				
+				/value 0 def % can get value from file if over 0
+				/annotate annotate (!) strcat def
+
+				type_3_helper
+				
+				currentdict 
+				end
+
+				def
+				end
+			}ifelse
+ 
+	}
+	
+	
+7	{
+		% absolute address
+%mode_7
+
+		% should check for sTrace_reg 0 or 1
+		% other modes are invalid
+
+		sTrace_reg 0 eq sTrace_reg 1 eq or {
+
+			/indirect eaDict /a get def
+
+annotate ==
+pstack stop			
+
+			XMEM indirect 2 copy known {
+				get begin  
+
+				currentdict /value known not {
+				
+					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+
+				type_3_helper			
+
+				end
+
+			}{
+
+				exch begin		% open the XMEM dictionary
+								% memory location is still on stack
+	
+				10 dict begin	% create a new code label
+				
+				/value 0 def % can get value from file if over 0
+				/annotate annotate (!) strcat def
+
+				type_3_helper
+				
+				currentdict 
+				end
+
+				def
+				end
+			}ifelse
+
+		}if
+		
+		sTrace_reg 2 eq {
+(%mode72) =
+memPtr DBGMemPtr print ( ) print
+op print ( ) print e_a print (,) print data_regs dest_reg get = 
+		
+
+/annotate annotate ($mode72) strcat def
+			/value eaDict /displacement get def
+		
+			type_3_helper
+
+annotate =
+pstack stop		
+		}if
+
+		sTrace_reg 3 eq {
+	
+		% this is weird needs work
+
+
+			trace_addr dest_reg 2 copy get  eaDict begin
+			displacement
+			index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get add add
+			end
+			
+			op (ADDA) eq {add put}if	
+			op (SUBA) eq {sub put}if
+			op (CMP) eq {pop pop pop}if
+
+
+			/annotate annotate ( ) strcat adr_regs dest_reg get strcat
+			( = 16#) strcat trace_addr dest_reg get 
+			<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+			strcat def
+		
+		}if
+		
+		sTrace_reg 4 eq {
+%(%mode74) =
+			%trace_addr dest_reg 2 copy get  eaDict /Immediate_Data get
+
+			dir 0 eq {
+
+				op (ADDA) eq {trace dest_reg 2 copy get  eaDict /Immediate_Data get add put}if	
+				op (SUBA) eq {trace dest_reg 2 copy get  eaDict /Immediate_Data get sub put}if
+			
+				op (CMP) eq {}if
+				op (ADD) eq {trace dest_reg 2 copy get  eaDict /Immediate_Data get add put}if	
+				op (SUB) eq {trace dest_reg 2 copy get  eaDict /Immediate_Data get add put}if	
+
+			% these can swap based on op modes 4,5,6
+			}{
+(more work ) print op ==			
+			}ifelse
+			
+			
+			/annotate annotate ( ) strcat regs dest_reg get strcat
+			( = 16#) strcat trace dest_reg get 
+			<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+			strcat def
+			
+		}if
+
+	}
+	>> sTrace_mode 2 copy known {
+
+		get exec
+%		/annotate exch def
+
+%count 0 gt {(---) = pstack stop} if
+	
+	}{
+		pop pop /annotate annotate (type_6 error trace mode out of range) dup ==
+		strcat def
+		
+	}ifelse
+
+	} ifelse
+%(===>) print currentdict dfa						
+
+
+%(====>) print currentdict dfa						
+
+	/op_text op sizes size get strcat dup length string copy def 
+
+	e_a dup length string copy
+
+	regs dest_reg get
+
+	dir 0 eq {
+		/p2 exch def
+		/p1 exch def
+	}{
+		/p1 exch def
+		/p2 exch def
+	}ifelse
+
+%	/ib ifil fileposition 2 div cvi memPtr sub def
+
+%memPtr DBGMemPtr print ( ) print
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+
+/type_4 {
+%(%type 4 ) print count pDec3 print ( ) print  nextICodeAddr pAddr =
+%pstack
+%(---) =
+
+%	/*	This is for move instructions	*/
+
+% MOVE.x
+
+	/size code  16#3000 and -12 bitshift def
+	/op_mode 	1 xlate_size def
+	
+	/source		code 16#3f and def
+	/dest 		code  16#0fc0 and -6 bitshift def
+
+	%/*	on dest, mode and reg are in different order, so swap them	*/
+	%dest = ((dest & 0x07) << 3) | (dest >> 3);
+	dest 16#07 and 3 bitshift
+	dest -3 bitshift or
+	
+	/dest exch def
+	
+	% trace
+	/sTrace_mode source 16#38 and -3 bitshift def
+	/sTrace_reg source 16#07 and def
+
+	/dTrace_mode dest 16#38 and -3 bitshift def
+	/dTrace_reg dest 16#07 and def
+
+%sTrace_mode pHex =
+%sTrace_reg pHex =
+%dTrace_mode pHex =
+%dTrace_reg pHex =
+
+%source ==
+%op_mode ==	
+	
+	%(c,e_a1,source,index,op_mode);	/*	do effective address	*/
+	nextICodeAddr source op_mode effective_address /nextICodeAddr exch def /e_a1 exch def
+
+Verbose {
+	/annotate 	( smr )  sTrace_mode pHex strcat
+	(,) strcat sTrace_reg pHex strcat
+	( dmr ) strcat dTrace_mode pHex strcat
+	(,) strcat dTrace_reg pHex strcat
+	def 
+}{ 
+/annotate ( ; ) def
+}ifelse
+
+
+	% trace moves
+	sTrace_mode 0 eq dTrace_mode 0 eq and {
+		%data to data 
+		trace_data dTrace_reg trace_data sTrace_reg get put
+		
+
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+	}if
+
+
+
+	sTrace_mode 0 eq dTrace_mode 1 eq and {
+/annotate annotate (%mode01 ) strcat def
+
+		/indirect trace_data sTrace_reg get def
+		trace_addr dTrace_reg indirect put
+
+		mode_2_helper pop
+
+%	    /annotate annotate ( ) strcat abstractName strcat def
+%		abstracts dTrace_reg abstractName cvn put
+				
+		
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+	}if
+
+	% trace moves
+	sTrace_mode 1 eq dTrace_mode 0 eq and {
+/annotate annotate (%mode10 ) strcat def
+
+		%address to data 
+
+		trace_data dTrace_reg trace_addr sTrace_reg get put
+		
+%		/annotate annotate ( ) strcat abstracts sTrace_reg get 14 string cvs strcat def
+		 
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+	}if
+
+
+	sTrace_mode 1 eq dTrace_mode 1 eq and {
+	%address to address  (mov)
+/annotate annotate (%mode11 ) strcat def
+
+		trace_addr dTrace_reg trace_addr sTrace_reg get put
+		abstracts dTrace_reg abstracts sTrace_reg get put
+	
+%		/annotate annotate ( ) strcat abstracts sTrace_reg get 14 string cvs strcat def
+	
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+%annotate =
+%pstack stop
+	}if
+		
+	sTrace_mode 2 eq dTrace_mode 0 eq dTrace_mode 1 eq or and{
+/annotate annotate (%mode2021 ) strcat def
+		%address  (indirect) to data
+		/indirect trace_addr sTrace_reg get def
+
+		/annotate annotate 
+		%displacement pWord strcat
+		(\() strcat
+		abstracts sTrace_reg get 14 string cvs strcat
+		(\)) strcat def
+
+
+		mode_2_helper
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse		
+		dTrace_reg 3 -1 roll put
+		
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+%annotate =
+%pstack stop
+	}if
+
+
+	sTrace_mode 3 eq dTrace_mode 0 eq dTrace_mode 1 eq or and {
+/annotate annotate (%mode3031 ) strcat def
+
+
+		%address (indirect) postsincrement to data
+		/indirect trace_addr sTrace_reg get def
+
+
+		/annotate annotate (\() strcat
+		abstracts sTrace_reg get 14 string cvs strcat
+		(\)+ ) strcat def
+		
+		mode_2_helper
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse		
+		dTrace_reg 3 -1 roll put
+		
+
+		/indirect indirect [1 2 4] size get add def %/sizes
+
+		trace_addr sTrace_reg indirect put		
+
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+%annotate =
+%pstack stop
+
+	}if
+
+	
+	sTrace_mode 4 eq dTrace_mode 0 eq dTrace_mode 1 eq or and  {
+/annotate annotate (%mode4041 ) strcat def
+
+		/indirect trace_addr sTrace_reg get def
+
+		/annotate annotate 
+		%displacement pWord strcat
+		(-\() strcat
+		abstracts sTrace_reg get 14 string cvs strcat
+		(\) ) strcat def
+
+		/indirect indirect [1 2 4] size get sub def %/sizes
+		
+		mode_2_helper		
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse		
+		dTrace_reg 3 -1 roll put
+		
+		
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+
+	}if
+
+
+	sTrace_mode 5 eq dTrace_mode 0 eq dTrace_mode 1 eq or and  {
+/annotate annotate (%mode51 ) strcat def
+
+		% address register = address indirect with displacement
+		/displacement eaDict /displacement get def
+		
+		/indirect trace_addr sTrace_reg get displacement add def
+
+		/annotate annotate 
+		displacement pWord strcat (\() strcat
+		abstracts sTrace_reg get 14 string cvs strcat
+		(\)) strcat def
+		
+		mode_2_helper
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg 3 -1 roll put
+		
+
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+
+	}if
+
+	sTrace_mode 6 eq dTrace_mode 0 eq dTrace_mode 1 eq or and  {
+/annotate annotate (%mode6061 ) strcat def
+
+		% data register = address indirect with displacement
+		eaDict begin
+		displacement
+		index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get
+		index_reg
+		end 
+		/indexReg exch def
+		/offset exch def
+		/displacement exch def
+
+		/indirect 
+		trace_addr sTrace_reg get displacement offset add add
+		def
+
+		/annotate annotate ( ) strcat 
+		displacement pWord strcat (\() strcat
+		abstracts sTrace_reg get 14 string cvs strcat
+		(\)) strcat def
+
+		mode_2_helper
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg 3 -1 roll put
+
+	/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+
+	}if
+
+
+%mode7
+	sTrace_mode 7 eq sTrace_reg 0 eq sTrace_reg 1 eq or dTrace_mode 0 eq dTrace_mode 1 eq or and and {
+/annotate annotate (%mode7071 ) strcat def
+
+		%mem to data
+		
+		/indirect eaDict /a get def
+		
+		mode_2_helper
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg 3 -1 roll put
+
+
+		/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg get  
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+
+	}if
+
+	% 7 2 is not found d(PC)
+	sTrace_mode 7 eq sTrace_reg 2 eq dTrace_mode 0 eq dTrace_mode 1 eq or and and {
+/annotate annotate (%mode72 ) strcat def
+
+
+		/indirect eaDict /label_position get def
+		
+		mode_2_helper
+		dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg 3 -1 roll put
+
+	}if
+
+
+	sTrace_mode 7 eq sTrace_reg 3 eq dTrace_mode 0 eq dTrace_mode 1 eq or and and {
+	%   indexed from PC
+/annotate annotate (%mode73 ) strcat def
+
+
+% this is mostly used for jump tables, there is not really anything more to annotate
+% address offsets have not been seen
+
+%annotate = 
+dTrace_mode 1 eq {pstack stop} if
+	}if
+
+	%mode7 1 and mode 7 0 are immediate
+	sTrace_mode 7 eq sTrace_reg 4 eq dTrace_mode 0 eq dTrace_mode 1 eq or and and {
+
+		/indirect eaDict /Immediate_Data get def
+
+		%immediate to data
+		 dTrace_mode 0 eq{trace_data}{trace_addr}ifelse dTrace_reg indirect put
+
+		/annotate annotate ( ) strcat dTrace_mode 0 eq{data_regs}{adr_regs}ifelse dTrace_reg get strcat
+		( = 16#) strcat trace_data dTrace_reg get 
+		<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+		strcat def
+
+	}if
+
+
+	/ea1Dict eaDict def
+
+	nextICodeAddr dest 0 effective_address /nextICodeAddr exch def /e_a2 exch def
+
+
+	dTrace_mode 0 eq dTrace_mode 1 eq or not {
+
+		/regName ( ) def
+
+		dTrace_mode 4 eq {
+
+			trace_addr dTrace_reg 2 copy get  [1 2 4] size get sub put %/sizes
+			/indirect trace_addr dTrace_reg get def
+
+			/regName regName (-) strcat def
+
+		}if	
+
+
+		dTrace_mode 2 eq dTrace_mode 3 eq dTrace_mode 4 eq or or {
+/annotate annotate (%mode234d ) strcat def
+
+			%address to address  (indirect)
+			/indirect trace_addr dTrace_reg get def
+		
+			/regName regName  
+			(\() strcat adr_regs dTrace_reg get 14 string cvs strcat
+			(\)) strcat def
+
+			dTrace_mode 3 eq {
+				/regName regName (+) strcat def
+			}if
+
+		}if
+
+		dTrace_mode 5 eq {
+/annotate annotate (%mode5d ) strcat def
+
+			/displacement eaDict /displacement get def
+		
+			/indirect trace_addr dTrace_reg get displacement add def
+
+			/regName regName 
+			displacement pWord strcat (\() strcat
+			adr_regs dTrace_reg get 14 string cvs strcat
+			(\)) strcat def
+
+		} if
+
+		dTrace_mode 6 eq {
+/annotate annotate (%mode6d ) strcat def
+
+
+			/indirect 
+			trace_addr dTrace_reg get 
+			eaDict begin
+			displacement
+			index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get add add
+			end 
+			def
+			%def
+
+		
+	%annotate =
+	%pstack stop
+
+		} if
+		
+		dTrace_mode 7 eq {
+
+			dTrace_reg 0 eq dTrace_reg 1 eq or {
+
+				/indirect eaDict /a get def
+			}if
+	
+			dTrace_reg 2 eq  {
+
+				/indirect eaDict /label_position get def
+
+			}if
+	
+			dTrace_reg 3 eq {
+/annotate annotate (%mode73d ) strcat def
+			/indirect eaDict /a1 get def
+	
+			}if
+	
+			dTrace_reg 4 eq {
+/annotate annotate (%mode74d ) strcat def
+
+%dTrace_reg ==	
+
+				/indirect eaDict /Immediate_Data get def
+	
+annotate =
+pstack stop	
+	
+			}if
+		
+
+%			find_abstract
+%			/annotate annotate ( ) strcat %abstractName strcat 
+%			def
+%/annotate annotate (%mode7d ) strcat def
+%annotate print count pDec3 print ( ) print  nextICodeAddr pAddr =
+%pstack
+%(---) =
+
+		}if 
+
+		% source traces
+
+		sTrace_mode 0 eq  dTrace_mode 0 eq dTrace_mode 1 eq or not and {
+/annotate annotate (%mode0s ) strcat def
+
+			/value trace_data sTrace_reg get def
+
+		}if
+
+		sTrace_mode 1 eq {
+/annotate annotate (%mode1s ) strcat def
+
+			/value trace_addr sTrace_reg get def
+		}if
+
+		sTrace_mode 2 eq  {
+/annotate annotate (%mode2s ) strcat def
+
+
+			/target indirect def
+	
+			/indirect trace_addr sTrace_reg get def
+			mode_2_helper /value exch def
+
+			trace_addr sTrace_reg 2 copy get  [1 2 4] size get add put %/sizes
+
+			/indirect target def
+
+		}if
+
+		sTrace_mode 3 eq {
+/annotate annotate (%mode3s ) strcat def
+
+			/target indirect def
+
+			/indirect trace_addr sTrace_reg get def
+		
+			mode_2_helper /value exch def
+			
+			trace_addr sTrace_reg 2 copy get  [1 2 4] size get add put %/sizes
+		
+			/indirect trace_addr sTrace_reg get def
+
+
+			/indirect target def
+
+		}if
+		
+		sTrace_mode 4 eq {
+/annotate annotate (%mode4s ) strcat def
+
+
+			/target indirect def
+	
+			trace_addr sTrace_reg 2 copy get  [1 2 4] size get add put %/sizes
+	
+			/indirect trace_addr sTrace_reg get def
+
+
+			mode_2_helper /value exch def
+
+
+			/indirect target def
+
+		}if
+
+		sTrace_mode 5 eq {
+/annotate annotate (%mode5s ) strcat def
+
+
+			/target indirect def
+			/displacement ea1Dict /displacement get def
+	
+			/indirect trace_addr sTrace_reg get displacement add def
+
+			/annotate annotate 
+			displacement pWord strcat (\() strcat
+			abstracts sTrace_reg get 14 string cvs strcat
+			(\)) strcat def
+		
+			mode_2_helper /value exch def
+
+
+			/indirect target def
+
+		}if
+	
+		sTrace_mode 6 eq {
+/annotate annotate (%mode6s ) strcat def
+		
+			/target indirect def
+% 			data register = address indirect with displacement
+			ea1Dict begin
+			displacement
+			index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get
+			index_reg
+			end 
+			/indexReg exch def
+			/offset exch def
+			/displacement exch def
+
+			/indirect 
+			trace_addr sTrace_reg get displacement offset add add
+			def
+
+			/annotate annotate ( ) strcat
+			displacement pWord strcat (\() strcat
+			abstracts sTrace_reg get 14 string cvs strcat
+			(\)[) strcat
+			data_regs indexReg get strcat
+			(]) strcat
+			 def
+
+			mode_2_helper /value exch def
+		
+			/indirect target def
+
+		}if 
+
+		sTrace_mode 7 eq {
+/annotate annotate (%mode7s ) strcat def
+
+
+			sTrace_reg 0 eq sTrace_reg 1 eq or {
+/annotate annotate (%mode701s ) strcat def
+
+
+				/target indirect def
+
+				/indirect ea1Dict /a get def
+
+	
+				mode_2_helper
+				/value exch def 
+
+				/indirect target def
+			}if
+
+			sTrace_reg 2 eq {
+/annotate annotate (%mode72s ) strcat def
+
+			}if
+
+			sTrace_reg 3 eq {
+/annotate annotate (%mode73s ) strcat def
+
+			}if
+
+			sTrace_reg 4 eq {
+/annotate annotate (%mode74s ) strcat def
+
+				/value ea1Dict /Immediate_Data get def
+
+			}if
+
+			sTrace_reg 5 ge {
+/annotate annotate (%mode75s ) strcat def
+(bad instruction!) =
+				/value -1 def
+
+			}if
+
+		}if
+
+
+		/annotate annotate ( = ) strcat 
+		value << 0 {pHex} 1 {pWord} 2 {pLong} >> 
+		size 2 copy known {get exec}{pop pop pLong}ifelse
+		strcat def
+
+
+		value
+		XMEM indirect 2 copy known {
+			get begin
+			/value exch def
+			end
+		}{
+			10 dict begin
+			currentdict put
+%annotate print count pDec3 print ( ) print  nextICodeAddr pAddr =
+%pstack
+%(---) =
+			/value exch def
+			/abstractName (TBRW) def
+			end
+		}ifelse
+
+
+
+		dTrace_mode 3 eq {
+/annotate annotate (%mode3d ) strcat def
+
+
+			trace_addr dTrace_reg 2 copy get  [1 2 4] size get add put %/sizes
+			
+			/indirect trace_addr dTrace_reg get def
+		
+		}if
+	}if
+
+
+
+	/op_text op sizes size get strcat dup length string copy def 
+	%ear_pos wrtpos
+	/p1 e_a1 dup length string copy def
+	% (,) writef
+	/p2 e_a2 dup length string copy def
+
+%sprintf(s,"%6lx   %s  %s,%s",adr,table[index].op,e_a1,e_a2);
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+%(type 4 end: ) print count pDec3 print ( ) print  nextICodeAddr pAddr =	
+%pstack
+%(<-) =
+} bind def
+
+
+/BYTE_SIZE	256 def
+/WORD_SIZE	257 def
+/LONG_SIZE	258 def
+
+
+/xlate_size {
+	/op_type exch def
+	
+	op_type 0 eq {	%/*	main type	*/
+	
+		<< % >
+			0  BYTE_SIZE 
+			1  WORD_SIZE
+			2  LONG_SIZE
+		>> size 2 copy known {
+			get
+		}{
+			pop pop 0 % should report error here
+		}ifelse
+
+	}{
+		op_type 1 eq { %	/*	for move op	*/
+			
+			<< % >
+				1  { /size 0 def BYTE_SIZE} 
+				2  { /size 2 def LONG_SIZE}
+				3  { /size 1 def WORD_SIZE}
+			>> size 2 copy known {
+				get exec
+			}{
+				pop pop 0 % should report error here
+			}ifelse
+		}{
+			% report error here
+			0
+		}ifelse
+	}ifelse
+	
+} bind def
+
+
+/type_5 {
+%(%type 5) =
+	%/*	PEA type instructions	*/
+
+	
+	/source code 16#3f and def
+
+% trace
+	/sTrace_mode source 16#38 and -3 bitshift def
+	/sTrace_reg source 16#07 and def
+
+%(EA: ) = pstack
+%(----) =
+	%c = effective_address(c,e_a,source,index,0);	/*	do effective address	*/
+	nextICodeAddr source 0 effective_address /nextICodeAddr exch def /e_a exch def
+%(!EA:) = pstack
+%(----) =
+
+	/PEA_to nextICodeAddr def  % should be the false address positon
+
+
+%memPtr DBGMemPtr print ( ) print
+%op print ( ) print e_a print (,) print sTrace_mode 0 eq{data_regs}{adr_regs}ifelse sTrace_reg get = 
+
+	/annotate 
+	( ; mode: )  sTrace_mode pHex strcat
+	(,)  sTrace_reg pHex strcat strcat
+	def
+%annotate =
+%/annotate (; ) def
+
+	/p1 () def
+
+
+	sTrace_mode 2 eq {
+%( !%mode2: ) writef
+%pstack stop
+		/indirect trace_addr sTrace_reg get def
+
+%indirect pAddr writef
+%wrtlin
+		
+%annotate =
+%op (JSR) eq PEA_to 0 gt and {pstack stop} if		
+
+		/PEA_to -1 def % disable random jumps
+%pstack stop	
+	} if
+
+	sTrace_mode 5 eq {
+		eaDict begin
+			s
+		end
+		/p1 exch def
+		
+		/annotate annotate ( F: 16#) strcat PEA_to pAddr strcat 
+		(\() strcat PEA_to pDec5 strcat (\)) strcat
+		def 
+		
+		% without the full register trace we are left with searching
+		% the edge which is the false condition
+		
+		nextICodeAddr
+		
+	}if
+
+	sTrace_mode 6 eq {
+		%index to offset 
+				
+		/PEA_to 
+		trace_addr sTrace_reg get 
+		eaDict begin
+		displacement
+		index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get add add
+		end 
+		def
+%(~~~) =
+%pstack stop		
+		
+		%		/displacement  a  16#ff and def
+		%		/index_reg  a 16#7000 and -12 bitshift def
+		%		/index_reg_ind a 16#8000 and -15 bitshift def
+		%		/index_size a 16#8000 and -11 bitshift def
+
+		%trace_data dTrace_reg  eaDict /Immediate_Data get put
+
+		/annotate annotate ( 16#) strcat PEA_to pAddr strcat def
+		mem PEA_to 2 div cvi get begin
+	
+		flag LBL and LBL eq {
+			SymbolName
+		
+		}{
+			/flag flag LBL or def
+		
+			DYNSymbolName begin
+				NextSymbol 
+				/NextSymbol NextSymbol 1 add def
+			end 
+			pLbl dup /SymbolName exch def
+		
+		}ifelse
+	
+		end
+		/p1 exch def
+		
+	} if
+	
+	sTrace_mode 7 eq sTrace_reg 1 eq and {
+	
+		eaDict begin
+		s
+		a
+		end
+		/PEA_to exch def
+		( T: ) exch strcat annotate exch strcat ( F: 16#) strcat
+		nextICodeAddr pAddr strcat
+		/annotate exch def
+		
+
+		mem PEA_to 2 div cvi get begin
+	
+		flag LBL and LBL eq {
+			SymbolName
+		
+		}{
+			/flag flag LBL or def
+		
+			DYNSymbolName begin
+				NextSymbol 
+				/NextSymbol NextSymbol 1 add def
+			end 
+			pLbl dup /SymbolName exch def
+		
+		}ifelse
+	
+		end
+		/p1 exch def
+
+
+%(###) =	
+%eaDict dfa
+%(---) =
+%pstack stop
+
+	} if
+
+
+	sTrace_mode 7 eq sTrace_reg 2 eq and {
+		/PEA_to eaDict /label_position get def
+
+		/annotate annotate ( ) strcat e_a strcat 
+		( 16#) strcat PEA_to pAddr strcat def
+
+		mem PEA_to 2 div cvi get begin
+	
+		flag LBL and LBL eq {
+			SymbolName
+		
+		}{
+			/flag flag LBL or def
+		
+			DYNSymbolName begin
+				NextSymbol 
+				/NextSymbol NextSymbol 1 add def
+			end 
+			pLbl dup /SymbolName exch def
+		
+		}ifelse
+	
+		end
+		/p1 exch def
+	
+	} if
+
+		
+	/jumpTable false def
+	/op_text op dup length string copy def
+	/p2 () def
+
+
+	sTrace_mode 7 eq sTrace_reg 3 eq and op (JSR) eq op (JMP) eq or and {
+		/jumpTable true def
+		/op_text op_text (.T) strcat def
+		/p2 (,*) def
+	}if	
+	
+
+
+%	/p1 e_a dup length string copy def
+
+
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+
+
+
+	jumpTable {	
+		% jump  or call table
+%Table Jump:
+
+		/tjmpTbl eaDict /a1 get  def
+
+%(jump Address: ) print tjmpTbl pAddr print ( ) print
+
+		/neverHere nextICodeAddr def
+%neverHere pAddr =		
+		
+		
+		/annotate  ( ; first entry: ) tjmpTbl pAddr strcat def
+	
+		mem tjmpTbl 2 div cvi get begin
+
+		flag empty and empty eq {
+			% address has not been decoded			
+DBGMemPtr {
+countdictstack =string cvs print ( ) print
+tjmpTbl pAddr writef <28> writef tjmpTbl 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos %code pWord writef
+} if
+			tjmpTbl readDataWord /ptrMem exch def  /tjmpAddr exch def
+tjmpAddr pWord writef
+
+DBGMemPtr {
+flag LBL and LBL eq {
+label_pos wrtpos
+SymbolName writef (:) writef
+
+} if
+}if	
+			/PEA_to tjmpTbl tjmpAddr add def
+
+			% check tjmpAddr for label 
+			mem PEA_to 2 div cvi get begin
+			
+				flag LBL and LBL eq {
+					SymbolName
+				}{
+					/flag flag LBL or def
+	
+					DYNSymbolName begin
+						NextSymbol 
+						/NextSymbol NextSymbol 1 add def
+					end 
+					pLbl dup /SymbolName exch def
+				
+				}ifelse
+				
+				flag empty and 0 eq
+					
+			end
+			/fIsCodeData exch def
+			/p1 exch def
+			/annotate annotate  ( -> ) strcat  PEA_to pAddr strcat def
+DBGMemPtr {
+%	op_pos wrtpos op_text writef 
+ear_pos wrtpos p1 writef %p2 writef
+annotate_pos wrtpos annotate writef
+wrtlin
+} if
+
+			fIsCodeData {
+				% pea address is not empty
+( Manual mode:  count jump table entry) =
+pstack stop
+
+			}if
+
+			% add next entry into jumpTableEdges
+			jumpTableEdges tjmpTbl 2 copy known {
+				get begin
+			}{
+				10 dict begin
+				currentdict put
+				/Edges [] def
+			}ifelse
+			/Edges [ Edges {} forall ptrMem ] def
+
+			end
+
+		}{
+(jmpAddr: ) print flag pWord == 
+(###) =
+currentdict dfa
+(---) =
+pstack stop
+		
+		
+		} ifelse		
+
+		PEA_to	
+		end
+
+	}{
+
+		%sTrace_mode 6 eq sTrace_mode 7 eq sTrace_reg 2 eq and or
+		
+		op (JSR) eq op (JMP) eq or PEA_to 0 gt and {
+
+
+			% this wil label the return edge
+			mem nextICodeAddr 2 div cvi get begin
+	
+			flag LBL and 0 eq {
+				/flag flag LBL or def
+		
+				DYNSymbolName begin
+					NextSymbol 
+					/NextSymbol NextSymbol 1 add def
+				end 
+				pLbl /SymbolName exch def
+		
+			}if
+			end
+		
+			jumpTable not {  
+				nextICodeAddr   % push address of next block to search
+			}if
+		
+			PEA_to 16#14286 lt {
+		
+			% do not jump to non empty memory
+			mem nextICodeAddr 2 div cvi get begin		
+				flag empty and empty eq {
+					PEA_to
+				}if
+			end
+			} if
+	
+		}if 
+	}ifelse	
+
+	%sprintf(s,"%6lx   %s   %s",adr,table[index].op,e_a);
+	wrtlin	
+
+} def
+
+
+
+/type_6 {
+%	/*	ADDQ type instructions	*/
+
+
+
+	/dest code 16#3f and def
+	/size code 16#0c0 and -6 bitshift def
+
+	/op_mode  0 xlate_size  def %	/*	normal translate	*/
+
+	/operand code 16#0e00 and -9 bitshift def
+	operand  0 eq {
+		/operand 8 def
+	} if
+
+	/sTrace_mode dest 16#38 and -3 bitshift def
+	/sTrace_reg dest 16#07 and def
+
+
+	%(c,e_a,dest,index,0);	/*	do effective address	*/
+	nextICodeAddr dest 0 effective_address /nextICodeAddr exch def /e_a exch def
+
+/annotate ( ; ) def 
+%(mode: )  sTrace_mode pHex strcat
+%(,)  sTrace_reg pHex strcat strcat
+%def
+
+%op print ( ) print annotate =
+
+	<< % >
+	0	{
+			% data register
+			op (ADDQ) eq {
+				trace_data sTrace_reg 2 copy get operand add put	
+			} if
+	
+			op (SUBQ) eq {
+				trace_data sTrace_reg 2 copy get operand sub put
+			} if
+	
+			/annotate annotate ( ) strcat e_a strcat 
+			( = 16#) strcat trace_data sTrace_reg get
+			<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+			strcat def
+	}
+	1	{
+			% address register
+			op (ADDQ) eq {
+				trace_addr sTrace_reg 2 copy get operand add put	
+			} if
+	
+			op (SUBQ) eq {
+				trace_addr sTrace_reg 2 copy get operand sub put
+			} if
+
+%			annotate ( ) strcat e_a strcat 
+%			( = 16#) strcat trace_addr sTrace_reg get  
+%			<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%			strcat
+	}
+	2	{
+			% address indirect
+			/indirect trace_addr sTrace_reg get def
+		
+			XMEM indirect 2 copy known {
+				get begin  
+				
+				currentdict /value known not {
+				
+%					/annotate annotate ( dict exists no value set) strcat def
+					/value 0 def
+				}if
+			
+		
+				op (ADDQ) eq {
+					/value value operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value value operand sub def
+				} if
+		
+
+%				annotate ( 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				end
+			}{
+			
+				exch begin		% open the label dictionary
+	
+				10 dict begin	% create a new code label
+					op (ADDQ) eq {
+					/value 0 operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value 0 operand sub def
+				} if
+				
+				%exch % the hint is before the index
+				
+%				annotate (! 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				currentdict 
+				end
+%pstack stop
+%				3 1 roll 
+				def
+				end
+
+						
+			}ifelse
+ 
+	}
+	
+	3	{
+			% address indirect with post increment 
+			/indirect trace_addr sTrace_reg get def
+		
+			XMEM indirect 2 copy known {
+%(found) ==
+				get begin  
+				op (ADDQ) eq {
+					/value value operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value value operand sub def
+				} if
+		
+%				annotate ( 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				
+				end
+			}{
+%(not found) ==
+			
+				exch begin		% open the label dictionary
+	
+				10 dict begin	% create a new code label
+					op (ADDQ) eq {
+					/value 0 operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value 0 operand sub def
+				} if
+				
+
+				%exch % the hint is before the index
+				
+%				annotate (! 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				currentdict 
+				end
+%pstack stop
+%				3 1 roll 
+				def
+				end
+				
+						
+			}ifelse
+
+			/indirect indirect [1 2 4] size get add def %/sizes
+
+			trace_addr sTrace_reg indirect put
+%				( ) strcat adr_regs sTrace_reg get strcat ( = 16#) strcat indirect pAddr strcat
+
+ 
+	}
+	4	{
+			% address indirect with pre decrement 
+			/indirect trace_addr sTrace_reg get def
+
+			/indirect indirect [1 2 4] size get  sub def
+
+			trace_addr sTrace_reg indirect put
+
+		
+			XMEM indirect 2 copy known {
+				get begin  
+				op (ADDQ) eq {
+					/value value operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value value operand sub def
+				} if
+		
+%				annotate ( 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+
+				end
+			}{
+			
+				exch begin		% open the label dictionary
+	
+				10 dict begin	% create a new code label
+					op (ADDQ) eq {
+					/value 0 operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value 0 operand sub def
+				} if
+				
+
+%				annotate (! 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				currentdict 
+				end
+
+				%3 1 roll
+				def
+				end
+						
+			}ifelse
+ 
+	}
+
+	5	{
+			% address indirect with displacement
+			/indirect trace_addr sTrace_reg get 
+			eaDict /displacement get add
+			def
+
+			XMEM indirect 2 copy known {
+				get begin  
+				op (ADDQ) eq {
+					/value value operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value value operand sub def
+				} if
+		
+				op ( 16#) strcat  indirect pAddr strcat
+				( = 16#) strcat value 
+				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+				strcat
+
+				end
+			}{
+			
+				exch begin		% open the label dictionary
+	
+				10 dict begin	% create a new code label
+					op (ADDQ) eq {
+					/value 0 operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value 0 operand sub def
+				} if
+				
+				currentdict 
+				op  (! 16#) strcat indirect pAddr strcat
+				( = 16#) strcat value 
+				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+				strcat
+				end
+%pstack stop
+				3 1 roll 
+				def
+				end
+						
+			}ifelse
+pop %= 
+	}
+	
+	6	{
+			% address indirect with  index displacement
+%mode_6
+			/indirect 
+			trace_addr sTrace_reg get 
+			eaDict begin
+			displacement
+			index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get add add
+			end 
+			def
+
+			XMEM indirect 2 copy known {
+				get begin  
+				op (ADDQ) eq {
+					/value value operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value value operand sub def
+				} if
+		
+%				annotate ( 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+
+%				( ) strcat adr_regs sTrace_reg get strcat ( = 16#) strcat indirect pAddr strcat
+
+				end
+			}{
+			
+				exch begin		% open the label dictionary
+	
+				10 dict begin	% create a new code label
+					op (ADDQ) eq {
+					/value 0 operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value 0 operand sub def
+				} if
+				
+
+%				annotate (! 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				currentdict 
+				end
+%pstack stop
+%				3 1 roll 
+				def
+				end
+						
+			}ifelse
+ 
+	}
+	7	{
+			% absolute address
+%mode_7
+
+			% should check for sTrace_reg 0 or 1
+			% other modes are invalid
+
+			/indirect eaDict /a get def
+
+			XMEM indirect 2 copy known {
+				get begin  
+				op (ADDQ) eq {
+					/value value operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value value operand sub def
+				} if
+		
+%				annotate ( 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+
+				end
+			}{
+			
+				exch begin		% open the label dictionary
+	
+				10 dict begin	% create a new code label
+					op (ADDQ) eq {
+					/value 0 operand add def	
+				} if
+		
+				op (SUBQ) eq {
+					/value 0 operand sub def
+				} if
+				
+
+%				annotate (! 16#) strcat indirect pAddr strcat
+%				( = 16#) strcat value 
+%				<< 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse
+%				strcat
+				currentdict 
+				end
+
+				% 3 1 roll
+				def
+				end
+						
+			}ifelse
+ 
+	}
+	>> sTrace_mode 2 copy known {
+		get exec
+%		/annotate exch def
+	
+	}{
+		pop pop /annotate annotate (type_6 error trace mode out of range) dup ==
+		strcat def
+		
+	}ifelse
+	
+
+	/op_text op sizes size get strcat dup length string copy def 
+
+	/p1  operand pWord dup length string copy def
+
+	/p2 e_a dup length string copy def
+
+	%sprintf(s,"%6lx   %s%s  #$%x,%s",adr,table[index].op,sizes[size],data,e_a);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+
+
+/type_7 {
+
+%	/*	TST type instructions	*/
+
+
+	/dest code 16#3f and def
+	/size code 16#0c0 and -6 bitshift def
+	/op_mode  0 xlate_size def %(&size,0);
+
+	%c = effective_address(c,e_a,dest,index,0);
+	nextICodeAddr dest 0 effective_address /nextICodeAddr exch def /e_a exch def
+
+
+	/op_text op sizes size get strcat dup length string copy def 
+
+	/p1 e_a dup length string copy def
+
+	%sprintf(s,"%6lx   %s%s   %s",adr,table[index].op,sizes[size],e_a);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef % (,) writef p2 writef
+	%annotate_pos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+	
+} def
+
+/flowCntl {
+
+	/annotate ( ; ) PEA_to pAddr strcat def
+	
+	% mark memory for second pass with a branch label
+	
+	mem PEA_to 2 div cvi get begin
+	
+		flag LBL and LBL eq {
+		
+		}{
+		
+		}ifelse
+	
+	end
+	
+
+} bind def
+
+/type_8 {
+%(%type 8) =
+
+	% this is the recursive entry
+	
+	/displacement code 16#ff and def
+
+%	/annotate (mode ) displacement pHex strcat def
+		
+	displacement 0 eq {
+
+		/br_size 1 def
+
+% dup (NW:) print  DBGMemPtr print ( ) print	
+		nextICodeAddr readDataWord /nextICodeAddr exch def  /displacement exch def
+DBGMemPtr {
+displacement pWord writef  % pass 1 debug display
+} if
+	}{
+	
+		displacement 16#FF eq {
+			% 68020+ instruction
+			/br_size 2 def
+			nextICodeAddr readDataLong /nextICodeAddr exch def  /displacement exch def
+DBGMemPtr {
+	displacement pLong writef  % pass 1 debug display
+} if
+		
+		}{
+			/br_size 0 def
+
+			displacement 16#80 and 0 ne {
+				/displacement displacement not 1 add 16#FF and neg def
+			} if
+		}ifelse
+
+	}ifelse
+
+
+	/op_text op sizes br_size get strcat def 
+	
+	/PEA_to memPtr 2 add displacement add def
+
+	/annotate ( ; #) displacement =string cvs strcat 
+	( 16#) strcat PEA_to pAddr strcat def
+
+	mem PEA_to 2 div cvi get begin
+	
+	flag LBL and LBL eq {
+		SymbolName
+		
+	}{
+		/flag flag LBL or def
+		
+		DYNSymbolName begin
+			NextSymbol 
+			/NextSymbol NextSymbol 1 add def
+		end 
+		pLbl dup /SymbolName exch def
+		
+	}ifelse
+	
+	end
+	/p1 exch def
+		
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef %(,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+
+	mem nextICodeAddr 2 div cvi get begin
+	
+	flag LBL and 0 eq {
+		/flag flag LBL or def
+		
+		DYNSymbolName begin
+			NextSymbol 
+			/NextSymbol NextSymbol 1 add def
+		end 
+		pLbl /SymbolName exch def
+		
+	}if
+	
+	end
+
+	op (BRA) eq op (BSR) eq or {
+		nextICodeAddr   % leave the next word on the stack in case we
+						% as the disasembler follow branches to create a flow graph
+		
+		% check for virgin code that has not been  read yet
+		mem PEA_to 2 div cvi get begin
+			flag empty and empty eq 
+		end
+		{
+			% can update control graph ( memory labels) here
+		
+			PEA_to 16#1426 lt {
+				PEA_to
+			} if
+		}{
+op (BRA) eq { 
+(edge: ) writef count pDec3 writef ( ) writef count 0 gt {dup pAddr writef} if
+		count 0 gt {
+		 	dup 16#1426 ge {
+%pstack stop
+		 		pop
+		 	}if
+		
+} if
+		}if
+			% check and see if the jump destination is code or data
+			% we can convert data to code if needed
+		}ifelse
+wrtlin		
+		
+	}{
+		nextICodeAddr
+	}ifelse
+	
+} def
+
+/type_9 {
+
+
+%	/*	UNLINK type instructions	*/
+%	long adr;
+%	int reg;
+	
+	/reg code 16#07 and def
+
+	/op_text op dup length string copy def 
+
+	/p1 adr_regs reg get dup length string copy def 
+
+	%sprintf(s,"%6lx   %s   %s",adr,table[index].op,adr_regs[reg]);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef %(,) writef p2 writef
+	%annotate_pos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+/type_10 {
+
+	% ret rts
+
+	/op_text op  dup length string copy def 
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos 
+}if	
+
+
+	code 16#4E75 eq {
+		/annotate () def
+		Resources /8BAM get 16 get begin   % code seems to be in resource 16
+		nextICodeAddr pAddr ==
+		mem nextICodeAddr 2 div cvi get begin
+		flag empty and empty eq {
+			rawData$ nextICodeAddr get /op_Byte exch def
+			op_Byte 16#80 and 16#80 eq {
+				rawData$ nextICodeAddr 1 add op_Byte 16#7F and getinterval
+				/label$ exch def
+				/flag flag empty not and def
+				/flag flag DATASTR or def 
+				/nextICodeAddr nextICodeAddr 1 add op_Byte 16#7F and add def
+				{
+					rawData$ nextICodeAddr get 0 ne {exit} if
+					/nextICodeAddr nextICodeAddr 1 add def
+				}loop
+				
+( ) writef label$ writef				
+				currentdict
+				currentdict
+				nextICodeAddr
+				end 
+				end	
+				/nextICodeAddr exch def
+			
+wrtlin		
+%op ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop
+				begin 
+				begin
+			}if
+			
+		}if
+		end
+		end
+		
+		nextICodeAddr
+	
+	}{
+
+	% return type instructions
+
+	/nextICodeAddr memPtr 2 add def  % edge of the procedure (another proc might follow)
+	/p1 () def
+	/annotate ( ; \(PC\)->16#) 2 index pAddr strcat def
+
+	% m68010 and higher instruction
+	op (RTD) eq {
+		nextICodeAddr readDataWord /nextICodeAddr exch def /displacement exch def
+DBGMemPtr {
+displacement pWord writef
+}if
+		/p1 (#) displacement 12 string cvs strcat  def
+DBGMemPtr {
+	p1 writef %(,) writef p2 writef
+}if		
+		% the stack pointer is changed by displacement
+		/annotate annotate ( \(SP\) += ) strcat displacement 12 string cvs strcat def
+	
+	}if
+
+
+	% mark the edge with a label (may be another proc)
+	mem nextICodeAddr 2 div cvi get begin
+
+	flag LBL and 0 eq {
+		/flag flag LBL or def
+	
+		DYNSymbolName begin
+			NextSymbol 
+			/NextSymbol NextSymbol 1 add def
+		end 
+		pLbl /SymbolName exch def
+	
+	}if
+	end
+%		nextICodeAddr
+	
+	}ifelse
+DBGMemPtr {
+	annotate_pos wrtpos  annotate writef
+	wrtlin
+}if	
+
+} bind def
+
+
+
+/type_11 {
+
+%	/*	LSR type instructions	*/
+%	long adr;
+%	int size;
+%	int dest;
+%	char e_a[40];
+%	int type;
+%	int count;
+
+	
+	/size code 16#0c0 and -6 bitshift def
+	size 3 lt  {	%	register shifts	
+
+		/type code 16#020 and -5 bitshift def
+		/dest code 16#07 and def
+		/data_count code 16#0e00 and -9 bitshift def
+
+		type 0 ne {
+			/op_text op sizes size get strcat def %writef
+			%ear_pos wrtpos
+			 /p1 data_regs data_count get def %writef
+			%(,) writef 
+			/p2 data_regs dest get def% writef
+			%sprintf(s,"%6lx   %s%s  %s,%s",adr,table[index].op,sizes[size],data_regs[count],data_regs[dest]);
+		}{
+			data_count 0 eq {
+				/data_count 8 def
+			}if
+			/op_text op sizes size get strcat def %writef
+			%ear_pos wrtpos 
+			/p1 (#16#) data_count pWord strcat def
+			%(,) writef 
+			/p2 data_regs dest get def %writef
+			%sprintf(s,"%6lx   %s%s  #$%x,%s",adr,table[index].op,sizes[size],count,data_regs[dest]);
+		}ifelse
+	}{
+		/op_text op def
+		%	memory shifts
+		/dest code 16#3f and def
+		%c = effective_address(c,e_a,dest,index,0);
+		%sprintf(s,"%6lx   %s   %s",adr,table[index].op,e_a);
+		nextICodeAddr dest 0 effective_address /ptrMem exch def /e_a exch def
+		%ear_pos wrtpos e_a writef
+		/p1 e_a def
+		/p2 () def
+	}ifelse
+	
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	%annotate_pos wrtpos  annotate writef
+}if
+	wrtlin
+
+	nextICodeAddr
+	
+} def
+
+
+/type_12 {
+
+	%	EXT type instruction	*/
+	%long adr;
+	%int op_mode;
+	%int reg;
+	
+
+	/op_mode code 16#1c0 and -6 bitshift 1 sub def
+	/reg code 16#07 and def
+	%sprintf(s,"%6lx   %s%s  %s",adr,table[index].op,sizes[op_mode],data_regs[reg]);
+
+	/op_text op sizes op_mode get strcat  def 
+	/p1 data_regs reg get def
+
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef %(,) writef p2 writef
+	%annotate_pos wrtpos  annotate writef
+	wrtlin
+}if	
+
+	nextICodeAddr
+		
+} def
+
+
+
+/type_13 {
+%(%type_13 start ) print count pDec3 print ( ) print nextICodeAddr pAddr =
+	% compare immediate 
+
+	/dest code 16#3f and def
+	/size code 16#0c0 and -6 bitshift def
+
+	/sTrace_mode dest 16#38 and -3 bitshift def
+	/sTrace_reg dest 16#07 and def
+
+
+	/annotate 
+	(mode: )  sTrace_mode pHex strcat
+	(,)  sTrace_reg pHex strcat strcat
+	( size: ) strcat size pHex strcat
+	def
+
+
+	%	/*	point to immediate data	*/
+
+	size 0 eq size 1 eq or {
+
+		nextICodeAddr readDataWord /nextICodeAddr exch def  /immediate exch def
+DBGMemPtr {
+immediate pWord writef %( ) print % pass 1 debug 
+} if
+	}if
+
+
+	size 2 eq {
+	%	long operation	*
+		nextICodeAddr readDataLong /nextICodeAddr exch def  /immediate exch def
+DBGMemPtr {
+immediate pLong writef %( ) print % pass 1 debug 
+} if
+	}if
+	
+	size 3 eq {
+%		/annotate (Illegal instruction) def
+		/e_a (unresolved) def
+		/immediate 0 def
+		/size 0 def
+
+	}{
+
+		%c = effective_address(c,e_a,dest,index,0);
+		nextICodeAddr dest 0 effective_address /nextICodeAddr exch def /e_a exch def
+	}ifelse
+
+	/op_text op sizes size get strcat def 
+	
+	/p1 (#16#) 
+	immediate << 0 {pHex} 1 {pWord} 2 {pLong} >> size 2 copy known {get exec}{pop pop pLong} ifelse 
+	strcat def
+
+	/p2 e_a dup length string copy def
+
+	%sprintf(s,"%6lx   %s%s  #$%lx,%s",adr,table[index].op,sizes[size],il_data,e_a);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+
+	% blank nulls -- especially on pass 1
+	code 0 eq immediate 0 eq and {	
+		writedict begin
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}{
+		wrtlin
+	}ifelse
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+%(type_13 end ) print count pDec3  print ( ) print nextICodeAddr pAddr =
+
+%pstack
+		
+} def
+
+/type_14 {
+
+%	/*	ABCD type instruction	*/
+%	long adr;
+%	int dest;
+%	int source;
+%	int dest_type;
+%	int size;
+
+	
+	/dest code 16#0e00 and -9 bitshift def
+	/source code 16#07 and def
+	/dest_type code 16#08 and -3 bitshift def
+	/size code 16#c0 and -6 bitshift def
+
+%	addr pAddr writef (:) writef
+%	code_pos wrtpos  code pWord writef 
+%	 op_pos wrtpos op writef 
+
+	/op_text op sizes size get strcat dup length string copy def 
+
+
+	
+	dest_type 0 ne {
+		%sprintf(s,"%6lx   %s%s  -(%s),-(%s)",adr,table[index].op,sizes[size],adr_regs[source],adr_regs[dest]);
+		/p1 (-\() adr_regs source get strcat (\)) strcat def
+	
+		/p2 (\()  adr_regs dest get strcat (\)) strcat def
+
+
+	}{
+		%sprintf(s,"%6lx   %s%s  %s,%s",adr,table[index].op,sizes[size],data_regs[source],data_regs[dest]);
+		/p1(\() adr_regs source get strcat (\)) strcat def
+		
+		/p2 (\() adr_regs dest get strcat (\)) strcat def
+	} ifelse
+%	wrtlin33
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+	
+} def
+
+
+
+/type_15 {
+%(%type 15) =
+
+	/dest code 16#3f and def
+	/size code 16#0c0 and -6 bitshift def
+	
+	/dTrace_mode dest 16#38 and -3 bitshift def
+	/dTrace_reg dest 16#07 and def
+
+
+/annotate 	( ; mode: )  dTrace_mode pHex strcat
+(,) strcat dTrace_reg pHex strcat
+def 
+
+%annotate =
+
+	nextICodeAddr dest 0 effective_address /nextICodeAddr exch def /e_a exch def
+
+	/op_text op sizes size get strcat dup length string copy def 
+
+	dTrace_mode 0 eq dTrace_mode 1 eq or not {
+
+		/regName ( ) def
+
+		dTrace_mode 4 eq {
+%(%mode4d) =
+%memPtr DBGMemPtr print ( ) print
+%op_text print ( ) print e_a = % ( ) print %e_a2 print 
+
+			%predecrement
+
+			trace_addr dTrace_reg 2 copy get  [1 2 4] size get sub put %/sizes
+			/indirect trace_addr dTrace_reg get def
+
+%			find_abstract 
+%			/annotate annotate ( ) strcat abstractName strcat def
+%			abstracts dTrace_reg abstractName cvn put
+		
+			/regName regName (-) strcat def
+%annotate =
+%pstack stop
+
+		}if	
+
+
+		dTrace_mode 2 eq dTrace_mode 3 eq dTrace_mode 4 eq or or {
+%(%mode234d) =
+
+			%address to address  (indirect)
+			/indirect trace_addr dTrace_reg get def
+		
+			/regName regName  
+			(\() strcat adr_regs dTrace_reg get 14 string cvs strcat
+			(\)) strcat def
+
+			dTrace_mode 3 eq {
+				/regName regName (+) strcat def
+			}if
+
+		}if
+
+		dTrace_mode 5 eq {
+%(%mode5d) =
+
+%memPtr DBGMemPtr print ( ) print
+%op_text print ( ) print e_a = % ( ) print %e_a2 print 
+
+			/displacement eaDict /displacement get def
+		
+			/indirect trace_addr dTrace_reg get displacement add def
+
+			/regName regName 
+			displacement pWord strcat (\() strcat
+			adr_regs dTrace_reg get 14 string cvs strcat
+			(\)) strcat def
+
+%			find_abstract
+%			/annotate annotate ( ) strcat %abstractName strcat 
+%			regName strcat def
+
+%abstractName =
+%pstack stop
+
+		} if
+
+		dTrace_mode 6 eq {
+%(%mode6d) =
+
+%memPtr DBGMemPtr print ( ) print
+%op_text print ( ) print e_a = % ( ) print %e_a2 print 
+
+			/indirect 
+			trace_addr dTrace_reg get 
+			eaDict begin
+			displacement
+			index_reg_ind 0 eq {trace_data}{trace_addr}ifelse index_reg get add add
+			end 
+			def
+
+%			find_abstract
+%			/annotate annotate ( ) strcat abstractName strcat 
+%			def
+
+		
+%annotate =
+%pstack stop
+
+		} if
+		
+		dTrace_mode 7 eq {
+%(%mode7d) =
+
+%memPtr DBGMemPtr print ( ) print
+%op_text print ( ) print e_a print ( ) print %e_a2 print 
+
+			dTrace_reg 0 eq dTrace_reg 1 eq or {
+
+				/indirect eaDict /a get def
+			}if
+	
+			dTrace_reg 2 eq  {
+%dTrace_reg ==	
+			/indirect eaDict /label_position get def
+%annotate =
+%pstack stop	
+			}if
+	
+			dTrace_reg 3 eq {
+%mode73
+%dTrace_reg ==	
+			/indirect eaDict /a1 get def
+%annotate =
+%pstack stop	
+	
+			}if
+	
+			dTrace_reg 4 eq {
+%dTrace_reg ==	
+
+				/indirect eaDict /Immediate_Data get def
+	
+%annotate =
+%pstack stop	
+	
+			}if
+		
+
+%			find_abstract
+%			/annotate annotate ( ) strcat abstractName strcat 
+%			def
+
+%annotate =
+%pstack stop
+
+		}if
+
+%		annotate =
+	
+%		(indirect for xmem: ) =
+%		indirect ==
+
+		XMEM indirect 2 copy known {
+			2 copy get begin
+		}{
+			10 dict begin
+			currentdict put
+		}ifelse
+		
+		<< %>
+
+			/CLR {
+			
+				/value 0 def
+				/abstractName (CLR) def
+			
+			}
+
+			/NEG{
+				currentdict /value known {
+					/value value neg def
+				}{
+					/value 0 def
+					/abstractName (NEG) def
+				}ifelse
+			}
+			
+			/NEGX{
+(Neg X) =
+(###) =
+currentdict dfa
+(---) =
+pstack stop
+			
+			}
+
+			/NOT{
+				currentdict /value known {
+					/value value not def
+				}{
+					/value 0 def
+					/abstractName (NOT) def
+				}ifelse
+			
+			}
+			
+			/NBCD{
+(NBCD) =
+(###) =
+currentdict dfa
+(---) =
+pstack stop
+			
+			}
+		>> op cvn 2 copy known {
+			get exec
+		}{
+			pop pop
+			(invalid type 15 operation: ) print op =
+			pstack stop
+		}ifelse
+
+
+		end
+
+	}if
+		 
+	/p1 e_a dup length string copy def
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef %(,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+
+/type_16 {
+
+	/dest code 16#3f and def
+	/reg  code 16#0e00 and -9 bitshift def
+
+	/dTrace_mode dest 16#38 and -3 bitshift def
+	/dTrace_reg dest 16#07 and def
+
+
+	/annotate 
+	(mode: )  dTrace_mode pHex strcat
+	(,)  dTrace_reg pHex strcat strcat
+	def
+
+	nextICodeAddr dest WORD_SIZE effective_address /nextICodeAddr exch def  /e_a exch def
+
+	/op_text op dup length string copy def 
+
+	/p1 e_a dup length string copy def
+
+	/p2 data_regs reg get dup length string copy def
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+
+
+/type_18 {
+
+%	/*	EXG type instructions	*/
+%	long adr;
+%	int dest;
+%	int source;
+%	int op_mode;
+%	char *rx,*ry;
+	
+	/dest code 16#07 and def
+	/source code 16#0e00 and -9 bitshift def
+	/op_mode code 16#f8 and -3 bitshift def
+
+	op_mode 16#08 eq {
+		/rx data_regs source get def
+		/ry data_regs dest get def
+	}{
+		op_mode 16#09 eq {
+			/rx adr_regs source get def
+			/ry adr_regs dest get def
+		}{
+			op_mode 16#11 eq
+			{
+				/rx data_regs source get def
+				/ry adr_regs dest get def
+			}if
+		}ifelse
+	}ifelse
+
+	%annotate
+	
+%	(opMode: ) op_mode pHex strcat
+%dup =
+	
+	/op_text op dup length string copy def 
+
+	/p1  rx dup length string copy def
+
+	/p2 ry dup length string copy def
+
+
+	%sprintf(s,"%6lx   %s  %s,%s",adr,table[index].op,rx,ry);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	%annotate_pos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+/type_20 {
+
+
+%	BTST immediate data type instruction	*/
+
+
+	/dest code 16#3f and def
+	
+	%/*	point to immediate data	*/
+
+%(NW:) print dup DBGMemPtr print ( ) print	
+	nextICodeAddr readDataWord /nextICodeAddr exch def  /il_data exch def
+DBGMemPtr {
+il_data pWord writef % debug pass 1
+}if
+	%c = effective_address(c,e_a,dest,index,0);
+	dest 0 effective_address /ptrMem exch def /e_a exch def
+
+	/op_text op  dup length string copy def 
+
+	/p1 (#0x) il_data pWord strcat dup length string copy def
+
+	/p2 e_a dup length string copy def
+
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	%annotate_pos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr
+
+} def
+
+
+
+/type_21{
+
+% is also BTST 
+%(%type_21 ) print count ==
+	
+	/dest_reg code 16#0e00 and -9 bitshift def %	/*	get destination reg	*/
+	/source  code 16#3f and def %					/*	this is an effective address	*/
+
+	%c = effective_address(c,e_a,source,index,0);	/*	do effective address	*/
+	nextICodeAddr source 0 effective_address /nextICodeAddr exch def /e_a exch def
+
+	/op_text op  dup length string copy def 
+
+	/p1 data_regs dest_reg get dup length string copy def
+
+	/p2 e_a dup length string copy def
+
+	
+	%sprintf(s,"%6lx   %s  %s,%s",adr,table[index].op,data_regs[dest_reg],e_a);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+%	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+%(#type_21 ) print count ==
+	
+} def
+
+
+/type_22 {
+%search type_4
+%(%type_22 ) print count ==
+%pstack stop
+
+	%/*	moveq	*/
+	
+	/data_parm  code 16#ff and def
+	/dest_reg code  16#0e00 and -9 bitshift def
+
+	%data = (int)( (char)data);
+	
+	trace_data dest_reg data_parm put
+
+	
+	/op_text op dup length string copy def 
+
+	/p1 (#16#) data_parm pHex strcat dup length string copy def
+
+	/p2 data_regs dest_reg get dup length string copy def
+	
+%	/annotate  data_regs dest_reg get
+%		( = ) strcat trace_data dest_reg get pLong strcat		
+%		def
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	%annotate_pos annotate writef
+	wrtlin
+}if	
+
+%(er_22 ) print count ==
+
+	nextICodeAddr	% next address to disasemble 
+	
+} bind def
+
+
+/type_23 {
+
+%	
+%(/*	movem	*/) ==
+/annotate ( ; ) def
+
+	/source  code 16#3f and def
+	/size code 16#040 and -6 bitshift def
+	/direction code 16#0400 and -10 bitshift def
+
+%(NW:) print  dup DBGMemPtr print ( ) print	
+	nextICodeAddr readDataWord /nextICodeAddr exch def  /reg_mask exch def
+
+reg_mask pWord writef % debug pass 1
+
+	%c = effective_address(c,e_a,source,index,0);
+	nextICodeAddr source 0 effective_address /nextICodeAddr exch def /e_a exch def
+
+%
+%	process register mask
+%
+	/mode source 16#38 and -3 bitshift def
+	/movem_flag 0 def
+	/first true def
+	%regs[0] = '\0';
+	/regs$ () def
+	mode 4 eq { %	predecrement
+		/movem_mask 16#080 def
+	}{
+		/movem_mask 16#0100 def
+	}ifelse
+	%for(i=0;i<8;++i)
+%(->) print pstack (<-) =
+	0 1 7 {
+		/i exch def
+		movem_mask reg_mask and 0 ne { %	/*	is this bit set?	*/
+
+			first {
+				%sprintf(regs,"%s",adr_regs[i]);
+				/regs$ adr_regs i get def 
+				/first false def
+				/movem_flag movem_flag 1 add def
+			}{
+				movem_flag 0 eq {
+					%sprintf(t,"/%s",adr_regs[i]);
+					/regs$ regs$ (,) strcat adr_regs i get strcat def %(regs,t);
+					/movem_flag 1 movem_flag add def
+				}{
+					%movem_flag 0 ne
+					/movem_flag 1 movem_flag add def
+				}ifelse
+			}ifelse
+		}{
+			movem_flag 0 ne {
+				movem_flag 2 gt {
+					%sprintf(t,"-%s",adr_regs[i-1]);
+					/regs$ regs$ (,) strcat adr_regs i 1 sub get strcat def %(regs,t);
+				}{
+					movem_flag 2 eq {
+						%sprintf(t,"/%s",adr_regs[i-1]);
+						/regs$ regs$ (,) strcat adr_regs i 1 sub get strcat def %(regs,t);
+					}if
+				}ifelse
+				/movem_flag 0 def
+			}if
+		}ifelse
+		mode 4 eq {
+			/movem_mask movem_mask -1 bitshift def
+		}{
+			/movem_mask movem_mask 1 bitshift def
+		}ifelse
+	} for
+%(A) ==
+%pstack stop
+	movem_flag 1 gt
+	{
+		%sprintf(t,"-%s",adr_regs[i-1]);
+		%strcat(regs,t);
+		/regs$ regs$ (,) strcat adr_regs i 1 sub get strcat strcat def
+	}if
+	/movem_flag 0 def
+	mode 4 eq { %predecrement	*/
+		/movem_mask 16#8000 def
+	}{
+		/movem_mask 16#01 def
+	}ifelse
+	
+	%for(i=0;i<8;++i)
+	0 1 7{
+		/i exch def
+		movem_mask reg_mask and 0 ne { %	/*	is this bit set?	*/
+		
+			first {
+				%sprintf(regs,"%s",data_regs[i]);
+				/regs$ data_regs i get def 
+				/first false def
+				/movem_flag movem_flag 1 add def
+			}{
+				movem_flag 0 eq {
+					%sprintf(t,"/%s",data_regs[i]);
+					/regs$ regs$ (,) strcat data_regs i get strcat def %(regs,t);
+					/movem_flag 1 movem_flag add def
+				}{
+					movem_flag 0 ne {
+						/movem_flag 1 movem_flag add def
+					}if
+				}ifelse
+			}ifelse
+		}{
+			movem_flag 0 ne {
+				movem_flag 2 gt {
+					%sprintf(t,"-%s",data_regs[i-1]);
+					/regs$ regs$ (,) strcat data_regs i 1 sub get strcat def %(regs,t);
+				}{
+					movem_flag 2 eq {
+						%sprintf(t,"/%s",data_regs[i-1]);
+						/regs$ regs$ (,) strcat data_regs i 1 sub get strcat def %(regs,t);
+					}if
+				}ifelse
+				/movem_flag  0 def
+			}if
+		}ifelse
+		mode 4 eq {
+			/movem_mask movem_mask -1 bitshift def
+		}{
+			/movem_mask movem_mask 1 bitshift def
+		}ifelse
+	} for
+%(B) ==
+
+	movem_flag 1 gt {
+		%sprintf(t,"-%s",data_regs[i-1]);
+		/regs$ regs$ (,) strcat data_regs i 1 sub get  strcat def %(regs,t);
+	}if
+
+	direction 0 eq {
+		/f regs$ def
+		/d e_a def
+	}{
+		/f e_a def
+		/d regs$ def
+	}ifelse
+
+	size 0 ne {
+		/size 2 def
+	}{
+		/size 1 def
+	}ifelse
+	
+%	flag memPtr 2 copy get INSTCODE or put
+
+	/op_text op dup length string copy def 
+
+	/p1 f dup length string copy def
+
+	/p2 d dup length string copy def
+
+	
+	%sprintf(s,"%6lx   %s%s  %s,%s",adr,table[index].op,sizes[size],f,d);
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+	nextICodeAddr	% next address to disasemble 
+
+} def
+
+/type_24 {
+	( trap: ) writef
+
+	wrtlin
+	nextICodeAddr	% next address to disasemble
+	
+}def
+
+
+/type_29 {
+
+%	/*	MOVEP	move peripheral data	*/
+%	long adr;
+%	int data_reg,adr_reg;
+%	int displacement;
+%	unsigned direction;
+
+
+
+	/data_reg code 16#0e00 and -9 bitshift def
+	/adr_reg  code 16#07 and def
+	/direction  code 16#080 and def
+	
+
+	nextICodeAddr readDataWord /nextICodeAddr exch def  /displacement exch def
+DBGMemPtr {
+displacement pWord writef
+} if
+
+	/op_text op dup length string copy def 
+
+	direction 0 ne {
+		/p1 data_regs data_reg get dup length string copy def
+		/p2 (#) displacement 12 string cvs strcat (\() strcat
+		adr_regs adr_reg get strcat (\)) strcat
+		dup length string copy def
+	}{
+		/p2 data_regs data_reg get dup length string copy def
+		/p1 (#) displacement 12 string cvs strcat (\() strcat
+		adr_regs adr_reg get strcat (\)) strcat
+		dup length string copy def
+	}ifelse
+
+	
+%	direction 0 ne {
+		%sprintf(s,table[index].op,adr,data_regs[data_reg],displacement,adr_regs[adr_reg]);
+%	}{
+		%sprintf(s,table[index].op,adr,displacement,adr_regs[adr_reg],data_regs[data_reg]);
+%	}ifelse
+
+%	<< /op (%6lx   MOVEP.W  %x(%s),%s)		/op_code 16#0108 /mask 16#f1f8 /d_funct /type_29 >>
+%	<< /op (%6lx   MOVEP.W   %s,%x(%s))		/op_code 16#0188 /mask 16#f1f8 /d_funct /type_29 >>
+%	<< /op (%6lx   MOVEP.L  %x(%s),%s)		/op_code 16#0148 /mask 16#f1f8 /d_funct /type_29 >>
+%	<< /op (%6lx   MOVEP.L   %s,%x(%s))		/op_code 16#01c8 /mask 16#f1f8 /d_funct /type_29 >>
+
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+	ear_pos wrtpos p1 writef (,) writef p2 writef
+	%annotate_pos wrtpos annotate writef
+	wrtlin
+}if	
+
+
+
+	nextICodeAddr
+	
+} def
+
+
+/type_30 {
+
+%	code pWord =
+
+	/nextICodeAddr memPtr 2 add def  % points to word following trap
+
+	/op_text op dup length string copy def 
+	
+DBGMemPtr {
+	flag LBL and LBL eq {
+		label_pos wrtpos
+		SymbolName writef (:) writef
+
+	} if
+	op_pos wrtpos op_text writef 
+%	ear_pos wrtpos p1 writef (,) writef p2 writef
+%	annotate_pos wrtpos annotate writef
+%	wrtlin
+}if	
+	
+	TOOLBOX_TRAPS code 16#FFFF and 2 copy known {
+		get begin
+		
+		logParameters
+
+		nextICodeAddr
+		
+		end
+		/nextICodeAddr exch def
+
+		
+	}{
+wrtlin
+(update trap list ) =
+(###) =
+currentdict dfa
+(---) =
+pstack stop
+	}ifelse
+	
+	nextICodeAddr
+
+} bind def
+
+/dis_inst1 {
+
+%nextInstance /nestInstance 2 copy get
+%dup =string cvs print ( ) print 1 add put
+%(dis_inst1 enter) =	
+%countdictstack ==
+
+	10 dict begin
+	/memPtr exch def
+
+	/newaddr -1 def
+	/handled false def	
+	/i 0 def
+	
+	% this version uses formatted strings display this disasembly
+	
+%(dis_inst1:) print 
+%memPtr DBGMemPtr print ( ) print
+	mem memPtr 2 div cvi get begin
+	flag empty and empty eq {
+		% there is no data yet read into this memory location	
+
+		memPtr readDataWord /newaddr exch def 
+		/code exch def
+%( code: ) print 
+%code pWord print %( ) print
+		/memDict currentdict def 
+
+		/handled false def	
+		OP_DEF {
+			/i i 1 add def
+			begin
+
+%mask pWord print ( ) print code mask and pWord print ( == ) print op_code pWord =
+		
+			code mask and op_code eq {
+%memPtr /DBGMemPtr print ( ) print
+%	( /) print d_funct =string cvs print
+%	( ) print op print (: code 16#) print code pWord =
+				memDict begin	% push the memory location dict onto the stack
+
+				/flag flag empty not and def		% mark memory cell as having data	
+				/flag flag CODE INSTCODE or or def		% set this location as an instruction
+
+DBGMemPtr {
+%count =string cvs print ( ) print
+memPtr pAddr writef <28> writef memPtr 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos code pWord writef
+} if
+				/nextICodeAddr memPtr 2 add def
+
+				d_funct load exec  % recursive call here
+				end
+				
+%(leak/: ) print countdictstack ==
+				true
+			}{
+				false
+			}ifelse
+			end % operator dict
+
+			/handled exch def
+			handled {exit} if
+		} forall
+	}{
+%(world edge: ) print count pDec3 print ( ) print memPtr pAddr =
+
+memPtr 2 add  	% skip over already parsed data
+				% the first pass often finds garbage code
+				% at the end of brances
+
+%count 0 gt { 
+% view as hex
+%/cc count 1 sub def
+%cc copy cc {
+
+%pAddr =
+
+%} repeat
+
+% } if
+
+		/handled  true def
+	}ifelse
+
+	handled {
+		/newaddr exch def
+	}{
+DBGMemPtr {
+%count =string cvs print ( ) print
+memPtr pAddr writef (: ) writef
+(     NAI ) writef code pWord writef
+wrtlin
+} if
+		% illegal instruction mark as data
+%		flag memPtr 2 copy get CODE not and put
+%		flag memPtr 2 copy get DATAW or put
+		mem memPtr get begin
+			/dw code def
+			/blk (ILLG) def
+		end
+		/newaddr memPtr 2 add def
+	} ifelse
+	newaddr
+	
+	end	
+
+	end
+
+%nextInstance /nestInstance 2 copy get
+%1 sub dup =string cvs print ( ) print put
+%(dis_inst1 exit) =	
+%countdictstack ==
+
+} bind def
+
+/nestdict << /nestlevel 0 >> def
+
+
+/pass1 {
+%countdictstack =string cvs print ( ++++) =
+
+	10 dict begin
+	% recursive here watch out for re entry code idx
+%countdictstack =string cvs print ( +++++) =
+
+	/addr exch def
+%addr 2 mul pAddr print (\() print addr =string cvs print (\)) = 	
+	%while ((addr != -1) && (hf->flag[addr] == 0))
+
+	10000 {
+%addr 2 mul pAddr print 
+		addr -1 eq {exit} if 
+%( loop loop: ) print flag addr get pHex =		
+%		flag addr get empty not and  0 ne 
+	0 {
+%(not empty ) print addr DBGMemPtr print ( ) print
+%flag addr get pHex print ( ) print mem addr get dfa
+			exit
+		} if 	
+		%/* no error, we haven't been here before, and non-empty */
+		%/* disassemble next instruction */
+%addr DBGMemPtr print (:) print
+		addr dis_inst1 /addr exch def
+%( -> ) print addr 2 mul pAddr print (\() print addr =string cvs print (\)) = 		
+%		addr 2 mul pAddr print 
+%( [) print
+%		trace_addr {pLong print ( ) print} forall
+%		(][) print
+%		trace_data {pLong print ( ) print} forall
+%		(]) =
+	}repeat
+%( pass return ) print
+%addr DBGMemPtr print ( ) print
+	end
+%(---- ) print
+%countdictstack =string cvs print
+
+
+
+%nestdict begin /nestlevel nestlevel 1 sub  def  nestlevel == end
+
+} bind def
+
+
+
+%1403158996 unix2c idate ==
+
+% attempt to open resource fork
+	/TFRN TFN (/..namedfork/rsrc) strcat def
+	
+TFRN ==
+
+	TFN status {
+(data fork: ) print
+	4 array astore /fStats exch def  % file is readable 
+	fStats ==
+pstack	
+	}if
+
+	TFRN status {
+(resource fork: ) print
+	4 array astore /fStats exch def  % file is readable 
+	fStats ==
+(->) =
+pstack
+	(rfork.ps) run
+
+	
+	}{
+(no file resource.) =
+	}ifelse
+	
+	
+	
+	Resources /cfrg known {
+		get {
+		
+			begin
+	(###) =
+	currentdict dfa
+	(---) =		
+	
+			end
+	
+		} forall
+
+pstack stop	
+
+
+	
+(\nPass 1:) =
+	
+% disasemble resource as code
+
+		0 5000 {
+			dis_inst1 
+		} repeat
+	}if

@@ -1,0 +1,739 @@
+%!PS
+
+/dBlock <
+8F1A000627D3BAFD2B24726F5023F2F7 
+1F285005080FD3C00418D5E0047E0023 
+60A00D5FA7BE20B2E4D15E97F7827E8D 
+7D2BC990B057B3AF8C099BBE5E5C921C
+FCFBDACE3DCD1B701385794E7BD9C434 
+718B536892457CFD0E2DBACA1AC25844 
+0804BF22AD423057C7532686B17FB98C 
+3491FF46C17E8DCFD971EC1D76ECF102
+B5C2D9437ED0E65E8B73795DE84F3149 
+89B0DC418A07404A3D8159522DC64C03 
+5827731FAB5338C1CCA75A250EAA588D
+ACC244C46DD4C422F95BCC64F45785D2 
+968CCC23C0C2C3B156D3243E674915DB 
+C5F0079FD966DE5F8A98595FDF7A11B5 
+83747836C1CFFCF9513C76336D8918BD 
+BBD9E2167480E2A61594409301E3FE35 
+D2F0C658C235C58934CB827684644242 
+06E6D4FCC540F54FF23BA66893F1301A 
+1E2AE5B9C8A244EA9F321C6E5E7284A3
+1C16CB88E97F16FC8033A262ADBB64E1 
+FCE00337C0E38B062A30A01B80E6AC94
+57937992A3D69D5605188488489E06DC 
+31026C00EEC7F98DFB921AD03B822C3D 
+EBFDE54453F960A59CF04A4900A6EB4F 
+C395EB2F51AB3B88604F68008F9C3132 
+004C9796B0A9575D70201D164F4F6F01
+715A02E92D8037EAD9787BE38BD865C0 
+5A62FF8CF0AA10E7B99B536CE15C3613 
+1AFE27624F6994D0E7FAC4102040B041 
+24EA59201BFB86941F60D83701769092 
+023F6D94A960D7CDE7113E8034574498 
+22FB9203A2F074576D44BE05A1546602
+> def
+
+%dBlock ==
+
+
+
+% 8F 1A 00 06 27 D3 BA FD 2B 24 72 6F 50 23 F2 F7 1F 28 50 05 08 0F D3 C0 04 18 D5 E0 04 7E 00 23
+
+% 1000 1111 0001 1010 0000 0110 0010 0111 1101 0011 1011 1010 1111 1101 0010 1011 0010 0100 0111 0010
+
+% 100011110 001101000 000110001 001111101 001110111 010111111 010010101 100100100 01110010
+% 286       104       49        125
+% 11E       064       031       07D       077       0BF       095       124
+
+
+% 10001111 000110100 000011000 100111110 100111011 101011111 101001010 110010010 001110010
+% 8F       034       018       13E       13B       15F       14A       192       072
+
+% 1A8F 0600 D327 FDBA 242B 6F72 2350 F7F2 281F
+
+% 0001 1010 1000 111 0110 0000 1101 0011 0010 1110 1111 1101
+
+% 000110101 000111011 000001101 001100101 11011111 101
+% 035       03B       00D       065       1BF
+
+% 876543210 876543210 876543210 876543210 876543210 876543210 876543210 876543210  876543210 
+% 765432107 654321076 543210765 432107654 321076543 210765432 107654321 076543210  765432107 
+%           <<1       <<2       <<3       <<4       <<5       <<6       <<7
+% mmmmmmmm  mmmmmmm   mmmmmm    mmmmm     mmmm      mmm       mm        m
+%         M        MM       MMM      MMMM     MMMMM    MMMMMM   MMMMMMM  MMMMMMMM
+
+
+% mac cpt packit/compactor in dcpt  base values out of range -- and this looked so promising
+
+
+% pack  -- not promising
+%	/*
+%	 * check two-byte header  -------->  !fails here obviously 1F1E  1F9D is compress
+%	 * get size of original file,  -------> 6 or 1536 if long could be 403411
+	%orig size long 27d3ba 2610106 invalid
+%	 * get number of levels in maxlev,  -----> short invalid 6, 27
+%	 * get number of leaves on level i in intnodes[i], 211 -- nodes are short -- looks invalid
+%	 * set tree[i] to point to leaves for level i
+%	 */
+
+
+% packbits
+
+% 8F 1A 00 06 27 D3 BA FD 2B 24 72 6F 50 23 F2 F7 1F 28 50 05 08 0F D3 C0 04 18 D5 E0 04 7E 00 23
+% ^  ^  ^  ^                    ^
+% |  |  |  |                    |
+% |  |  |  |                    |
+% |  |  |  |                    +--- 72 bytes of litteral dat -- probably not packbits
+% |  |  |  +--- 6 bytes of litteral data <27 D3 BA FD 2B 24>
+% |  |	+----- zero  
+% |  +----- data to repeat
+% +-- run 16 1A
+
+
+% ADC checked in ddskcpy/ddskimg  and filterws.ps  -- typically adc sliding window leaves bits and pecies of
+% readable text
+
+
+% might try zread (unix compress)
+/BlockFileName (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050/segment_F000000_0x00000000) def
+
+
+/verbose false def
+
+/writeLog false def
+
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/lzw {dup length 2 mul dup 60 idiv add 1 add string dup 
+/LZWEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/flate {dup length 2 mul dup 60 idiv add 1 add string dup 
+/FlateEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 gt { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+
+	/hasRSRC true def
+
+(->) =
+pstack	
+	}{
+( no file resource.) =
+		/hasRSRC false def
+	}ifelse
+
+%<< /PageSize [ 612 792] >> setpagedevice % default  -- should restore for normal use
+
+%banana.z
+%/of (banana.z) (w) file def
+%of <1f1e0000000603010100616e6216c8> writestring
+%of closefile
+
+
+	/zs BlockFileName (r) file  def
+
+
+% 1000 0000 0100 0110 0110 0110 0110 0111 0111 0111 1000 0111 0110 0111
+% 1000 1111 0001 1010 0000 0110 0010 0111 1101 0011 1011 1010 1111 1101
+
+%static char_type magic_header[] =
+%	{'\037', '\235'};		/* 1F 9D */
+
+%#define	BITS		16		/* Default bits. */
+/BITS 16 def %					/* Default bits. */
+
+%#define	HSIZE		69001		/* 95% occupancy */
+/HSIZE 69001 def					%/* 95% occupancy */
+
+
+%#define	BIT_MASK	0x1f		/* Defines for third byte of header. */
+/BIT_MASK 16#1F def
+
+%#define	BLOCK_MASK	0x80
+/BLOCK_MASK	16#80 def
+
+/FIRST	257 def		%/* First free entry. */
+/CLEAR	256	def		%/* Table clear output code. */
+
+
+%/*
+% * Masks 0x40 and 0x20 are free.  I think 0x20 should mean that there is
+% * a fourth header byte (for expansion).
+% */
+%#define	INIT_BITS 9			/* Initial number of bits/code. */
+/INIT_BITS 9 def
+
+%#define	MAXCODE(n_bits)	((1 << (n_bits)) - 1)
+/MAXCODE  { 1 exch bitshift 1 sub } bind def
+
+% more waste of time -- this also looks unlikely to be the right decompress
+% there are not a lot of valid options
+
+% mac programs packit/stuffit and cpt compactor/ are the most likely
+% zip does not seem likely due to no header/trailer and lzw zlib fails
+% unix pack does not seem righ
+% compress is this test  The newer archiving tools are, well neweer than the early 2000s
+% and one would expect header info.
+
+ %/*-
+ % * Read one code from the standard input.  If EOF, return -1.
+ % * Inputs:
+ % * 	stdin
+ % * Outputs:
+ % * 	code or -1 is returned.
+ % */
+ %static code_int
+ %getcode(struct s_zstate *zs)
+ %{
+ %	code_int gcode;
+ %	int r_off, bits;
+ %	char_type *bp;
+ %
+ %	bp = gbuf;
+ %	if (clear_flg > 0 || roffset >= size || free_ent > maxcode) {
+ %		/*
+ %		 * If the next entry will be too big for the current gcode
+ %		 * size, then we must increase the size.  This implies reading
+ %		 * a new buffer full, too.
+ %		 */
+ %		if (free_ent > maxcode) {
+ %			n_bits++;
+ %			if (n_bits == maxbits)	/* Won't get any bigger now. */
+ %				maxcode = maxmaxcode;
+ %			else
+ %				maxcode = MAXCODE(n_bits);
+ %		}
+ %		if (clear_flg > 0) {
+ %			maxcode = MAXCODE(n_bits = INIT_BITS);
+ %			clear_flg = 0;
+ %		}
+ 
+ %		size = fread(gbuf, 1, n_bits, fp);
+ %		if (size <= 0)			/* End of file. */
+ %			return (-1);
+ %		roffset = 0;
+ 
+ %		/* Round size down to integral number of codes. */
+ %		size = (size << 3) - (n_bits - 1);
+ %	}
+ %	r_off = roffset;
+ %	bits = n_bits;
+ %
+ %	/* Get to the first byte. */
+ %	bp += (r_off >> 3);
+ %	r_off &= 7;
+ %
+ %	/* Get first part (low order bits). */
+ %	gcode = (*bp++ >> r_off);
+ %	bits -= (8 - r_off);
+ %	r_off = 8 - r_off;	/* Now, roffset into gcode word. */
+ %
+ %	/* Get any 8 bit parts in the middle (<=1 for up to 16 bits). */
+ %	if (bits >= 8) {
+ %		gcode |= *bp++ << r_off;
+ %		r_off += 8;
+ %		bits -= 8;
+ %	}
+ %
+ %	/* High order bits. */
+ %	gcode |= (*bp & rmask[bits]) << r_off;
+ %	roffset += n_bits;
+ %
+ %	return (gcode);
+ %}
+
+
+ %static int
+ %cl_block(struct s_zstate *zs)		/* Table clear for block compress. */
+ %{
+ %	long rat;
+ %
+ %	checkpoint = in_count + CHECK_GAP;
+ %
+ %	if (in_count > 0x007fffff) {	/* Shift will overflow. */
+ %		rat = bytes_out >> 8;
+ %		if (rat == 0)		/* Don't divide by zero. */
+ %			rat = 0x7fffffff;
+ %		else
+ %			rat = in_count / rat;
+ %	} else
+ %		rat = (in_count << 8) / bytes_out;	/* 8 fractional bits. */
+ %	if (rat > ratio)
+ %		ratio = rat;
+ %	else {
+ %		ratio = 0;
+ %		cl_hash(zs, (count_int) hsize);
+ %		free_ent = FIRST;
+ %		clear_flg = 1;
+ %		if (output(zs, (code_int) CLEAR) == -1)
+ %			return (-1);
+ %	}
+ %	return (0);
+ %}
+
+
+ %static void
+ %cl_hash(struct s_zstate *zs, count_int cl_hsize)	/* Reset code table. */
+ %{
+ %	count_int *htab_p;
+ %	long i, m1;
+ %
+ %	m1 = -1;
+ %	htab_p = htab + cl_hsize;
+ %	i = cl_hsize - 16;
+ %	do {			/* Might use Sys V memset(3) here. */
+ %		*(htab_p - 16) = m1;
+ %		*(htab_p - 15) = m1;
+ %		*(htab_p - 14) = m1;
+ %		*(htab_p - 13) = m1;
+ %		*(htab_p - 12) = m1;
+ %		*(htab_p - 11) = m1;
+ %		*(htab_p - 10) = m1;
+ %		*(htab_p - 9) = m1;
+ %		*(htab_p - 8) = m1;
+ %		*(htab_p - 7) = m1;
+ %		*(htab_p - 6) = m1;
+ %		*(htab_p - 5) = m1;
+ %		*(htab_p - 4) = m1;
+ %		*(htab_p - 3) = m1;
+ %		*(htab_p - 2) = m1;
+ %		*(htab_p - 1) = m1;
+ %		htab_p -= 16;
+ %	} while ((i -= 16) >= 0);
+ %	for (i += 16; i > 0; i--)
+ %		*--htab_p = m1;
+ %}
+ %
+
+
+ %/*
+ % * Decompress read.  This routine adapts to the codes in the file building
+ % * the "string" table on-the-fly; requiring no table to be stored in the
+ % * compressed file.  The tables used herein are shared with those of the
+ % * compress() routine.  See the definitions above.
+ % */
+ %static int
+ %zread(void *cookie, char *rbp, int num)
+ %{
+ %	u_int count;
+ %	struct s_zstate *zs;
+ %	u_char *bp, header[3];
+ %
+ %	if (num == 0)
+ %		return (0);
+ %
+ %	zs = cookie;
+ %	count = num;
+ %	bp = (u_char *)rbp;
+ %	switch (state) {
+ %	case S_START:
+ %		state = S_MIDDLE;
+ %		break;
+ %	case S_MIDDLE:
+ %		goto middle;
+ %	case S_EOF:
+ %		goto eof;
+ %	}
+ %
+ %	/* Check the magic number */
+ %	if (fread(header,
+ %	    sizeof(char), sizeof(header), fp) != sizeof(header) ||
+ %	    memcmp(header, magic_header, sizeof(magic_header)) != 0) {
+ %		errno = EFTYPE;
+ %		return (-1);
+ %	}
+ 
+ % on a real file one would read 3 bytes
+ 
+ 	zs 3 string readstring /EOF exch def /header exch def
+ 
+ 	header 0 2 getinterval <1F9D> eq { (not a unix compress file.) } if
+ 
+ 
+ %	maxbits = header[2];	/* Set -b from file. */
+ 
+ 	% maxbits would be 0 and we fail
+ 
+ %	block_compress = maxbits & BLOCK_MASK;  % BLOCK_MASK is 80
+ %	maxbits &= BIT_MASK;					% 5 bits
+ %	maxmaxcode = 1L << maxbits;
+ %	if (maxbits > BITS) {
+ %		errno = EFTYPE;
+ %		return (-1);
+ %	}
+ 
+ 	% more fails is there a header or not? 
+ 
+ 
+ 	% still this is what we want to waste time on the table decodes
+ 
+ %	/* As above, initialize the first 256 entries in the table. */
+ %	maxcode = MAXCODE(n_bits = INIT_BITS);
+ %	for (code = 255; code >= 0; code--) {
+ %		tab_prefixof(code) = 0;
+ %		tab_suffixof(code) = (char_type) code;
+ %	}
+ %	free_ent = block_compress ? FIRST : 256;
+ %
+ 
+ %% this is what may or may not be useful in getting stats/data from file
+ %% could be useful reading the 10 bit image data in the cineon files
+ 
+ %	finchar = oldcode = getcode(zs);
+ %	if (oldcode == -1)	/* EOF already? */
+ %		return (0);	/* Get out of here */
+ %
+ %	/* First code must be 8 bits = char. */
+ %	*bp++ = (u_char)finchar;
+ %	count--;
+ %	stackp = de_stack;
+ 
+ %% which code is likely to be the first code
+ %% searching for 0x80 in the file returns noise tyoe results
+ 
+ %
+ %	while ((code = getcode(zs)) > -1) {
+ %
+ %		if ((code == CLEAR) && block_compress) {
+ %			for (code = 255; code >= 0; code--)
+ %				tab_prefixof(code) = 0;
+ %			clear_flg = 1;
+ %			free_ent = FIRST - 1;
+ %			if ((code = getcode(zs)) == -1)	/* O, untimely death! */
+ %				break;
+ %		}
+ %		incode = code;
+ %
+ 
+ 
+ %		/* Special case for KwKwK string. */
+ %		if (code >= free_ent) {
+ %			*stackp++ = finchar;
+ %			code = oldcode;
+ %		}
+ %
+ 
+ 
+ %		/* Generate output characters in reverse order. */
+ %		while (code >= 256) {
+ %			*stackp++ = tab_suffixof(code);
+ %			code = tab_prefixof(code);
+ %		}
+ %		*stackp++ = finchar = tab_suffixof(code);
+ %
+ %		/* And put them out in forward order.  */
+ %middle:		do {
+ %			if (count-- == 0)
+ %				return (num);
+ %			*bp++ = *--stackp;
+ %		} while (stackp > de_stack);
+ %
+ %		/* Generate the new entry. */
+ %		if ((code = free_ent) < maxmaxcode) {
+ %			tab_prefixof(code) = (u_short) oldcode;
+ %			tab_suffixof(code) = finchar;
+ %			free_ent = code + 1;
+ %		}
+ %
+ %		/* Remember previous code. */
+ %		oldcode = incode;
+ %	}
+ %	state = S_EOF;
+ %eof:	return (num - count);
+ %}

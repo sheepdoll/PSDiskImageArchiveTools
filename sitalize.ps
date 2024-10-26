@@ -1,0 +1,1876 @@
+% dump a possibly corrupted zip archive
+
+
+% blown file  (smi?  Sea? ) Dead Dead dead.  file est mort.  There is no header at all
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_1.sit) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/pcd4050.sea) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/PCD Acquire Installer.sea) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/RFS3570.SEA) def
+
+
+% not this format looks a bit like zip  could be a v5 variant there is a directory at the end
+% resource fork indicates these are compact pro format
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak Build-It/MAC/ARRANGIT/ARRANGIT.SEA;1) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/Kodak ICC Photo CD.sea) def
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/MFSImages.sit) def
+
+%/BlockFileName (/Users/arethusa/Documents/Watchmaking/Docs/AutoQuartz_documents/QuarkImmedia Viewer 1.02.sit) def
+
+%/BlockFileName (/Users/arethusa/Documents/Watchmaking/Docs/AutoQuartz_documents/QuarkImmedia Viewer 1.5.sit) def
+
+
+%/BlockFileName (/Users/arethusa/Downloads/mg143.sit) def
+
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/TTConverter1.5.sit) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/blue.sit) def
+%/BlockFileName (/Users/arethusa/Documents/ps_fragments/OtherImages/A2E/archive/EMSRC.SIT) def
+
+% ver 5 archive
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak_Build-It.sit) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/QuickDraw_GX_116.img_.sit) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/SCSIOldAndNew.sit) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/Film Term Installer.4050.sea) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/RFS 3570.Sea) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/0019.cin.sit) def
+/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.PPC.sit) def
+
+
+
+/verbose true def  % show raw compressed data
+/verbose1 true def % show file header 
+/verbose2 true def % show archive header
+
+/debugGaps false def
+
+/writefile false def
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 ge { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec02 { (00) 2 string copy dup 3 -1 roll 16#0FF and =string cvs 2 1 index length sub exch putinterval } bind def
+
+
+/pDec2 { (  ) 2 string copy dup 3 -1 roll 16#0FF and =string cvs 2 1 index length sub exch putinterval } bind def
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/MonthNames [(    ) (Jan ) (Feb ) (Mar ) (Apr ) (May ) (Jun )
+					(Jul ) (Aug ) (Sep ) (Oct ) (Nov ) (Dec ) ] def	 
+					
+/printDateStamp {
+	dup 0 ne {
+		16#FFFFFFFF and 2082844800 sub  unix2c 
+		MonthNames idate 1 get get print 
+		idate 2 get pDec2 print (,) print
+		idate 0 get =string cvs print ( at ) print
+	
+		idate 3 get dup 0 ge { 
+			pDec02 print (:) print
+			idate 4 get dup 0 ge {
+				pDec02 print
+			}{
+				pop
+				(<Invalid ninute>) print
+			}ifelse
+		}{
+			pop
+			(<Invalid hour>) print
+		}ifelse
+		(   ) print
+	}{
+		pop
+		( <* Invalid date *> ) print
+	}ifelse
+	
+	
+} def
+
+%16#3295
+/DOSDate {
+	dup -9 bitshift 16#7F and 1980 add /DOSYear exch def
+	dup -5 bitshift 16#0F and /DOSMonth exch def
+	16#1F and /DOSDay exch def
+	
+	MonthNames DOSMonth get print 
+	DOSDay pDec2 print (,) print
+	DOSYear =string cvs %print ( at ) print
+
+} def
+
+% 16#B4F8
+/DOSTime {
+	dup -11 bitshift 16#1F and /DOSHour exch def
+	dup -5 bitshift 16#3F and /DOSMinute exch def
+	16#1F and 2 mul /DOSSeconds exch def
+	
+	DOSHour pDec02 print (:) print
+	DOSMinute pDec02 
+
+} def
+
+
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+(->) =
+pstack	
+	}{
+( no file resource.) =
+	}ifelse
+
+
+/dumpArchiveHeader {
+
+	/xAddr 0 def
+%## Archive header
+
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+%| 00         | Word       | Magic number 1 (see below)  |
+verbose2 {
+(Magic number 1: ) print 
+} if
+	/sitSig$ rawData$ xAddr 4 getinterval def
+	[ 16#84 sitSig$ {} forall ] makestring cvx exec /sitsig exch def
+	/xAddr xAddr 4 add def
+verbose2 {
+	sitSig$ print ( ) print sitsig pLong =
+} if
+
+	% compact pro sea files will probaby start with 01
+	sitSig$ 0 get 1 eq {
+		(Compact Pro Archive: <) print
+		
+		sitSig$ $ =
+		
+		% unsigned char	signature;	/* = 1 -- for verification */
+		% unsigned char	volume;		/* for multi-file archives */
+		% unsigned short	xmagic;		/* verification multi-file consistency*/
+		/xAddr 2 def
+(xmagic: 0x) print
+		[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /xmagic exch def
+		/xAddr xAddr 2 add def
+xmagic pWord =
+(offset: 0x) print
+		[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /offset exch def
+		/xAddr xAddr 4 add def
+offset pLong =
+		% unsigned long	offset;		/* index offset */
+
+
+		
+pstack stop
+
+	} if
+
+	sitsig 16#53747566 eq {
+
+(version 5 archive: )  print sitSig$ ==
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+%| 000        | 80 bytes   | Magic string (always `StuffIt (c)1997-???? Aladdin Systems, Inc., http://www.aladdinsys.com/StuffIt/` followed by `0x0D` `0x0A`, where characters marked `?` can vary)  |
+%| 080        | Half       | Unknown |
+%| 082        | Byte       | Version (always `5`) |
+%| 083        | Byte       | Flags (`0x80` = encrypted) |
+%| 084        | Word       | Total size of archive |
+%| 088        | Word       | Unknown |
+%| 092        | Half       | Number of entries in root directory |
+%| 094        | Word       | Offset of first entry in root directory |
+%| 098        | Half       | Header CRC-16? |
+%| 100        | ?          | Unknown data until first entry |
+
+
+
+		
+		}{
+
+%Magic number 1 must be one of the following values: `SIT!`, `ST46`, `ST50`,
+%`ST60`, `ST65`, `STin`, `STi2`, `STi3`, `STi4`.
+			<<
+				/SIT!	16#53495421
+				/ST46	16#53543436
+				/ST50	16#53543530
+				/ST60	16#53543630
+				/ST65	16#53543635
+				/STin	16#5354696E
+				/STi2	16#53546932
+				/STi3	16#53546933
+				/STi4	16#53546934
+			>> sitSig$ cvn known {
+				(stuffit archive: ) print sitSig$ ==
+			}{
+				(not a known archive/broken archive) =
+				pstack stop
+			}ifelse	
+
+
+%| 04         | Half       | Number of entries in root directory |
+verbose2 {
+(Number of entries in root directory: ) print
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /sitEntries exch def
+	/xAddr xAddr 2 add def
+verbose2 {
+	sitEntries ==
+} if
+
+%| 06         | Word       | Total size of archive |
+verbose2 {
+(Total size of archive: ) print 
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /sitArchSz exch def
+	/xAddr xAddr 4 add def
+verbose2 {
+	sitArchSz ==
+} if
+
+%| 10         | Word       | Magic number 2 (always `0x724c6175`) |
+verbose2 {
+(Magic number 2: ) print 
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /sitMagic2 exch def
+	/xAddr xAddr 4 add def
+verbose2 {
+	( 16#) print sitMagic2 pLong =
+} if
+	
+%| 14         | Byte       | Version |
+verbose2 {
+(Version: ) print
+} if
+	/sitArchVer rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose2 {
+	sitArchVer ==
+} if
+	
+%| 15         | Byte       | Unknown |
+verbose2 {
+(Unknown: ) print
+} if
+	/Unknown1 rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose2 {
+	(16#) print Unknown1 pHex =
+} if
+	
+%| 16         | Word       | Header size (if version not `1`) |
+verbose2 {
+(Header size \(if version not 1\): ) print
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /sitHdrSz exch def
+	/xAddr xAddr 4 add def
+verbose2 {
+	sitHdrSz ==
+} if
+
+%| 20         | Half       | CRC-16 of header |
+verbose2 {
+(CRC-16 of header: ) print
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /sitHdrCrc exch def
+	/xAddr xAddr 2 add def
+verbose2 {
+	(16#) print sitHdrCrc pWord =
+} if
+	}ifelse
+} def
+
+
+/checkShowCompression {
+	
+	<< % >
+%Compression algorithms
+
+	0 (No compression)
+	1 (Rle90Algorithm: RLE)
+	2 (CompressAlgorithm: The compress LZW algorithm with 14 bits maximum code length, and block mode)
+	3 (StuffItAlgorithm3: Simple Huffman encoding of individual bytes)
+	5 (StuffItAlgorithm5: "LZAH")
+	8 (StuffItAlgorithm8: Miller-Wegman)
+	13 (StuffItAlgorithm13: LZSS and Huffman)
+	14 (StuffItAlgorithm14: ?)
+	15 (StuffItArsenicAlgorithm: BWT and arithmetic coding)
+	
+	32 (directory)
+	33 (end of directory) 
+	
+	>> exch 2 copy known {
+verbose1 {
+		25 {( ) print} repeat
+		get =
+}{
+		pop pop
+}ifelse
+		% this is where we could put a decompresor
+	}{
+		exch pop
+		(Unsupported Conpression type: ) print ==
+
+% debug data 		
+verbose {	
+		/bytesRead tf fileposition def
+		
+		/bytesRemaining fStatsData 1 get bytesRead sub def
+	
+		(bytes to end of file: ) print
+		bytesRemaining ==
+		
+		tf bytesRemaining string readstring pop bytesRead dumpHex
+		tf closefile
+} if
+		pstack stop	
+	}ifelse 
+
+
+}def
+
+/dumpFileHeader {
+
+	/startHere exch def
+
+verbose1 {
+(\nrecord offset: ) print startHere pLong print (: ) =
+}if
+
+	/xAddr 0 def
+%## File / folder header
+
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+%| 000        | Byte       | Resource fork compression method |
+verbose1 {
+xAddr pDec print (: ) print
+(resFrkCm:\t16#) print
+} if
+	/resFrkCm rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	resFrkCm pHex print  ( ) print resFrkCm =string cvs print
+	( Resource fork compression method) =
+} if
+	resFrkCm checkShowCompression
+%| 001        | Byte       | Data fork compression method |
+verbose1 {
+xAddr pDec print (: ) print
+(filFrkCm:\t16#) print
+} if
+	/filFrkCm rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	filFrkCm pHex print ( ) print filFrkCm =string cvs print
+	( File fork compression method) =
+} if
+	filFrkCm checkShowCompression
+
+%| 002        | Byte       | File name length (in range 1-31) |
+verbose1 {
+xAddr pDec print (: ) print
+(FileName$:\t) print
+} if
+	/filNameLen rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+%(16#) print filFrkCm pHex print ( ) print filNameLen ==
+
+%| 003        | 63 bytes   | File name (remaning bytes are zero)  |
+	/filNameBufr rawData$ xAddr 63 getinterval def
+	/xAddr xAddr 63 add def
+
+	filNameLen 63 gt {
+		() =
+(Probably a bad data record: ) =  %000DBD47
+verbose1 {
+	tf startHere setfileposition
+tf 512 string readstring pop 
+	/badData$ exch def
+
+badData$ startHere dumpHex
+} if
+		pstack stop
+		/FileName$ filNameBufr def
+	}{
+		/FileName$ filNameBufr 0 filNameLen getinterval def
+	}ifelse
+
+verbose1 {
+	FileName$ ==
+} if
+
+%| 066        | Word       | Mac OS file type |
+verbose1 {
+xAddr pDec print (: ) print
+(fiUsrWds_Type:\t\t') print
+} if
+	/fiUsrWds_Type rawData$ xAddr 4 getinterval def
+	/xAddr xAddr 4 add def
+verbose1 {
+	fiUsrWds_Type print ('\tMac OS file type) =
+} if
+
+%| 070        | Word       | Mac OS file creator |
+	/fiUsrWds_Creator rawData$ xAddr 4 getinterval def
+verbose1 {
+xAddr pDec print (: ) print
+(fiUsrWds_Creator:\t') print
+} if
+	/xAddr xAddr 4 add def
+verbose1 {
+	fiUsrWds_Creator print ('\tMac OS file creator) =
+} if
+
+%| 074        | Half       | Mac OS Finder flags |
+verbose1 {
+xAddr pDec print (: ) print
+(finderFlags:\t16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /finderFlags exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	finderFlags pWord print ( Mac OS Finder flags) =
+} if
+
+%| 076        | Word       | Creation date (Mac OS format) |
+verbose1 {
+xAddr pDec print (: ) print
+(filCrDat:\t) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /filCrDat exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filCrDat pLong print ( ) print filCrDat printDateStamp () =
+} if
+
+%| 080        | Word       | Modification date (Mac OS format) |
+verbose1 {
+xAddr pDec print (: ) print
+(filMdDat:\t) print				
+} if
+[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /filMdDat exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filMdDat pLong print ( ) print filMdDat printDateStamp () =
+} if
+
+%| 084        | Word       | Resource fork uncompressed length |
+verbose1 {
+xAddr pDec print (: ) print
+(ResFrkLen:\t16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /ResFrkLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	ResFrkLen dup pLong print ( ) print =string cvs print ( Resource fork uncompressed length) =
+} if
+	
+%| 088        | Word       | Data fork uncompressed length |
+verbose1 {
+xAddr pDec print (: ) print
+(DataFrkLen:\t16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /DataFrkLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	DataFrkLen dup pLong print ( ) print =string cvs print ( Data fork uncompressed length) =
+} if
+	
+%| 092        | Word       | Resource fork compressed length |
+verbose1 {
+xAddr pDec print (: ) print
+(ResFrkCmpLen:\t16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec /ResFrkCmpLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	ResFrkCmpLen dup pLong print ( ) print =string cvs print ( Resource fork compressed length) =
+} if
+	
+%| 096        | Word       | Data fork compressed length |
+verbose1 {
+xAddr pDec print (: ) print
+(dataFrkCmpLen:\t16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFF and /dataFrkCmpLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+
+	dataFrkCmpLen dup pLong print ( ) print =string cvs print ( Data fork compressed length) =
+} if
+	
+%| 100        | Half       | Resource fork CRC-16 |
+verbose1 {
+xAddr pDec print (: ) print
+(rsrcFrkCRC:\t16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /rsrcFrkCRC exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	rsrcFrkCRC pWord print ( Resource fork CRC-16) =
+} if
+
+%| 102        | Half       | Data fork CRC-16 |
+verbose1 {
+xAddr pDec print (: ) print
+(dataFrkCRC:\t16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec /dataFrkCRC exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	dataFrkCRC pWord print ( Data fork CRC-16) =
+} if
+
+%| 104        | 6 bytes    | Unknown |
+verbose1 {
+xAddr pLong print (: ) print
+(Unknown:\t<) print
+} if
+	/Unknown2 rawData$ xAddr 6 getinterval def
+	/xAddr xAddr 6 add def
+verbose1 {
+	Unknown2 $ =
+} if
+
+%| 110        | Half       | Header CRC-16 |
+verbose1 {
+xAddr pDec print (: ) print
+(filHdrCrc:\t16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filHdrCrc exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	filHdrCrc pWord print ( File Header CRC-16) =
+} if
+} def
+
+/shoFileName {
+
+	/isdir exch def
+	/rawName$ exch def
+
+	% file names can be up to 63 chars -- but the file system
+	% only can do up to 31.  possible the name is Unicode
+
+	/filtFileName [
+	isdir {
+		8#133 
+		rawName$ 0 get 46 eq {
+			8#033 8#133 16#31 59 16#33 16#35 109
+		}{
+			8#033 8#133 16#31 59 16#33 16#32 109
+		}ifelse
+	}{
+		rawName$ 0 get 46 eq {
+			8#033 8#133 16#31 59 16#33 16#35 109
+		}if
+	}ifelse
+	rawName$ {
+		dup 32 lt {
+			pop 46
+		}if
+	}forall
+	isdir rawName$ 0 get 46 eq or {
+		8#033 8#133 16#30 109 
+		isdir { 8#135 } if
+	} if	
+	] makestring def
+	
+	/adjNameLen  32 def
+	isdir {/adjNameLen  32 13 add def } if
+	rawName$ 0 get 46 eq {/adjNameLen  32 11 add def } if
+	
+	
+	filtFileName length adjNameLen lt {
+
+		/NameBlock [adjNameLen {32} repeat ] makestring def
+		NameBlock 0 filtFileName putinterval
+
+		NameBlock print
+		
+		isdir {
+			%( bytes   )
+			 (              ) print
+		
+		}{
+		
+			/TotSz DataFrkLen ResFrkLen add def
+			TotSz 9216 lt {
+				TotSz pDec print ( bytes   ) print
+			}{
+				TotSz 1024 div cvi pDec print ( KB      ) print
+			}ifelse
+		
+		}ifelse
+		
+
+		filMdDat printDateStamp
+		filCrDat printDateStamp
+		
+		isdir {
+			() =
+		}{
+			[ 16#84 fiUsrWds_Type 0 4 getinterval {} forall ] makestring cvx exec /OSType exch def
+			[ 16#84 fiUsrWds_Creator 0 4 getinterval {} forall ] makestring cvx exec /OSCreator exch def
+
+			OSType 0 ne {		
+				(') print
+				fiUsrWds_Type print (') print
+			}{
+				(      ) print
+			}ifelse
+			
+			OSCreator 0 ne {
+				( ') print
+				fiUsrWds_Creator print (') =
+			}{
+				() =
+			}ifelse
+		}ifelse
+	}{
+		(bad fileName: ) print
+		filtFileName =
+	}ifelse
+	
+	
+
+
+} def
+
+/v5Header {
+				/xAddrx 0 def			
+
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+
+%| 000        | 80 bytes   | Magic string (always `StuffIt (c)1997-???? Aladdin Systems, Inc., http://www.aladdinsys.com/StuffIt/` followed by `0x0D` `0x0A`, where characters marked `?` can vary)  |
+verbose2 {
+xAddrx pDec print (: ) print
+(Magic string: ) print
+} if
+				/Magic5$ rawData$ xAddrx 80 getinterval def
+				/xAddrx xAddrx 80 add def
+verbose2 {
+	Magic5$ =
+}if
+
+%| 080        | Half       | Unknown |
+verbose2 {
+xAddrx pDec print (: ) print
+(Unknown: ) print				
+} if
+				/Unknown1$ rawData$ xAddrx 2 getinterval def
+				[ 16#86 Unknown1$ {} forall ] makestring cvx exec /Unknown1 exch def
+				/xAddrx xAddrx 2 add def
+verbose2 {
+	Unknown1 pWord print ( ) print Unknown1$ ==
+} if
+
+%| 082        | Byte       | Version (always `5`) |
+verbose2 {
+xAddrx pDec print (: ) print
+(Version: ) print				
+} if
+				/sitVersion rawData$ xAddrx get def
+				/xAddrx xAddrx 1 add def
+verbose2 {
+	sitVersion ==
+} if
+
+%| 083        | Byte       | Flags (`0x80` = encrypted) |
+verbose2 {
+xAddrx pDec print (: ) print
+(Flags: ) print				
+} if
+				/sitFlags rawData$ xAddrx get def
+				/xAddrx xAddrx 1 add def
+verbose2 {
+	sitFlags (16#) print pHex =
+} if
+
+%| 084        | Word       | Total size of archive |
+verbose2 {
+xAddrx  pDec print (: ) print
+(Total size of archive: ) print				
+} if
+	[ 16#84 rawData$ xAddrx 4 getinterval {} forall ] makestring cvx exec /sitArchSz exch def
+	/xAddrx xAddrx 4 add def
+verbose2 {
+	sitArchSz ==
+} if
+	
+%| 088        | Word       | Unknown |
+verbose2 {
+xAddrx pDec print (: ) print
+(Unknown2: ) print				
+} if
+	/Unknown2 rawData$ xAddrx 6 getinterval def
+	%[ 16#84 rawData$ xAddrx 4 getinterval {} forall ] makestring cvx exec /Unknown2 exch def
+	/xAddrx xAddrx 6 add def
+verbose2 {
+	Unknown2 (<) print $ =
+} if
+	
+%| 094        | Word       | Offset of first entry in root directory |
+verbose2 {
+xAddrx pDec print (: ) print
+(Offset of first entry in root directory: ) print				
+} if
+	[ 16#84 rawData$ xAddrx 4 getinterval {} forall ] makestring cvx exec /firstEntOfst exch def
+	/xAddrx xAddrx 4 add def
+verbose2 {
+	firstEntOfst (16#) print pLong print ( ) print firstEntOfst ==
+} if
+	
+%| 098        | Half       | Header CRC-16? |
+verbose2 {
+xAddrx pDec print (: ) print
+(Header CRC-16?: ) print				
+} if
+	[ 16#86 rawData$ xAddrx 2 getinterval {} forall ] makestring cvx exec /HdrCRC exch def
+	/xAddrx xAddrx 2 add def
+verbose2 {
+	HdrCRC pWord =
+} if
+	
+%| 100        | ?          | Unknown data until first entry |
+
+} def
+
+
+/dump48 {
+%### Base header for file and folder
+verbose1 {
+(\ndump48: ) print
+tf fileposition pLong =
+} if
+
+
+	tf 48 string readstring {
+
+		/rawData$ exch def
+		
+		/nextLogicalEntry where {
+verbose {
+() =	
+		rawData$ nextLogicalEntry dumpHex
+} if
+		} if
+		/xAddr 0 def			
+
+%Both file and folder headers start with the following header.
+
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+%| 00         | Word       | Magic number (always `0xA5A5A5A5`)  |
+verbose1 {
+xAddr  pDec print (: ) print
+(Magic number: 16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Magic2 exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Magic2 pLong =
+} if
+
+%| 04         | Byte       | Version |
+verbose1 {
+xAddr  pDec print (: ) print
+(Version: ) print				
+} if
+	/filHdrVer rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	filHdrVer  ==
+} if
+	
+%| 05         | Byte       | Unknown (but certainly `0x00`) |
+verbose1 {
+xAddr  pDec print (: ) print
+(Unknown: ) print				
+} if
+	/filUnknown0 rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	filUnknown0 (16#) print pHex =
+} if
+	
+%| 06         | Half       | Header size |
+verbose1 {
+xAddr  pDec print (: ) print
+(Header size: ) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filHdrSz exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	filHdrSz ==
+} if
+
+%| 08         | Byte       | Unknown |
+verbose1 {
+xAddr  pDec print (: ) print
+(Unknown: <) print				
+} if
+	/filUnknown1 rawData$ xAddr 1 getinterval def
+	/xAddr xAddr 1 add def
+verbose1 {
+	filUnknown1 $ =
+} if
+	
+%| 09         | Byte       | Entry flags/type |
+verbose1 {
+xAddr  pDec print (: ) print
+(Entry flags: 16#) print				
+} if
+	/filHdrFlags rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	filHdrFlags pHex =
+} if
+	
+%| 10         | Word       | Creation date (Mac OS format) |
+verbose1 {
+xAddr  pDec print (: ) print
+(Creation date: 16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /filCrDat exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filCrDat pLong print ( ) print filCrDat printDateStamp () =
+} if
+
+%| 14         | Word       | Modification date (Mac OS format) |
+verbose1 {
+xAddr  pDec print (: ) print
+(Modification date: 16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /filMdDat exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filMdDat pLong print ( ) print filMdDat printDateStamp () =
+} if
+
+%| 18         | Word       | Offset of previous entry |
+verbose1 {
+xAddr  pDec print (: ) print
+(Offset of previous entry:  16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /filPreEntry exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filPreEntry pLong =
+} if
+
+%| 22         | Word       | Offset of next entry |
+verbose1 {
+xAddr  pDec print (: ) print
+(Offset of next entry:      16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /filNextEntry exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filNextEntry pLong =
+} if
+
+%| 26         | Word       | Offset of directory entry |
+verbose1 {
+xAddr  pDec print (: ) print
+(Offset of directory entry: 16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /filDirEntry exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filDirEntry pLong =
+} if
+
+%| 30         | Half       | Name size (called **N** after) |
+verbose1 {
+xAddr  pDec print (: ) print
+(Name size: ) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filNameSz exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	filNameSz ==
+} if
+
+%| 32         | Half       | Header CRC-16 |
+verbose1 {
+xAddr  pDec print (: ) print
+(Header CRC-16: 16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filHdrCRC exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	filHdrCRC ==
+} if
+
+	}{
+(data entry EOF: ) print ==
+		exit
+% seems to be the marked end of the file chain
+% but do we have all the possible files		
+	}ifelse
+
+} def
+
+/v5FileEntry {
+%### File specific header
+verbose1 {
+%() =
+%xAddr  pDec print (: ) print
+(\nFile specific header: ) print	
+tf fileposition pLong =			
+} if
+
+			
+%A file (when `flags` doesn't contain `0x40`) continues with the following header.
+
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+%| 34         | Word       | Data fork uncompressed length |
+verbose1 {
+xAddr  pDec print (: ) print
+(DataFrkLen: ) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFF and /DataFrkLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	DataFrkLen =string cvs print ( Data fork uncompressed length) =
+} if
+
+%| 38         | Word       | Data fork compressed length |
+verbose1 {
+xAddr  pDec print (: ) print
+(DataFrkCmLen: ) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFF and /DataFrkCmLen exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	DataFrkCmLen =string cvs print ( Data fork compressed length) =
+} if
+
+%| 42         | Half       | Data fork CRC-16 (Set to zero for method 15) |
+verbose1 {
+xAddr  pDec print (: ) print
+(Header CRC-16: 16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /dataFrkCRC exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	dataFrkCRC pWord print ( Data fork CRC-16 \(Set to zero for method 15\)) =
+} if
+
+%| 44         | Half       | Unknown |
+verbose1 {
+xAddr  pDec print (: ) print
+(Unknown 16#) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /UnknownDF exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	UnknownDF pWord =
+} if
+
+%| 46         | Byte       | Data fork compression method (only `0`, `13` or `15`) |
+verbose1 {
+xAddr  pDec print (: ) print
+(dataFrkCmpType ) print				
+} if
+	/dataFrkCmpType rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	dataFrkCmpType pDec2 print ( Data fork compression method \(only `0`, `13` or `15`\)) =
+} if
+
+%| 47         | Byte       | Password data length (called **M** after) |
+verbose1 {
+xAddr  pDec print (: ) print
+(passwordLen: ) print				
+} if
+	/passwordLen rawData$ xAddr get def
+	/xAddr xAddr 1 add def
+verbose1 {
+	passwordLen =string cvs print ( Password data lenght \(called **M** after\)) =
+} if
+
+
+	/filHDExtSz filHdrSz 48 sub def
+	
+	tf filHDExtSz string readstring {
+		/filHDExtention$ exch def
+%| 48         | **N**      | Folder name |
+		/xAddry 0 def
+
+verbose1 {
+(\nHeader extention data: ) =
+		filHDExtention$ xAddrx dumpHex
+() =
+} if
+
+%| 48         | **M**      | Password information |
+%| 48+**M**   | **N**      | Filename |
+
+
+		passwordLen 0 ne {
+(Password Data: ) =
+		
+		
+		}if
+		
+verbose1 {
+xAddr  pDec print (: ) print
+(File name: ) print				
+} if
+
+/FileName$ filHDExtention$ xAddry filNameSz getinterval def
+/xAddr xAddr filNameSz add def
+/xAddry xAddry filNameSz add def
+verbose1 {
+FileName$ ==		
+} if
+
+
+		v5SecondFileHdr
+		
+		/HdrRecEndPos tf fileposition def
+		
+%| 48+**M**+**N** | **K**  | Comment size (called **K** after) |
+%| 48         | **N**      | Filename |
+%| 48         | **N**      | Filename |
+
+verbose1 {
+(\nfile record end: ) print
+HdrRecEndPos pLong print (: ) =
+(Next possible entry: ) print
+}if
+			/nextLogicalEntry  filNextEntry  def
+
+verbose1 {
+nextLogicalEntry pLong print (: ) =
+} if
+
+debugGaps {			
+
+/WhatISThisLen nextLogicalEntry HdrRecEndPos sub def
+(What is this? ) print WhatISThisLen ==
+
+WhatISThisLen 0 gt {
+
+tf WhatISThisLen string readstring pop /WhatIsThis$ exch def
+
+WhatIsThis$ HdrRecEndPos dumpHex
+xAddrx pLong print (: ) =
+
+} if
+
+
+} if			
+
+		}{
+(EOF: file extention header read: ) print == 
+
+		} ifelse
+
+} def
+
+/v5DirEntry  {
+%### Folder specific header
+verbose1 {
+%() =
+%xAddr  pDec print (: ) print
+(\nFolder specific header: ) print
+tf fileposition pLong =			
+} if
+
+
+%A folder (when `flags` contains `0x40`) continues with the following header.
+
+%| **Offset** | **Length** | **Contents** |
+%|:-----------|:-----------|:-------------|
+%| 34         | Word       | Offset of first entry in folder |
+verbose1 {
+xAddr  pDec print (: ) print
+(Offset of first entry in folder: 16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /dirEntryOffset exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	dirEntryOffset pLong print ( ) print dirEntryOffset ==
+} if
+
+%| 38         | Word       | Size of complete directory |
+verbose1 {
+xAddr  pDec print (: ) print
+(Size of complete directory: ) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /filDirSz exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	filDirSz ==
+} if
+
+%| 42         | Word       | Unknown |
+verbose1 {
+xAddr  pDec print (: ) print
+(Unknown: 16#) print				
+} if
+	[ 16#84 rawData$ xAddr 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFF and /Unknown2 exch def
+	/xAddr xAddr 4 add def
+verbose1 {
+	Unknown2 pLong =
+} if
+
+%| 46         | Half       | Number of files in folder |
+verbose1 {
+xAddr  pDec print (: ) print
+(Number of files in folder: ) print				
+} if
+	[ 16#86 rawData$ xAddr 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /filDirCount exch def
+	/xAddr xAddr 2 add def
+verbose1 {
+	filDirCount ==
+} if
+
+
+%Note: if the offset of first entry is `0xFFFFFFFF`, this folder must be skiped
+%after reading 48 bytes of header (the usefulness of these folders is unclear).
+
+	dirEntryOffset 16#FFFFFFFF eq {
+verbose1 {
+(Marker record: ) =
+} if
+	}{
+
+		/filHDExtSz filHdrSz 48 sub def
+	
+		tf filHDExtSz string readstring {
+			/filHDExtention$ exch def
+	%| 48         | **N**      | Folder name |
+			/xAddry 0 def
+
+	verbose1 {
+	() =
+	xAddr  pDec print (: ) print
+	(Folder name: ) print				
+	} if
+
+		/FolderName filHDExtention$ xAddry filNameSz getinterval def
+		/xAddr xAddr filNameSz add def
+		/xAddry xAddry filNameSz add def
+	verbose1 {
+		FolderName ==		
+	() =
+	} if
+		% so we can use a single filename print routine
+		/FileName$ FolderName def % clean this up
+
+	
+		}{
+
+	(EOF @ directory name read: ) print ==	
+	
+		}ifelse
+
+%| 48+**N**   | ?          | Unknown data until next entry |
+
+verbose1 {
+xAddr  pDec print (: ) print
+(Unknown data until next entry: ) print	
+filHDExtSz  filNameSz sub ==
+%() =			
+} if
+
+		v5SecondFileHdr
+
+		/HdrRecEndPos tf fileposition def
+
+verbose1 {
+(Dir record end: ) print
+HdrRecEndPos pLong print (: ) =
+(Next possible entry: ) print
+}if
+		
+		filNextEntry 0 eq {	
+			/nextLogicalEntry  dirEntryOffset  def
+		}{
+			/nextLogicalEntry  filNextEntry  def		
+		}ifelse
+
+verbose1 {
+nextLogicalEntry pLong print (: ) =
+}if		
+		
+% debug pointers
+debugGaps {			
+/WhatISThisLen nextLogicalEntry HdrRecEndPos sub def
+(What is this? ) print WhatISThisLen ==
+
+tf WhatISThisLen string readstring pop /WhatIsThis$ exch def
+
+WhatIsThis$ HdrRecEndPos dumpHex
+xAddrx pLong print (: ) =			
+} if
+
+
+	}ifelse
+
+	
+
+} def
+
+/v5SecondFileHdr {
+	% probaby should read sub header here
+		
+
+verbose1 {
+(\nSecond file header: ) print
+tf fileposition pLong =
+} if
+		%tf HdrRecEndPos setfileposition
+		
+		/startSecondPos tf fileposition def
+		
+		% buffer maximum record data for analysis
+		tf 50 string readstring pop 
+		/secondHdr$ exch def
+		
+verbose {		
+		secondHdr$ HdrRecEndPos dumpHex
+() =
+} if
+		/secondOfst 0 def
+			
+%The file header is followed by a second block of data of varying size.
+%Offset 	Size 	Meaning
+%0 	2 	Flags 2. Bit 0 indicates the presence of a resource fork.
+verbose1 {
+secondOfst pDec print (: ) print
+(sndHdrFlgs: 16#) print
+}if
+	[ 16#86 secondHdr$ secondOfst 2 getinterval {} forall ] makestring cvx exec	/sndHdrFlgs exch def
+	/secondOfst secondOfst 2 add def
+verbose1 {
+	sndHdrFlgs pWord print ( Flags 2. Bit 0 indicates the presence of a resource fork.) =
+} if
+
+%2 	2 	Unknown
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2a: 16#) print
+}if
+	[ 16#86 secondHdr$ secondOfst 2 getinterval {} forall ] makestring cvx exec	/Unknown2a exch def
+	/secondOfst secondOfst 2 add def
+verbose1 {
+	Unknown2a pWord print ( Unknown) =
+} if
+
+%4 	4 	Mac OS file type
+verbose1 {
+secondOfst pDec print (: ) print
+(fiUsrWds_Type: ) print
+}if
+	/fiUsrWds_Type secondHdr$ secondOfst 4 getinterval def
+	/secondOfst secondOfst 4 add def
+verbose1 {
+	fiUsrWds_Type ==
+}if	
+
+%8 	4 	Mac OS file creator
+verbose1 {
+secondOfst pDec print (: ) print
+(fiUsrWds_Creator: ) print
+}if
+	/fiUsrWds_Creator secondHdr$ secondOfst 4 getinterval def
+	/secondOfst secondOfst 4 add def
+verbose1 {
+	fiUsrWds_Creator ==
+}if	
+
+%12 	2 	Mac OS Finder flags
+verbose1 {
+secondOfst pDec print (: ) print
+(finderFlags: 16#) print
+}if
+	[ 16#86 secondHdr$ secondOfst 2 getinterval {} forall ] makestring cvx exec	/finderFlags exch def
+	/secondOfst secondOfst 2 add def
+verbose1 {
+	finderFlags pWord =
+}if	
+
+%14 	2 	Unknown
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2b: 16#) print
+}if
+	[ 16#86 secondHdr$ secondOfst 2 getinterval {} forall ] makestring cvx exec	/Unknown2b exch def
+	/secondOfst secondOfst 2 add def
+verbose1 {
+	Unknown2b pWord =
+}if	
+
+%16 	4 	Unknown (A date value in version 3?)
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2c: 16#) print
+}if
+	[ 16#84 secondHdr$ secondOfst 4 getinterval {} forall ] makestring cvx exec	/Unknown2c exch def
+	/secondOfst secondOfst 4 add def
+verbose1 {
+	Unknown2c pLong print ( Unknown \(A date value in version 3?\)) =
+}if	
+
+%20 	12 	Unknown
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2d: ) =
+}if
+	/Unknown2d secondHdr$ secondOfst 12 getinterval def
+verbose1 {
+	Unknown2d secondOfst dumpHex
+}if	
+	/secondOfst secondOfst 12 add def
+	
+	
+%32 	4 	Unknown, not included in version 3, included in version 1.
+filHdrVer 3 ne {
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2e: 16#) print
+}if
+	[ 16#84 secondHdr$ secondOfst 4 getinterval {} forall ] makestring cvx exec	/Unknown2e exch def
+	/secondOfst secondOfst 4 add def
+verbose1 {
+	Unknown2e pLong print ( Unknown, \(not included in version 3, included in version 1\)) =
+}if	
+} if
+
+sndHdrFlgs 1 and 1 eq {
+verbose1 {
+(resource fork: ) =
+} if
+%32/36 	4 	Resource fork uncompressed length. Only included if bit 0 of "Flags 2" is set.
+verbose1 {
+secondOfst pDec print (: ) print
+(ResFrkLen:    16#) print
+}if
+	[ 16#84 secondHdr$ secondOfst 4 getinterval {} forall ] makestring cvx exec	/ResFrkLen exch def
+	/secondOfst secondOfst 4 add def
+verbose1 {
+	ResFrkLen pLong print ( Resource fork uncompressed length. Only included if bit 0 of "Flags 2" is set) =
+}if	
+
+%36/40 	4 	Resource fork compressed length. Only included if bit 0 of "Flags 2" is set.
+verbose1 {
+secondOfst pDec print (: ) print
+(ResFrkCmpLen: 16#) print
+}if
+	[ 16#84 secondHdr$ secondOfst 4 getinterval {} forall ] makestring cvx exec	/ResFrkCmpLen exch def
+	/secondOfst secondOfst 4 add def
+verbose1 {
+	ResFrkCmpLen pLong print ( Resource fork compressed length. Only included if bit 0 of "Flags 2" is set) =
+}if	
+
+%40/44 	2 	Resource fork CRC-16 (Set to zero for method 15). Only included if bit 0 of "Flags 2" is set.
+verbose1 {
+secondOfst pDec print (: ) print
+(ResFrkCRC:    16#) print
+}if
+	[ 16#86 secondHdr$ secondOfst 2 getinterval {} forall ] makestring cvx exec	/ResFrkCRC exch def
+	/secondOfst secondOfst 2 add def
+verbose1 {
+	ResFrkCRC pLong print ( Resource fork CRC-16 \(Set to zero for method 15.\) Only included if bit 0 of "Flags 2" is set) =
+}if	
+
+%42/46 	2 	Unknown
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2f:    16#) print
+}if
+	[ 16#86 secondHdr$ secondOfst 2 getinterval {} forall ] makestring cvx exec	/ResFrkCRC exch def
+	/secondOfst secondOfst 2 add def
+verbose1 {
+	ResFrkCRC pWord print ( Resource fork CRC-16 \(Set to zero for method 15.\) Only included if bit 0 of "Flags 2" is set) =
+}if	
+
+%44/48 	1 	Resource fork compression method
+verbose1 {
+secondOfst pDec print (: ) print
+(resFrkCm: 16#) print
+} if
+	/resFrkCm secondHdr$ secondOfst get def
+	/secondOfst secondOfst 1 add def
+verbose1 {
+	resFrkCm pHex print  ( ) print resFrkCm =string cvs print
+	( Resource fork compression method) =
+} if
+%45/49 	1 	Unknown
+verbose1 {
+secondOfst pDec print (: ) print
+(Unknown2g: 16#) print
+} if
+	/Unknown2g secondHdr$ secondOfst get def
+	/secondOfst secondOfst 1 add def
+verbose1 {
+	Unknown2g pHex print 
+	( Unknown) =
+} if
+%pstack stop
+}{
+	/ResFrkLen 0 def
+
+%	/fiUsrWds_Type <20202020> def
+%	/fiUsrWds_Creator <20202020> def
+
+}ifelse
+
+
+	/compressedDataOffset startSecondPos secondOfst add def
+verbose1 {
+secondOfst pDec print (: ) print
+(end of second Header: ) print
+compressedDataOffset pLong =
+() =
+}if
+
+	% mostly we will skip over the data there are several ways to do this
+	
+	tf compressedDataOffset setfileposition
+
+
+} def
+
+
+/walkTreeRecusive {
+	10 dict begin
+
+	/fileIdx 0 def
+	filDirCount {
+		
+		/fileIdx fileIdx 1 add def
+
+		tf nextLogicalEntry setfileposition
+
+verbose1 {
+(Loop contunue: ) print
+nextLogicalEntry pLong print (: ) =
+}if
+
+nextLogicalEntry 0 eq {
+(Loop exit: ) =
+
+exit
+
+} if
+
+		dump48
+
+		filHdrFlags 16#40 and 0 eq {
+
+			v5FileEntry
+
+			%dirEntryOffset 16#FFFFFFFF ne {
+			%fileIdx pDec print ( ) print 
+			
+			dataFrkCmpType pDec print ( ) print FileName$ filHdrFlags 16#40 and 16#40 eq shoFileName
+			%}if
+
+
+		}{
+
+			v5DirEntry
+
+			dirEntryOffset 16#FFFFFFFF ne {
+				fileIdx pDec print ( ) print FileName$ filHdrFlags 16#40 and 16#40 eq shoFileName
+			}if
+		
+			/saveEntry nextLogicalEntry def
+			
+			/nextLogicalEntry dirEntryOffset def 
+			
+			walkTreeRecusive
+			
+			/nextLogicalEntry saveEntry def
+		
+			%filDirCount
+
+		}ifelse
+
+		%v5SecondFileHdr
+
+
+
+
+%The compressed data follows the second file header. 
+%The resource fork data is first, follwed by the data fork data.
+%The next file header is at "Offset of next entry" bytes from the start of the file.
+
+
+	} repeat
+verbose1 {
+(loopExit: ) =
+} if
+	end
+} def
+
+/tf BlockFileName (r) file def
+
+
+	/blockBuffer 512 string def
+	
+	tf 22 string readstring {
+		/rawData$ exch def
+
+verbose {	
+		rawData$ 0 dumpHex
+}if
+
+		dumpArchiveHeader
+		
+		sitsig 16#53747566 eq {
+
+			% back up and re-read file
+			
+			tf 0 setfileposition
+
+			tf 100 string readstring {
+				/rawData$ exch def
+
+verbose {	
+				rawData$ 0 dumpHex
+} if				
+				v5Header
+
+				% file header has a fixed 32 byte record for a total of 48 bytes
+				% the rest of the record is variable length
+			
+				tf firstEntOfst setfileposition
+			
+				dump48
+				
+				
+				filHdrFlags 16#40 and 0 eq {
+		
+					v5FileEntry
+		
+				}{
+
+					v5DirEntry
+					
+					%filDirCount
+		
+				}ifelse
+
+				
+				FileName$ filHdrFlags 16#40 and 16#40 eq shoFileName
+
+
+				walkTreeRecusive
+%pstack stop			
+				
+			}{
+			
+(Unable to read Version 5 header: ) =
+			}ifelse
+		
+		}{
+% Version 1 archive	
+
+verbose1 {
+(version 1 archive: ) = 
+
+} if	
+			
+			sitHdrSz 22 ne {
+(% adjust header size: ) =
+pstack stop			
+			
+			}if
+			
+			% should check for valid signatures here
+			
+			
+			(Name                               Size         Date Modified           Date Created          type   creator) =
+			(-------------------------------------------------------------------------------------------------------------) = 
+
+			
+			% dump archive
+			%5 
+			{
+				/fileOffset tf fileposition def
+			
+				tf 112 string readstring {
+					/rawData$ exch def
+verbose {
+(File header: @ 16#) print 	fileOffset pLong =				
+					rawData$ fileOffset dumpHex
+} if
+					fileOffset dumpFileHeader
+				}{
+(File Record EOF: ) =
+					/rawData$ exch def
+					
+					fileOffset dumpFileHeader
+					exit
+									
+				}ifelse
+
+
+
+				% 32 is start of directory
+				% 33 is end of directory
+				
+				FileName$ resFrkCm 32 eq filFrkCm 32 eq or shoFileName
+				
+				
+				resFrkCm 32 ne {
+				
+					/resourceOffset tf fileposition def
+					% read compressed resourc fork
+					ResFrkCmpLen 0 ne {
+						tf ResFrkCmpLen string readstring {
+							/rsrcBuffer exch def
+
+verbose {
+(\nResource Fork: @ 16#) print	resourceOffset pLong print ( ) print ResFrkCmpLen ==					 
+rsrcBuffer resourceOffset dumpHex
+() =
+} if
+						}{
+							(EOF in resource read: ) =
+							exit
+						}ifelse
+					
+					}if
+
+				}{
+					% resorurce fork is a directory
+					% pretty much means whole file is a directory
+				
+				} ifelse
+				
+				filFrkCm 32 ne {
+
+
+%(data Fork: ) print						 
+
+					
+
+					/dataForkOffset tf fileposition def
+
+
+					dataFrkCmpLen 0 ne {
+						tf dataFrkCmpLen string readstring {
+							/dataBuffer exch def
+						 
+verbose {
+(\ndata Fork: @ 16#) print	dataForkOffset pLong print ( ) print dataFrkCmpLen ==					 
+dataBuffer dataForkOffset dumpHex
+} if
+						}{
+							(EOF in data fork read: ) print ==
+							exit
+						}ifelse
+					
+				
+					}if
+				}if
+
+
+verbose {
+() =
+} if
+			}loop
+		}ifelse
+	
+	}{
+(% can not read data from file) =
+	
+	}ifelse
+	

@@ -1,0 +1,5905 @@
+%!PS
+
+% mac m68k dissasembler and resource dunper
+
+%/TFN (/Users/arethusa/Documents/pipeO/KODAK RFS 3570 Scanner Pro v3.6) def
+%/TFN (/Users/arethusa/Documents/pipeO/PCD4050 Plug-in) def
+%/TFN (/Volumes/MacintoshHD/Users/Arethusa/Documents/PCDDocs&Tools/exe_extrations/Film Term Installer.1200) def
+%/TFN (/Users/arethusa/Documents/pipeO/ANSI C++ Console PPC) def
+%/TFN (/Users/arethusa/Documents/pcdRW/powertest/Basic PP DEBUG PPC) def
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/Kodak PCD4050 Diagnostic) def
+
+
+% minimal use as it uses the same libs as the power plant.  No ppobs make
+% reconstrucing UI a bit different.  Graphics are handled by quickdrawGX
+/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/scnMCal.PPC) def
+
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/System Additions/Extensions/sba.PPCSlib) def
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/System Additions/Extensions/DR.PPCSlib) def
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/System Additions/Extensions/fda.PPCSlib) def
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/System Additions/Extensions/IsfPiwColorXform.PPCSlib) def
+
+%/TFN (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/PCD4050 Utilities/scnMCal.PPC) def
+
+%/TFN (/Users/arethusa/Documents/pipeO/k4050shell/Basic PP DEBUG PPC) def
+%/TFN (/Users/arethusa/Documents/pipeO/k4050shell/resources/k4050shell.rsrc) def
+%/TFN (/Users/arethusa/Documents/pipeO/k4050shell/resources/k4050shell.ppob) def
+
+%/TFN (/Users/arethusa/Documents/pcdRW/Kodak PCD4050 Diagnostic/KPCD4050DiagApp) def
+
+%/TFN (/Volumes/cheapblue32/AutoQuartz_documents/QuarkImmedia Viewer 1.5/QuarkImmedia™ Viewer 1.5) def
+%/TFN (/Users/arethusa/Documents/Watchmaking/Docs/AutoQuartz_documents/QuarkImmedia Viewer 1.5/QuarkImmedia™ Viewer 1.5) def
+
+%/TFN (//Users/arethusa/Documents/quarantine/MG_RE/MIDIGraphy folder/MIDIGraphy) def
+
+%/TFN (/Users/arethusa/Documents/pipeO/sba.PPCSlib) def
+
+%/TFN (/Users/arethusa/Documents/pipeO/powertest/powertest) def
+
+/DumpHexPreview false def
+
+/ShowPefLoader true def
+
+/RenderPict false def
+
+/Verbose false def
+
+/writeLog false def
+
+/DBGPatData false def
+/DBGLoader false def
+
+/DBGMemPtr false def
+/ListByClass true def
+
+/DBGTraceBack false def
+
+/DBGInstDec false def
+/DBGInstEdge false def
+
+/UseLitterals true def
+
+/thisdict (root block) def
+
+
+UseLitterals {
+% this hack requires data to be dumped first to find the string constants
+%/StrTable 16#13C070 def % string table % found by trace
+%/StrTableEnd 16#14CA30 def
+
+%diagnostics
+%/StrTable 16#0C2370 def
+%/StrTableEnd 16#0CD618 def
+
+%M calib
+/StrTable 16#0F16A8 def
+/StrTableEnd 16#0FC8D2 def
+
+
+%sba lib
+%/StrTable 16#008120 def
+%/StrTableEnd 16#008128 def
+
+%piw lib
+%/StrTable 16#001cd0 def
+%/StrTableEnd 16#001cd0 def
+
+%/StrTable 16#059980 def
+%/StrTableEnd 16#059990 def
+
+}{
+% tissot reader
+/StrTable 16#0096FE def  %6B0E
+/StrTableEnd 16#0096FF def
+
+} ifelse
+
+
+/op_text (invalid op root level) def
+/operands (, root level invalid operands.) def
+/annotate () def
+
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 gt { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+% support for disassebler
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+%		xAddrx 512 mod 0 eq {
+%			(Block: ) print xAddrx 512 div cvi ==
+%		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+% support for disassebler
+
+
+
+
+/CODE     16#0001 def
+/INSTCODE 16#0002 def
+/DATAB    16#0004 def
+/DATAW    16#0008 def
+/DATAL    16#0010 def
+/DATASTR  16#0020 def
+/LBL      16#0040 def
+/empty    16#0080 def
+/EALBL    16#0100 def
+/PATTN    16#0200 def
+/LIBV     16#0400 def
+/BRANCH   16#0800 def
+/RETF     16#1000 def
+/DEBUG    16#2000 def
+/LINK     16#4000 def
+
+
+
+/TraceSymbolImport 10 dict def
+
+% this is a table of symbol entry points
+% these symbols can and should be editied manually, as this is an interactive
+% disassembler, where each time it is run this table can be edited to include more
+% descriptive hints
+
+/mem [ 32768 {<< /flag empty>>} repeat ] def % used by header
+
+/SymbolTable << % >
+
+	% default entry point
+	/__start << % >
+		/offset 0		% this is the memory start location
+		/flags CODE
+	>>
+
+>> def
+
+% pre load memory with symbol data
+%SymbolTable {
+%	begin 
+
+%	mem offset get begin
+%		72 string cvs /SymbolName exch def
+%		/flag flag LBL or def
+%	end
+
+%	end
+%} forall
+
+% this is a dict so we can increment the counter
+/DYNSymbolName << %>
+
+	/NextSymbol 1	% label symbols counter, will be in the form L00001:
+	%use pLbl to convert this number to a string
+
+>> def
+
+/DYNSymbolNameF << %>
+
+	/NextSymbol 1	% label symbols counter, will be in the form L00001:
+	%use pLbl to convert this number to a string
+
+>> def
+
+/DYNSymbolNameA << %>
+
+	/NextSymbol 1	% label symbols counter, will be in the form L00001:
+	%use pLbl to convert this number to a string
+
+>> def
+
+
+
+/DYNSymbolNameD << %>
+
+	/NextSymbol 1	% label symbols counter, will be in the form L00001:
+	%use pLbl to convert this number to a string
+
+>> def
+
+/functionTrace << %>
+
+	/inFunc false
+	/inGlue false 
+	/functionStack [] 
+	/functionStart 0 
+	
+	/illegalInst []
+	
+	/ptrGlueEP [] 
+	/libGlue []
+	/entryPoints 10 dict
+	/branchto 10 dict
+	/BackTrace 10 dict 
+	/AnonFunc 10 dict
+	/ImportLib 10 dict
+	
+	/r0 0		% saved link register
+	
+	/minGlue 65536
+ 	/maxGlue  0
+	
+	/edgeGraph [] 
+
+
+>> def
+
+	(demangle.ps) run		
+
+
+/traceBackAddr {
+
+	/macsBugDebug mem_PC def
+
+	macsBugDebug 4 add rawData$ length gt {
+		/DebugName (.no debug.) def
+( past end of data: ) writef wrtlin 						
+	
+	}{
+
+DBGTraceBack {
+(debug symbols: ) writef macsBugDebug pAddr writef
+
+wrtlin 
+(Traceback Table: ) writef wrtlin
+}if
+		mem macsBugDebug 4 div cvi get begin
+		/flag flag empty not and def
+		/flag flag DEBUG or def								
+		end
+		/macsBugDebug macsBugDebug 4 add def 
+
+%rawData$ macsBugDebug 4 getinterval $ ==
+		
+		mem macsBugDebug 4 div cvi get begin
+		/flag flag empty not and def
+		/flag flag DEBUG or def								
+
+		/TbVersion rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		/lang rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+
+		% control bits	
+		/expression3 rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		/expression4 rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		expression4
+		expression3
+		lang
+		TbVersion
+		end
+		/macsBugDebug macsBugDebug 4 add def 
+		% move up to base instruction memory location
+		/TbVersion exch def
+		/lang exch def
+		/expression3 exch def
+		/expression4 exch def
+
+
+		mem macsBugDebug 4 div cvi get begin
+		/flag flag empty not and def
+		/flag flag DEBUG or def								
+
+		/expression5 rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		/expression6 rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		/expression7 rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		/expression8 rawData$ macsBugDebug get def
+		/macsBugDebug macsBugDebug 1 add def 
+		expression8
+		expression7
+		expression6
+		expression5
+		end
+		/macsBugDebug macsBugDebug 4 add def 
+		% move up to base instruction memory location
+		/expression5 exch def
+		/expression6 exch def
+		/fixedparms exch def
+		/expression8 exch def
+		
+		mem macsBugDebug 4 div cvi get begin
+		/flag flag empty not and def
+		/flag flag DEBUG or def								
+
+		/parminfo [16#86 rawData$ macsBugDebug 2 getinterval {} forall] makestring cvx exec def
+		/macsBugDebug macsBugDebug 2 add def 
+		/tb_offset [16#86 rawData$ macsBugDebug 2 getinterval {} forall] makestring cvx exec def
+		/macsBugDebug macsBugDebug 2 add def 
+		
+		tb_offset
+		parminfo
+		end	
+		/macsBugDebug macsBugDebug 4 add def 							
+		/parminfo exch def
+		/tb_offset exch def
+
+
+DBGTraceBack {
+8 wrtpos
+
+%<00 09 20 41>
+
+(version: ) writef
+TbVersion =string cvs writef ( ) writef
+		lang 12 le {
+			[ (TB_C) ( TB_FORTRAN) ( TB_PASCAL) ( TB_ADA)
+			( TB_PL1) ( TB_BASIC) ( TB_LISP) ( TB_COBOL)
+			( TB_MODULA2) ( TB_CPLUSPLUS) ( TB_RPG) ( TB_PL8)
+			( TB_ASM)] lang get writef
+		
+		}{
+( unknown language) writef								
+		}ifelse
+wrtlin
+}if
+
+		/globallink expression3 16#80 and 16#80 eq def
+		/is_eprol	expression3 16#40 and 16#40 eq def
+		/has_tboff	expression3 16#20 and 16#20 eq def
+		/int_proc	expression3 16#10 and 16#10 eq def
+		/has_ctl	expression3 16#08 and 16#08 eq def
+		/toclass	expression3 16#04 and 16#04 eq def
+		/fp_present expression3 16#02 and 16#02 eq def
+		/log_abort  expression3 16#01 and 16#01 eq def
+
+
+		/int_hndl		expression4 16#80 and 16#80 eq def
+		/name_present	expression4 16#40 and 16#40 eq def
+		/use_alloc		expression4 16#20 and 16#20 eq def
+		/cl_dis_inv4	expression4 16#10 and 16#10 eq def
+		/cl_dis_inv3	expression4 16#08 and 16#08 eq def
+		/cl_dis_inv2	expression4 16#04 and 16#04 eq def
+		/saves_cr		expression4 16#02 and 16#02 eq def
+		/saves_lr		expression4 16#01 and 16#01 eq def
+
+		/stores_bc		expression5 16#80 and 16#80 eq def
+		/spare2			expression5 16#40 and 16#40 eq def
+		/fpr_saved		expression5 16#3f and def
+
+		/spare3			expression6 16#C0 and def
+		/gpr_saved		expression6 16#3f and def
+		
+		/floatparm		expression8 16#FE and 1 bitshift def
+		/paramsonstk		expression8 16#01 and 16#01 eq def
+		
+
+DBGTraceBack {
+%8 wrtpos
+mem_PC pAddr writef (: ) writef
+(expression3: ) writef 
+expression3 pLong writef wrtlin
+}if
+		has_tboff {
+			
+			/traceback mem_PC  tb_offset sub def 
+			
+DBGTraceBack  {
+mem_PC pAddr writef (: ) writef
+(traceback offset: ) writef  traceback pAddr writef wrtlin
+}if
+
+			mem traceback 4 div cvi get begin
+
+			% this was called function root dict
+			flag LBL and LBL eq {
+				% move name to traceback symbol list
+				currentdict /symList known {
+					/symList [ SymbolName symList {} forall ] def
+
+				}{
+					/symList [SymbolName] def
+				}ifelse
+			}if
+			
+			name_present {
+DBGTraceBack  {
+wrtlin
+(name-present: ) writef wrtlin
+} if
+				mem macsBugDebug 4 div cvi get begin
+				/flag flag empty not and def
+				/flag flag DEBUG or def								
+
+
+DBGTraceBack  {
+macsBugDebug pAddr print (: ) print
+(name_len: ) print
+} if
+				[ 16#86 rawData$ macsBugDebug 2 getinterval {} forall] makestring cvx exec 16#FFFF and /name_len exch def
+				/macsBugDebug macsBugDebug 2 add def 
+DBGTraceBack  {
+				name_len ==
+} if				
+				%/name_len [16#86 rawData$ macsBugDebug 2 getinterval {} forall] makestring cvx exec def
+				%/name rawData$ macsBugDebug name_len getinterval def
+DBGTraceBack  {
+macsBugDebug pAddr print  (: ) print
+(StrTable: *) =
+} if
+				/StrTable macsBugDebug def % string table % found by trace
+
+DBGTraceBack  {
+macsBugDebug pAddr print  (: ) print
+(StrTableEnd: ) print			
+} if
+				/StrTableEnd macsBugDebug name_len add def
+DBGTraceBack  {
+				StrTableEnd pAddr =
+} if
+
+DBGTraceBack  {				
+(\tStrTablePtr: ) print			
+} if
+				/StrTablePtr StrTable def
+DBGTraceBack  {
+				StrTablePtr pAddr =
+} if
+
+DBGTraceBack  {				
+(\tStrTableRoot: ) print			
+} if
+				/StrTableRoot StrTable def
+DBGTraceBack  {
+				StrTableRoot pAddr =
+} if			
+				/StrTableIDX 10 dict def
+				
+				/StrTableList [] def
+				()
+
+				{
+			
+					StrTablePtr StrTableEnd gt {
+
+DBGTraceBack {
+wrtlin
+(String Table past end: ) writef StrTableEnd pAddr writef ( < ) writef StrTablePtr pAddr writef
+wrtlin  
+}if
+%pstack stop
+						exit
+					}if
+				
+
+					mem StrTablePtr 4 div cvi get begin
+					/localRoot StrTableRoot def
+					mark
+					4 {
+						rawData$ StrTablePtr get
+						dup 0 eq {
+							pop counttomark array astore makestring /op_Word$ exch def
+							pop % the mark
+							op_Word$
+							end
+							strcat /data$ exch def
+%StrTablePtr pAddr print (: ) print data$ ==
+							StrTableIDX StrTableRoot data$ put
+							/StrTableList [ StrTableList {} forall data$ ] def
+							/StrTableRoot StrTablePtr def
+							()
+							mem StrTablePtr 4 div cvi get begin
+							/localRoot StrTableRoot def
+							mark
+							%exit
+						 } if
+						/StrTablePtr StrTablePtr 1 add def				
+					} repeat
+					counttomark array astore makestring /op_Word$ exch def
+					pop % the mark
+					
+					/flag flag empty not and def
+					/flag flag CODE INSTCODE or not and def
+					/flag flag DEBUG or def
+					op_Word$
+					StrTablePtr
+					end
+					/StrTablePtr exch def
+					strcat
+			
+			
+		
+				} loop
+				
+				StrTableList length 0 eq {
+					/StrTableList [ 3 -1 roll ] def
+
+				}{				
+					pop
+				}ifelse
+				
+
+				/macsBugDebug macsBugDebug name_len add def 
+
+DBGTraceBack {
+macsBugDebug pAddr print  (: ) print
+StrTableList ==
+} if
+				
+				% should mark the name_len bytes dirty
+				/align macsBugDebug 4 mod def
+				align 0 ne {
+					/wordAlign rawData$ macsBugDebug align getinterval def
+					/macsBugDebug macsBugDebug align add def
+				}if
+
+		
+				StrTableList 0 get 0 name_len getinterval
+				macsBugDebug
+				end
+
+				/macsBugDebug exch def									
+				/DebugName exch def
+DBGTraceBack {
+macsBugDebug pAddr print  (: ) print
+( ') writef DebugName writef (') writef
+wrtlin
+}if										
+
+
+				lang 9 eq {
+					traceback mem_PC  DebugName demangle
+DBGTraceBack  {
+wrtlin
+8 wrtpos 
+longPrototype$ writef
+wrtlin
+}if
+					/flag flag LBL or def
+
+
+				
+				}{
+					/SymbolName DebugName def
+				}ifelse
+				/flag flag LBL or def
+			}{
+				/SymbolName (.noname.) def
+			}ifelse
+			
+			DebugName
+			macsBugDebug
+			end
+			/macsBugDebug exch def
+			/DebugName exch def
+
+DBGTraceBack  {
+macsBugDebug pAddr print  (: ) print
+DebugName ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop
+} if				
+
+
+			
+		}{
+			/DebugName ( no offset) def
+			/traceback 0 def
+DebugName writef
+wrtlin
+%exit
+%stop
+		}ifelse
+		
+DBGTraceBack {								
+%8 wrtpos
+macsBugDebug pAddr writef  (: ) writef
+(expression4: ) writef
+expression4 pLong writef name_present {( name_present) writef}if  
+saves_lr { ( saves_lr) writef} if
+wrtlin
+
+%8 wrtpos
+(expression5: ) writef
+expression5 pLong writef stores_bc { ( stores back chain) writef }if 
+wrtlin
+
+%8 wrtpos
+(expression6: ) writef
+expression6 pLong writef gpr_saved 0 ne {( gpr count: ) writef gpr_saved =string cvs writef} if
+wrtlin
+
+%8 wrtpos
+(fixedparms: ) writef
+fixedparms pLong writef wrtlin
+
+%8 wrtpos
+(expression8: ) writef
+expression8 pLong writef
+wrtlin
+
+%8 wrtpos
+(parminfo: ) writef
+parminfo pLong writef 
+wrtlin
+
+%8 wrtpos
+(trace back offset: ) writef
+tb_offset pLong writef wrtlin
+} if
+
+
+
+		int_hndl has_ctl or {
+		mem macsBugDebug 4 div cvi get begin
+		/flag flag empty not and def
+		/flag flag DEBUG or def								
+
+		/hand_mask [16#86 rawData$ macsBugDebug 2 getinterval {} forall] makestring cvx exec def
+		/macsBugDebug macsBugDebug 2 add def 
+		/ctl_info [16#86 rawData$ macsBugDebug 2 getinterval {} forall] makestring cvx exec def
+		/macsBugDebug macsBugDebug 2 add def 
+		
+		hand_mask
+		ctl_info
+		end								
+		/ctl_info exch def
+		/hand_mask exch def
+(###) =
+currentdict dfa
+(---) =
+%pstack 
+stop
+		% control anchors displacement on stack
+
+		}if
+		
+		% procedure name (handled above)
+		
+		% automatic storage reg alloc
+		
+}ifelse
+
+
+%pstack stop
+
+
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+%	/annotate annotate ( ) strcat DebugName strcat def
+	
+
+} def
+
+
+% call graph  this the dicts in trace order dynamically created by the parser
+
+
+% formatting 'tab' positions for code display
+% constant is used for debug address info
+/addr_pos 0 def 
+/code_pos 8 12 add def
+/label_pos 20 13 add def
+/op_pos 37 13 add def
+/ear_pos 44 13 add def
+/annotate_pos 62 13 add def
+
+
+%1403158996 unix2c idate ==
+
+% attempt to open resource fork
+	/TFRN TFN (/..namedfork/rsrc) strcat def
+	
+TFRN ==
+
+	TFN status {
+(data fork: ) print
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+pstack	
+	}if
+
+	TFRN status {
+(resource fork: ) print
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+(->) =
+pstack	
+(rfork.ps) run
+
+	}{
+(no file resource.) =
+	}ifelse
+	
+
+	
+/readDataLong {
+
+	/memPtr exch def
+	/wMemPtr memPtr 2 div cvi def
+
+	mem wMemPtr get begin
+	data_fork memPtr setfileposition
+	
+	data_fork 4 string readstring { /dl$ exch def } if
+	/dl <84> dl$ strcat cvx exec def
+
+	/flag DATAL def
+
+	dl
+	memPtr 4 add 
+	end
+
+} bind def
+
+
+/readDataWord {
+
+	/memPtr exch def
+	/wMemPtr memPtr 2 div cvi def
+
+	mem wMemPtr get begin
+	data_fork memPtr setfileposition
+
+	data_fork 2 string readstring { /dw$ exch def } if
+	/dw <86> dw$ strcat cvx exec def
+
+	/flag DATAW def
+
+	dw
+	memPtr 2 add 
+	end
+
+} bind def
+
+/procDescriptor 0 def
+	
+fStatsData 1 get 0 ne {
+	% has data in fork
+	
+(\nData fork: ) =
+				
+	/dataSize fStatsData 1 get def
+(dataSize: ) print dataSize ==
+(referenced: ) print fStatsData 2 get unix2c idate == 	
+(created: ) print fStatsData 3 get unix2c idate == 	
+
+	% check file for pef format
+	
+	/data_fork TFN	(r) file def	
+	
+	/procDescriptor 0 def
+
+	/RoutineRecords [
+	10 dict begin
+	currentdict
+	end ] def
+
+	RoutineRecords 0 get begin % unlike a res UPP this only has one instance
+	
+/thisdict (Routine Records block:) def
+		
+	data_fork 8 string readstring { /tag1_tag2$ exch def } if
+	tag1_tag2$ (Joy!peff) eq {
+		data_fork 0 setfileposition
+		
+(\nContainer header: ) =
+
+		%/mem 256 2 div cvi array def
+		
+		%0 1 mem length 1 sub {mem exch << /flag empty >> put} for
+		
+	
+		/nextWord procDescriptor def
+
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /tag1 exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (tag1) def
+
+tag1 pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos 
+		(') writef 
+		[ tag1 -24 bitshift 16#FF and tag1 -16 bitshift 16#FF and
+		   tag1 -8 bitshift 16#FF and tag1 16#FF and] makestring writef
+		(') writef wrtlin
+		end
+				
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /tag2 exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (tag2) def
+tag2 pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos 
+		(') writef 
+		[ tag2 -24 bitshift 16#FF and tag2 -16 bitshift 16#FF and
+		   tag2 -8 bitshift 16#FF and tag2 16#FF and] makestring writef
+		(') writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /architecture exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (architecture) def
+architecture pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos %architecture pDec3 writef 
+		(') writef 
+		[ architecture -24 bitshift 16#FF and architecture -16 bitshift 16#FF and
+		   architecture -8 bitshift 16#FF and architecture 16#FF and] makestring writef
+		(') writef wrtlin 
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /formatVersion exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (formatVersion) def
+formatVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos formatVersion pDec3 writef wrtlin
+		end
+		
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /dateTimeStamp exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (dateTimeStamp) def
+dateTimeStamp pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos %dateTimeStamp pDec3 writef wrtlin
+		end
+		dateTimeStamp pLong writef ( ) writef 
+		dateTimeStamp  2082844800 sub
+		dup pLong writef 
+		unix2c idate 
+		<205B> writef
+		{
+			pDec5 writef
+		
+		} forall
+		<5D> writef wrtlin
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /oldDefVersion exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (oldDefVersion) def
+oldDefVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos oldDefVersion pDec3 writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /oldImpVersion exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (oldImpVersion) def
+oldImpVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos oldImpVersion pDec3 writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /currentVersion exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (currentVersion) def
+currentVersion pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos currentVersion =string cvs writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataWord  /nextLong exch def /sectionCount exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (sectionCount) def
+sectionCount pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos sectionCount pDec3 writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataWord  /nextLong exch def /instSectionCount exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (instSectionCount) def
+instSectionCount pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos instSectionCount pDec3 writef wrtlin
+		end
+						
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /reservedA exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (reservedA) def
+reservedA pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos reservedA pDec3 writef wrtlin
+		end
+	
+wrtlin			
+
+(\n) print
+nextLong pAddr print
+(: Section headers: ) print sectionCount ==
+
+		%% if we did this we can calculate the name table from the offset
+		/sectionNameTable nextLong 28 sectionCount mul add def
+sectionNameTable pAddr print (: Section name table: ) =
+		
+		/sectionHeaders sectionCount array def
+
+		0 1	sectionCount 1 sub {
+			/nextWord nextLong def
+() =		
+			10 dict begin
+			sectionHeaders exch currentdict put
+			
+
+%struct PEFSectionHeader 
+%    SInt32  nameOffset;
+%    UInt32  defaultAddress;
+%    UInt32  totalSize;
+%    UInt32  unpackedSize;
+%    UInt32  packedSize;
+%    UInt32  containerOffset;
+%    UInt8   sectionKind;
+%    UInt8   shareKind;
+%    UInt8   alignment;
+%    UInt8   reservedA;
+
+
+
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /nameOffset exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (nameOffset) def
+nameOffset pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos (") writef %nameOffset %pDec5 writef wrtlin
+		end
+		nameOffset 0 gt {
+		% this needs adjustment if block is buffered in an array
+			data_fork sectionNameTable nameOffset add setfileposition 
+			[ 72 {
+				data_fork read {dup}{exit} if
+				0 eq {exit} if
+			} repeat ] makestring 
+
+		}{
+			(No Name)
+		}ifelse
+		/sectionName$ exch def
+		sectionName$ writef (") writef wrtlin
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /defaultAddress exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (defaultAddress) def
+defaultAddress pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos (16#) writef defaultAddress pAddr writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /totalSize exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (totalSize) def
+totalSize pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos totalSize 12 string cvs writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /unpackedSize exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (unpackedSize) def
+unpackedSize pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos unpackedSize 12 string cvs writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /packedSize exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (packedSize) def
+packedSize pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos packedSize 12 string cvs writef wrtlin
+		end
+
+		/nextWord nextLong def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		nextWord readDataLong  /nextLong exch def /containerOffset exch def
+		mem nextWord 2 div cvi get begin
+		/flag flag CODE INSTCODE or not and def
+		/flag flag LBL or def
+		/SymbolName (containerOffset) def
+containerOffset pLong writef
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos (16#) writef containerOffset pAddr writef wrtlin
+		end
+	
+		/nextWord nextLong def
+
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		% handle byte aligned data a group manually
+		data_fork nextWord setfileposition
+		data_fork read {/sectionKind exch def}if
+		data_fork read {/shareKind exch def}if
+		data_fork read {/alignment exch def}if
+		data_fork read {/reservedA exch def}if
+		/nextLong nextWord 4 add def
+		
+		
+
+		% open the first memory location
+		mem nextWord 2 div cvi get begin 
+		/flag DATAL DATAW or def
+		/dl [16#84 sectionKind shareKind alignment reservedA] makestring exec def
+		/dw [16#86 sectionKind shareKind ] makestring exec def
+		/SymbolName (sectionKind) def
+		/oddLabel (shareKind) def
+sectionKind pHex writef 
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos
+		% decode the section kind index string  % this should be a proc for later use
+		% if needed
+		[(Code) (Unpacked Data) (Pattern initialized data) (Constant)
+		(Loader) (Debug) (Executable data) (Exeption) (TraceBack)]
+		sectionKind get writef wrtlin
+
+		/nextWord nextWord 1 add def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+
+shareKind pHex writef 
+label_pos wrtpos
+oddLabel writef (:) writef
+op_pos wrtpos
+		% decode the section kind index string
+		<<1 (Process share) 4 (Global share) 5 (Protected share)>>
+		shareKind 2 copy known {
+		 get writef 
+		}{
+			exch pop
+			pDec3 writef
+		}ifelse
+		wrtlin
+		end
+
+		/nextWord nextWord 2 add def
+
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+		mem nextWord 2 div cvi get begin 
+		/flag DATAL DATAW or def
+		/dl [16#84 sectionKind shareKind alignment reservedA] makestring exec def
+		/dw [16#86 alignment reservedA ] makestring exec def
+		/SymbolName (alignment) def
+		/oddLabel (reservedA) def
+alignment pHex writef 
+label_pos wrtpos
+SymbolName writef (:) writef
+op_pos wrtpos  %pDec3 writef
+		% decode the section kind index string
+		2 alignment exp cvi /algnBytes exch def
+		algnBytes 4 lt {
+			[() (byte) (halfWord) (word) (4align) ]
+			algnBytes get writef
+		}{
+			algnBytes =string cvs writef ( Bytes) writef
+		}ifelse
+		
+		wrtlin
+
+		/nextWord nextWord 1 add def
+DBGMemPtr {
+%countdictstack =string cvs print ( ) print
+nextWord pAddr writef <28> writef nextWord 2 div cvi dup pDec5 writef <295B> writef
+mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+} if
+
+reservedA pHex writef 
+label_pos wrtpos
+oddLabel writef (:) writef
+op_pos wrtpos reservedA pDec3 writef
+		% decode the section kind index string
+		wrtlin
+		end
+
+		% this method is used for reading file in sections
+		data_fork containerOffset setfileposition
+		data_fork packedSize string readstring {/rawData$ exch def}if
+		
+
+		nextLong
+
+		end
+		/nextLong exch def
+
+
+
+		} for
+
+		end
+		
+
+	() =
+
+	% now unpack the data
+
+	% overload the reader so we can use the same function for both data and resource forks
+
+	/readDataWord {
+		/memPtr exch def
+	
+		/wMemPtr memPtr 2 div cvi def
+
+		mem wMemPtr get begin
+
+		currentdict /blk known {
+	%( overwrite overead) =
+	%flag wMemPtr get pHex ==
+
+			currentdict /oddLabel known {
+
+	% this is for dealing with data that is not word alinged 
+				/sInt <86> rawData$ memPtr 2 getinterval strcat def
+				/b1 sInt 1 get def
+				/b2 sInt 2 get def
+				/dw sInt cvx exec def
+				dw
+	
+	%(###) =
+	%currentdict dfa
+	%(---) =
+	%pstack %stop
+
+			}{
+				% we have been at this memory location before no
+				% need to read it again
+			
+				dw
+	%currentdict dfa
+			}ifelse
+		
+			% can also use this for call graph analysis by tracking
+			% the number of times this location is read
+		
+		}{
+
+	%		flag wMemPtr 2 copy get DATAW or put
+			/blkAddr memPtr def		%can be used for displaying address offsets
+		
+			/flag flag DATAW or def
+	
+			/sInt <86> rawData$ memPtr 2 getinterval strcat def
+			/b1 sInt 1 get def
+			/b2 sInt 2 get def
+			/dw sInt cvx exec def
+			dw
+			/blk (BLkW) def
+
+		}ifelse
+		
+		end	
+		memPtr 2 add
+
+		% on return is the next address and the data word is left on the stack
+
+	}bind def
+
+	/readDataLong {
+
+		/memPtr exch def
+
+		/wMemPtr memPtr 2 div cvi def
+
+		mem wMemPtr get begin
+
+		flag empty and empty eq {
+
+	%		flag wMemPtr 2 copy get DATAW or put
+			/blkAddr memPtr def		%can be used for displaying address offsets
+
+			/flag flag DATAL DATAW or or def
+
+			/sInt <84> rawData$ memPtr 4 getinterval strcat def
+			/b1 sInt 1 get def
+			/b2 sInt 2 get def
+			/b3 sInt 3 get def
+			/b4 sInt 4 get def
+			/dl sInt cvx exec def
+			dl
+			/blk (BLkL) def
+			/dw [16#86 b1 b2] makestring cvx exec def
+
+
+			mem wMemPtr 1 add get begin 
+			/blkAddr memPtr def		%can be used for displaying address offsets
+			/flag flag DATAL DATAW or or def
+			/dl dl def
+			/b1 b1 def
+			/b2 b2 def
+			/b3 b3 def
+			/b4 b4 def		
+			/blk (BLkL) def
+			/dw [16#86 b3 b4] makestring cvx exec def
+
+			end
+		}{
+
+			flag DATAL and 0 eq {
+				/sLong <84> rawData$ memPtr 4 getinterval strcat def
+				/dl sLong cvx exec def
+				/flag flag DATAL or def
+			}if
+	%(###) =
+	%currentdict dfa
+	%(---) =
+	%pstack stop	
+			dl
+		}ifelse	
+
+		end	
+		memPtr 4 add
+
+		% on return is the next address and the data word is left on the stack
+
+	} bind def
+
+
+		% update the sections based on sectionKind to locate the loader and create the
+		% mem arrays and data parsers needed to decode the enclosed data.
+		
+		/SectionOrder RoutineRecords 0 get /sectionHeaders get length array def
+		
+		RoutineRecords 0 get /sectionHeaders get {
+			begin
+
+(') writef			
+[(Code) (Unpacked Data) (Pattern initialized data) (Constant)
+(Loader) (Debug) (Executable data) (Exeption) (TraceBack)]
+sectionKind get writef (' section:) writef 
+sectionKind pDec3 writef
+
+wrtlin
+
+sectionKind 0 eq {
+%	/DumpHex true def
+} if	
+
+
+			% watch verbose escape on this option when debugging			
+			DumpHexPreview {
+
+				 rawData$ 0 dumpHex
+
+			%currentdict dfa			
+			}if			
+	
+(\n) =
+				
+			<< %>
+			0 {
+				/sectionKind$ (Code) def
+				% memsize will depend on sectionKind
+	
+				/mem unpackedSize 4 div cvi array def
+	
+				0 1 mem length 1 sub {mem exch << /flag empty >> put} for
+
+				/DBGMemPtr {
+					/nextAddr exch def
+					Verbose { %countdictstack =string cvs print ( ) print
+						nextAddr pAddr writef <28> writef nextAddr 2 div cvi dup pDec5 writef <295B> writef
+						mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+					} if
+				} def
+				/updateMemloc {
+					mem exch 4 div cvi get begin
+					36 string cvs /SymbolName exch def
+
+					/flag flag CODE INSTCODE or not and def
+					/flag flag LBL or def
+					end
+				} def
+
+			
+				% we can not dunp the code until we have processed the loader
+				% and the data sections
+				
+				SectionOrder 2 currentdict put  % put the code in the last section
+/thisdict (Code block) def	
+
+
+			}
+		
+			1 {
+				/sectionKind$ (Unpacked Data) def
+			}
+		
+			2 {			
+				/sectionKind$ (Pattern initialized data) def
+				% memsize will depend on sectionKind
+	
+				/mem totalSize 4 div cvi array def
+	
+				0 1 mem length 1 sub {mem exch << /flag empty >> put} for
+
+				/DBGMemPtr {
+					/nextAddr exch def
+					Verbose { %countdictstack =string cvs print ( ) print
+						nextAddr pAddr writef <28> writef nextAddr 2 div cvi dup pDec5 writef <295B> writef
+						mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+					} if
+				} def
+				/updateMemloc {
+					mem exch 4 div cvi get begin
+					/SymbolName exch def
+
+					/flag flag CODE INSTCODE or not and def
+					/flag flag LBL or def
+					end
+				} def
+
+				SectionOrder 1 currentdict put  % put the data in the middle section
+
+
+			}
+		
+			3 {
+				/sectionKind$ (Constant) def
+			}
+		
+			4 {
+				/sectionKind$ (Loader) def
+				% memsize will depend on sectionKind
+	
+				/mem packedSize 2 div cvi array def
+	
+				0 1 mem length 1 sub {mem exch << /flag empty >> put} for
+
+
+				/nextWord 0 def
+	
+				% this is the parser for the loader section header		
+				/DBGMemPtr {
+					/nextAddr exch def
+					Verbose { %countdictstack =string cvs print ( ) print
+						nextAddr pAddr writef <28> writef nextAddr 2 div cvi dup pDec5 writef <295B> writef
+						mem exch get /flag get pHex writef <5D> writef code_pos wrtpos 
+					} if
+				} def
+				/updateMemloc {
+					mem exch 2 div cvi get begin
+					33 string cvs /SymbolName exch def
+
+					/flag flag CODE INSTCODE or not and def
+					/flag flag LBL or def
+					label_pos wrtpos
+					SymbolName writef (:) writef
+					op_pos 12 add wrtpos
+					end
+				} def
+	
+
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def /mainSection exch def
+Verbose {
+mainSection pLong writef
+}if
+				/mainSection nextWord updateMemloc 
+
+				mainSection =string cvs writef wrtlin
+
+				/nextWord nextLong def
+
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /mainOffset exch def
+Verbose {
+mainOffset pLong writef
+}if
+				/mainOffset  nextWord updateMemloc
+				(16#) writef mainOffset pAddr writef wrtlin
+
+
+				/nextWord nextLong def
+			
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def /initSection exch def
+Verbose {
+initSection pLong writef
+}if
+			
+				/initSection nextWord updateMemloc
+				initSection 33 string cvs writef wrtlin
+
+				/nextWord nextLong def
+
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /initOffset exch def
+Verbose {
+initOffset pLong writef
+}if
+				/initOffset nextWord updateMemloc
+			
+				(16#) writef mainOffset pAddr writef wrtlin
+			
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def /termSection exch def
+Verbose {
+termSection pLong writef
+}if
+				/termSection nextWord updateMemloc
+
+				termSection 33 string cvs writef wrtlin
+
+				/nextWord nextLong def
+
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /termOffset exch def
+Verbose {
+termOffset pLong writef
+}if
+				/termOffset nextWord updateMemloc
+
+				(16#) writef termOffset pAddr writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /importedLibraryCount exch def	
+Verbose {
+importedLibraryCount pLong writef
+}if
+				/importedLibraryCount nextWord updateMemloc
+				importedLibraryCount pDec5 writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /totalImportedSymbolCount exch def
+				
+				% this is a good way to keep a list of symbol dicts for ordinal access
+				% otherwise we would have dynamically allocate it, or keep the counter in
+				% a dict outsude the one we are adding
+				/LookupSymbols totalImportedSymbolCount 1 add array def
+				LookupSymbols 0 1 put %global counter of active symbols
+				
+				
+Verbose {
+totalImportedSymbolCount pLong writef
+}if
+				/totalImportedSymbolCount nextWord updateMemloc
+			
+				totalImportedSymbolCount pDec5 writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /relocSectionCount exch def
+				
+Verbose {
+relocSectionCount pLong writef
+}if
+				/relocSectionCount nextWord updateMemloc
+			
+				relocSectionCount pDec5 writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /relocInstrOffset exch def
+				
+Verbose {
+relocInstrOffset pLong writef
+}if
+				/relocInstrOffset nextWord updateMemloc
+			
+				( 16#) writef relocInstrOffset pAddr writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /loaderStringsOffset exch def				
+Verbose {
+loaderStringsOffset pLong writef
+}if
+				/loaderStringsOffset nextWord updateMemloc
+
+				( 16#) writef loaderStringsOffset pAddr writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /exportHashOffset exch def					
+Verbose {
+exportHashOffset pLong writef
+}if
+				/exportHashOffset nextWord updateMemloc
+			
+				( 16#) writef exportHashOffset pAddr writef wrtlin
+
+				/nextWord nextLong def
+	
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /exportHashTablePower exch def	
+Verbose {
+exportHashTablePower pLong writef
+}if
+				/exportHashTablePower nextWord updateMemloc
+			
+				exportHashTablePower pDec5 writef
+				( ) writef 2 exportHashTablePower exp cvi pDec5 writef wrtlin
+			
+				/nextWord nextLong def
+	
+
+				nextWord DBGMemPtr
+				nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /exportedSymbolCount exch def	
+Verbose {
+exportedSymbolCount pLong writef
+}if
+				/exportedSymbolCount nextWord updateMemloc
+		
+				exportedSymbolCount pDec5 writef wrtlin
+			
+				/nextWord nextLong def
+	
+() =
+
+				/ImportedSymbolTable nextLong importedLibraryCount 24 mul add def		
+				(ImportedSymbolTable: ) print ImportedSymbolTable pAddr =
+
+				/ImportedLibraries  10 dict def
+				/LibraryImport importedLibraryCount array def
+
+				0 1 importedLibraryCount 1 sub {
+() =
+					10 dict begin
+					LibraryImport exch currentdict put		
+	
+					%struct PEFImportedLibrary {
+					%    UInt32  nameOffset;
+					%    UInt32  oldImpVersion;
+					%    UInt32  currentVersion;
+					%    UInt32  importedSymbolCount;
+					%    UInt32  firstImportedSymbol;
+					%    UInt8   options;
+					%    UInt8   reservedA;
+					%    UInt16  reservedB;
+					%};
+	
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /nameOffset exch def				
+Verbose {
+nameOffset pLong writef
+}if
+					/nameOffset nextWord updateMemloc
+
+					nameOffset pAddr writef 
+					( ) writef 
+
+					nameOffset 0 ge {
+						/LibNameOffset loaderStringsOffset nameOffset add def
+						loaderStringsOffset pAddr writef (: ) writef
+						/pMem LibNameOffset def
+						[72 {
+							rawData$ pMem get
+							dup 0 eq { pop exit} if
+							/pMem pMem 1 add def
+		
+						} repeat ] makestring /LibraryName exch def
+		
+						LibraryName writef  	
+						wrtlin
+					} if
+
+					ImportedLibraries LibraryName cvn currentdict put
+
+					/nextWord nextLong def
+
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /oldImpVersion exch def				
+Verbose {
+oldImpVersion pLong writef
+}if
+					/oldImpVersion nextWord updateMemloc
+
+					oldImpVersion pDec5 writef wrtlin
+
+					/nextWord nextLong def
+
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /currentVersion exch def				
+Verbose {
+currentVersion pLong writef
+}if
+					/currentVersion nextWord updateMemloc
+					currentVersion =string cvs writef wrtlin
+
+					/nextWord nextLong def
+	
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /importedSymbolCount exch def
+				
+Verbose {
+importedSymbolCount pLong writef
+}if
+					/importedSymbolCount nextWord updateMemloc
+					importedSymbolCount pDec5 writef wrtlin
+
+					/nextWord nextLong def
+	
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFFFFFF and /firstImportedSymbol exch def					
+Verbose {
+firstImportedSymbol pLong writef
+}if
+					/firstImportedSymbol nextWord updateMemloc
+					firstImportedSymbol pAddr writef wrtlin
+
+					/nextWord nextLong def		
+
+					nextWord DBGMemPtr
+					nextWord readDataWord  /nextLong exch def 16#FFFFFFFF and /options_reserveA exch def
+					/options options_reserveA -8 bitshift def
+					/reserveA options_reserveA 16#FF and def
+Verbose {					
+options pHex writef
+}if
+					label_pos wrtpos
+					(options) writef (:) writef
+				
+					op_pos 12 add wrtpos options pHex writef ( ) writef
+					options 16#80 and 16#80 eq {
+						(kMustInit | ) writef
+					}if
+					options 16#40 and 16#40 eq {
+						(weak) writef
+					}if
+					wrtlin
+
+					/nextWord nextWord 1 add def
+					nextWord DBGMemPtr
+Verbose {			
+reserveA pHex writef
+}if
+					label_pos wrtpos
+					(reserveA) writef (:) writef
+					op_pos 12 add wrtpos reserveA pDec5 writef wrtlin
+
+					/nextWord nextLong def
+
+					nextWord DBGMemPtr
+					nextWord readDataWord  /nextLong exch def 16#FFFF and /reservedB exch def				
+Verbose {
+reservedB pLong writef
+}if
+
+					/importedSymbolCount nextWord updateMemloc
+					reservedB pDec5 writef wrtlin
+
+					/nextWord nextLong def
+	
+					/symTabPtr ImportedSymbolTable firstImportedSymbol 4 mul add def
+
+() =
+	
+					/SymbolList 10 dict def
+					/LibraryImportSymbols importedSymbolCount array def
+	
+					0 1 importedSymbolCount 1 sub {
+						10 dict begin
+						LibraryImportSymbols exch currentdict put
+						
+						% add this to the LookupSymbols array
+						LookupSymbols  LookupSymbols 0 get 2 copy currentdict put
+						1 add 0 exch put % update the index
+						
+						% make a local copy of the parent library - we can reverse lookup
+						% this if we need parameters
+						/ParentLibraryName LibraryName dup length string copy def
+								
+						symTabPtr DBGMemPtr 
+						symTabPtr readDataLong  /symTabNext exch def 16#FFFFFFFF and /Symbol exch def
+						%Symbol nextWord updateMemloc
+			
+						/SymbolClass Symbol -24 bitshift def
+						/SymbolNameOffset Symbol 16#00FFFFFF and def
+						/flags SymbolClass -4 bitshift def
+						/Class SymbolClass 16#0F and def
+
+						/SymName$Ptr loaderStringsOffset SymbolNameOffset add def
+Verbose {
+	SymName$Ptr pLong writef
+}if
+						/symNamePtr SymName$Ptr def
+						[
+						72 {
+							rawData$ symNamePtr get dup 0 eq{ pop exit} if
+							/symNamePtr symNamePtr 1 add def
+						} repeat
+						] makestring /SymbolName exch def
+						
+						%TraceSymbolImport begin
+						%	/tracemem [ tracemem {} forall SymbolName ] def
+						%end
+	
+						SymbolList SymbolName cvn currentdict put
+	
+						SymbolName symTabPtr updateMemloc
+	
+						op_pos 17 add wrtpos flags pHex writef	( ) writef 	
+						
+						/SymbolClassType$ [(kPEFCodeSymbol) (kPEFDataSymbol) (kPEFTVectSymbol) (kPEFTOCSymbol) (kPEFGlueSymbol)] 
+						Class get def
+						
+						SymbolClassType$ writef %( ) writef SymName$Ptr pAddr writef
+													
+						symTabNext
+						end
+						/symTabPtr exch def
+						wrtlin
+	
+					} for
+	
+					symTabPtr 
+					nextLong
+					end
+					/nextWord exch def
+					/relocationHeaders exch def
+	
+				} for
+				
+				importedLibraryCount 0 le {
+					/relocationHeaders 0 def
+				}if
+() =
+(Relocation headers table: ) print relocationHeaders pAddr =
+				/relocSections relocSectionCount array def
+				%struct PEFLoaderRelocationHeader {
+				%    UInt16  sectionIndex;
+				%    UInt16  reservedA;
+				%    UInt32  relocCount;
+				%    UInt32  firstRelocOffset;
+				%};
+
+				0 1 relocSectionCount 1 sub {
+					10 dict begin
+					relocSections exch currentdict put
+					/nextWord relocationHeaders def
+
+					nextWord DBGMemPtr
+					nextWord readDataWord  /nextLong exch def 16#FFFF and /sectionIndex exch def					
+Verbose {
+sectionIndex pWord writef
+}if
+					/sectionIndex nextWord updateMemloc
+					sectionIndex pDec5 writef wrtlin
+
+					/nextWord nextLong def
+
+					nextWord DBGMemPtr
+					nextWord readDataWord  /nextLong exch def 16#FFFF and /reservedA exch def					
+Verbose {
+reservedA pWord writef
+}if
+					/reservedA nextWord updateMemloc
+					reservedA pDec5 writef wrtlin
+
+					/nextWord nextLong def
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFF and /relocCountST exch def					
+Verbose {
+relocCountST pLong writef
+}if
+					/relocCountST nextWord updateMemloc
+					relocCountST pDec5 writef wrtlin
+
+					/nextWord nextLong def
+					nextWord DBGMemPtr
+					nextWord readDataLong  /nextLong exch def 16#FFFF and /firstRelocOffset exch def					
+Verbose {
+firstRelocOffset pLong writef
+}if
+					/firstRelocOffset nextWord updateMemloc
+					firstRelocOffset pAddr writef wrtlin
+
+					/nextWord nextLong def
+					
+				
+					nextLong
+					end
+					/nextWord exch def
+				} for
+				
+				exportedSymbolCount 0 gt {
+					/nameLengths [exportedSymbolCount {0} repeat]  def
+(has export symbols) =
+rawData$ loaderStringsOffset 23 getinterval ==
+					/exportSymPtr exportHashOffset def
+					2 exportHashTablePower exp cvi {
+/lw [16#84 rawData$ exportSymPtr 4 getinterval {} forall] makestring cvx exec def
+exportSymPtr pAddr print (: ) print
+(chain count: ) print lw -18 bitshift pLong =
+(export index: ) print lw 16#3FFFF and pLong =
+lw pLong ==
+						/exportSymPtr exportSymPtr 4 add def
+					} repeat
+(should be key table:) =
+					/sidx 0 def
+					exportedSymbolCount {
+exportSymPtr pAddr print (: ) print					
+/symLen [16#86 rawData$ exportSymPtr 2 getinterval {} forall] makestring cvx exec def
+					/exportSymPtr exportSymPtr 2 add def
+/encName [16#86 rawData$ exportSymPtr 2 getinterval {} forall] makestring cvx exec def
+					/exportSymPtr exportSymPtr 2 add def
+					
+					nameLengths sidx symLen put
+					/sidx sidx 1 add def
+					
+symLen =string cvs print ( ) print encName pWord = %print ( ) print encName ==
+					} repeat
+(should be symbol table: ) =
+					/sidx 0 def
+					exportedSymbolCount {
+exportSymPtr pAddr print (: ) print	
+					/Class rawData$ exportSymPtr get def
+Class =string cvs print ( ) print
+					/exportSymPtr exportSymPtr 1 add def
+/NameIdx [16#84 00 rawData$ exportSymPtr 3 getinterval {} forall] makestring cvx exec def
+					/exportSymPtr exportSymPtr 3 add def
+NameIdx pLong print ( ) print
+/SymValue [16#84 rawData$ exportSymPtr 4 getinterval {} forall] makestring cvx exec def
+					/exportSymPtr exportSymPtr 4 add def
+SymValue pLong print ( ) print
+/sectionIndex [16#86 rawData$ exportSymPtr 2 getinterval {} forall] makestring cvx exec def
+sectionIndex =string cvs print ( ) print
+rawData$ loaderStringsOffset NameIdx add  nameLengths sidx get getinterval =
+					/sidx sidx 1 add def
+					/exportSymPtr exportSymPtr 2 add def
+					}repeat
+
+%pstack stop
+
+					%exportHashOffset
+				}if
+
+				SectionOrder 0 currentdict put  % put the loader in the first section
+
+			}
+		
+			5 {
+				/sectionKind$ (Debug) def
+			}
+		
+			6 {
+				/sectionKind$ (Executable data) def
+			}
+		
+			7 {
+				/sectionKind$ (Exeption) def
+			}
+		
+			8 {
+				/sectionKind$ (TraceBack) def
+			}		
+			>> sectionKind 2 copy known {
+				get exec
+			}{
+				% we will crash long before we get here
+				exch pop
+				(unresolved section: ) print  ==
+			}ifelse
+
+			end
+		} forall
+		
+ShowPefLoader {
+		% expand the data area
+		(derezPEFPattern.ps) run
+		
+thisdict ==
+
+		% watch verbose escape on this option when debugging			
+SectionOrder 1 get begin
+		/outAddr 0 def
+		
+		mem length {
+			outAddr 4 mul pAddr writef (:) writef
+			8 wrtpos
+			/HEX$ (<) def
+			4{
+				mem outAddr get /dl 2 copy known {
+					get
+				}{
+					pop pop 0
+				}ifelse
+				pLong /dataWord exch def
+				%dataWord writef
+				
+				/HEX$ HEX$ dataWord strcat ( ) strcat def
+				/outAddr outAddr 1 add def
+				outAddr mem length ge {exit} if
+			} repeat
+			HEX$ writef
+			/ASCII$ HEX$ (>) strcat cvx exec def
+
+			48 wrtpos (% ') writef
+			[ ASCII$
+			{
+				dup 32 lt 1 index 126 gt or {
+					pop 46 % 38 is & like PEF Viewer
+				}if
+			}forall] makestring writef
+			(') writef
+			 
+		
+			wrtlin
+			outAddr mem length ge {exit} if
+
+		} repeat	
+end
+(\n) =
+
+} if
+		}if			
+	
+ShowPefLoader {		
+		% relocate library symbols
+		(derezPEFLoader.ps) run
+
+thisdict ==
+
+		% preview the data section
+		%(derezPEFHexDump.ps) run
+		end
+
+thisdict ==
+
+} if
+%} if
+		% disassembler 
+		RoutineRecords 0 get begin
+		
+		SectionOrder 2 get begin %/mem get 16#
+
+
+% not good practice to put these at top dict level
+% this is file specific information
+/setStringData {
+	stringRoot  pAddr print (: )  print data$ length 34 gt {
+	
+	% could be a block of pStrings. treat the first char as a length byte
+	
+	% this should probably be in the main loop
+	
+	/pStr$ data$ def
+	/pStrIdx 0 def
+	
+	/pLen data$ 0 get def
+	
+	% check if there is room for extraction
+		pLen data$ length gt {
+			data$ ==
+		}{
+			/stringAddr stringRoot def
+
+(\n String block overflow:) =			
+stringAddr pAddr print (: ) print 
+			
+			32 {		
+				/pLen pStr$ 0 get def
+
+				pLen pStr$ length ge {
+					pStr$ ==
+					exit
+				} if
+
+				pStr$ 0 pLen 1 add getinterval ==
+				/stringAddr stringAddr pLen 1 add add def
+
+				stringAddr pAddr print (: ) print 
+
+				/pStrIdx pStrIdx pLen 1 add add def
+				
+				/remainder pStr$ length pStrIdx 1 add sub def
+				
+				pStrIdx remainder ge {
+					pStr$ ==
+					exit
+				}if
+				
+				remainder 0 gt {
+					/pStr$ pStr$ pStrIdx remainder getinterval def
+				}{
+					
+					pStrIdx pStr$ length 1 sub eq {
+						pStr$ ==
+						exit
+					}if
+
+					
+					/pStr$ pStr$ pStrIdx  pStr$ length 1 sub getinterval def
+					pStr$ ==
+					exit
+						
+				}ifelse
+
+				/pStrIdx 0 def
+					
+			
+			%pStr$ length 15 lt {
+				%pStr$ ==
+			%	exit
+			%}if
+			
+			} repeat
+%pstack stop
+	
+		
+		}ifelse
+	}{
+	
+	data$ ==
+	
+	} ifelse
+	
+	flush					
+
+	StrTableIDX stringRoot data$ put
+	/StrTableList [ StrTableList {} forall data$ ] def
+
+
+
+	/OpIDX stringRoot def
+	stringRoot 4 StrTablePtr {								
+		mem exch 4 div cvi get begin 
+	
+		/flag flag empty not and def
+		/flag flag CODE INSTCODE or not and def
+		/flag flag DATASTR or def
+
+		/localRoot stringRoot def
+
+		/op_Word$ rawData$  OpIDX 4 getinterval def
+%OpIDX pLong print ( ) print
+		end
+		/OpIDX OpIDX 4 add def
+
+	} for								
+%() =
+%(->) print
+%pstack stop
+%(<-) =
+
+} def
+
+
+
+UseLitterals {
+
+(dump Litterals) = flush
+		% code memory
+		/StrTablePtr StrTable def
+		/StrTableRoot StrTable def
+		/StrTableIDX 10 dict def
+		/StrTableList [] def
+		/nillTerm false def
+		
+%		()
+
+
+		{
+
+%(stuck: ) print StrTablePtr == flush	
+			StrTablePtr StrTableEnd ge {
+				exit
+			}if
+		
+
+			mark
+			/endOfString false def
+
+			{
+				rawData$ StrTablePtr get
+				dup 0 eq {
+					pop 
+					/nillTerm true def
+					(\135) cvn load exec makestring 
+					/data$ exch def
+					/endOfString true def
+					exit
+				}{
+					/nillTerm false def
+				} ifelse
+				/StrTablePtr StrTablePtr 1 add def				
+			} loop
+endOfString {
+
+				data$ () ne {
+
+					/stringRoot StrTablePtr data$ length sub def
+					StrTableIDX stringRoot data$ put
+					% may be a data string or a formatted string
+					data$ 0 get 32 lt {
+				
+						/pstrMkr data$ 0 get def
+						%pstrMkr 10 eq 
+						pstrMkr 13 eq pstrMkr 9 eq pstrMkr 10 eq or or {
+% formatted string  (or else it is a pstring of 9 or 10 or 13 bytes aka newline or tab)				
+setStringData
+%pstack stop				
+						}{
+%(preSplit: ") print data$ print (") = flush
+							
+							{
+
+								pstrMkr 32 ge {
+									exit							
+								} if
+
+								/blockData$ data$ dup length string copy def
+blockData$ length pstrMkr 1 add le {
+
+(first string: ) print blockData$ ==
+data$ ==
+	stringRoot pAddr print (: ) print pstrMkr 1 add ==
+
+								
+								/data$ blockData$ 0 pstrMkr 1 add getinterval def
+	setStringData
+}{
+/data$ blockData$ 0 pstrMkr 1 add getinterval def
+%pstack stop
+}ifelse								
+
+
+								/stringRoot stringRoot pstrMkr add 1 add def
+blockData$ length  dup pstrMkr sub  1 sub le {
+(second string: ) print
+	blockData$ ==
+data$ ==
+	stringRoot pAddr print  (: ) print blockData$ length pstrMkr sub 1 sub  ==
+							
+								/data$ blockData$ pstrMkr 1 add blockData$ length pstrMkr sub 1 sub getinterval def
+%setStringData
+}{
+	/data$ blockData$ pstrMkr 1 add blockData$ length pstrMkr sub 1 sub getinterval def
+%pstack stop
+}ifelse
+								data$ () eq {
+									exit
+								}{
+								/pstrMkr data$  0 get def
+								}ifelse
+							}loop
+%data$ ==
+%(postSplit ) print pstack
+%(<-) =
+data$ () ne {
+	setStringData
+}if
+						
+						} ifelse
+	
+					}{
+setStringData
+					}ifelse
+				}{
+				
+				}ifelse
+				
+				/endOfString false def
+				/StrTablePtr StrTablePtr 1 add def				
+
+
+}{
+			(\135) cvn load exec makestring  makestring /data$ exch def
+setStringData
+}ifelse	
+	
+		}loop
+%pop
+%pstack stop
+
+%StrTableIDX {exch pAddr print (:) print ==} forall
+%StrTableIDX dfa
+(/dump Litterals) = flush
+
+}{
+		/StrTableList [] def
+}ifelse
+
+%pstack stop
+
+%traceback
+	/outAddr 0 def
+	
+%	functionTrace 
+
+%functionStack 
+	
+	StrTable 4 div cvi {
+		outAddr StrTable 4 div ge {exit} if
+	
+		outAddr 4 mul pAddr writef (:) writef
+		8 wrtpos
+		/HEX$ (<) def
+		/FLAG$ () def
+		/ASCII$ () def
+		/Notes () def
+		4{
+			
+			mem outAddr get begin
+			flag empty and empty eq {
+				/op_Word$ rawData$ outAddr 4 mul 4 getinterval def
+				/op_Word  <84> op_Word$ strcat cvx exec def
+
+				op_Word 0 eq {
+
+					/annotate () def
+
+					/mem_PC outAddr 4 mul cvi def
+DBGTraceBack {
+wrtlin					
+}if				
+					traceBackAddr
+DBGTraceBack {								
+%8 wrtpos
+macsBugDebug pAddr writef  (: ) writef traceback pLong writef
+wrtlin
+} if
+					
+					traceback 0 gt {
+					functionTrace begin
+						/functionStack [traceback functionStack {} forall] def
+						BackTrace traceback mem traceback 4 div cvi get	put					
+					end 
+					}if
+					
+%(###) =
+%mem traceback 4 div cvi get dfa
+%(---) =
+%pstack stop					
+DBGTraceBack {
+outAddr 4 mul pAddr writef (:) writef
+8 wrtpos
+}if
+
+%pstack stop
+					%macsBugDebug 4 div cvi	
+					op_Word$
+					op_Word pLong
+				
+				}{
+					op_Word$
+					op_Word pLong
+					op_Word 16#FFFF0000 and 16#81820000 eq {
+					
+					/traceback op_Word 16#00007FFF and def
+					
+					%/traceback 16#8000 d sub def
+					TraceSymbolImport traceback 2 copy known {
+						get
+
+						
+						currentdict end
+						Notes ( ) strcat  2 index strcat /Notes exch def
+						begin
+
+						/opDict currentdict def
+						functionTrace begin
+						ImportLib outAddr 4 mul cvi opDict put
+						/functionStack [ outAddr 4 mul cvi functionStack {} forall ] def
+
+						end
+						
+						/SymbolName exch def
+						/flag flag LBL or def					
+
+						pop ( .glue. )
+
+
+%/annotate  ( glue code with offset:)  def	
+					}{
+						pop pop
+%(###) =
+%TraceSymbolImport dfa
+%mem traceback 4 div cvi get dfa
+%currentdict dfa
+%(---) =
+%pstack stop			
+					}ifelse		
+
+			
+					}if
+			
+					op_Word 16#7C0802A6 eq { % normal link entry
+%/annotate  ( normal link entry:)  def
+						pop ( .link. )				
+					}if
+
+					op_Word 16#800C0000 eq { % possible pointer glue code
+%/annotate  ( pointer glue code:)  def	
+						pop ( .ptrG. )
+					}if
+					
+				}ifelse
+
+			}{
+				%outAddr
+				op_Word$
+				( .trace.)
+			}ifelse
+			
+			end
+			/dataWord exch def
+			/op_Word$ exch def
+			%/outAddr exch def
+			
+			/ASCII$ ASCII$ op_Word$ strcat def
+			%/HEX$ HEX$ op_Word pLong strcat ( ) strcat def
+			/FLAG$ FLAG$ dataWord strcat ( ) strcat def  	
+			
+			/outAddr outAddr 1 add def
+			outAddr mem length ge {exit} if
+		} repeat
+		FLAG$ writef
+		%/ASCII$ HEX$ (>) strcat cvx exec def
+
+		48 wrtpos (% ') writef
+		[ ASCII$
+		{
+			dup 32 lt 1 index 126 gt or {
+				pop 46 % 38 is & like PEF Viewer
+			}if
+		}forall] makestring writef
+		(') writef
+		
+		Notes () ne {
+			72 wrtpos
+			Notes writef
+			/Notes () def
+		}if 
+	
+		wrtlin
+		outAddr mem length ge {exit} if
+
+	} repeat	
+
+(start mem pass: ) = flush
+
+(memory traceback symbol pass:) =
+
+	% unfortunatly we have to do another pass to get the entry points that
+	% are not traceback or class functions
+	/anonAddr 0 def
+	mem {
+		begin
+		%/wordAddr exch def
+			flag LBL and LBL eq {
+anonAddr pAddr print (: ) print	
+%SymbolName print ( ) print 
+currentdict /longPrototype$ known {
+	longPrototype$ =	
+}{
+	SymbolName ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+
+}ifelse
+
+			}{
+				currentdict /op_Word known {		
+				
+				op_Word 16#FFFF0000 and 16#81820000 eq {
+%/annotate  ( glue code with offset:)  def	
+anonAddr pAddr print (: ) print		
+( glue code with offset: ) print			
+					DYNSymbolNameF begin
+					NextSymbol
+					/NextSymbol NextSymbol 1 add def				
+					end
+					pLblF %(_glue) strcat
+					/SymbolName exch def
+					/flag flag LBL or def
+					/opDict currentdict def
+SymbolName ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+					
+					functionTrace begin
+					AnonFunc anonAddr opDict put
+					
+					/functionStack [ anonAddr functionStack {} forall ] def
+					
+					
+					end
+%(branch link ) print
+%next_PC ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+				}{
+					op_Word 16#7C0802A6 eq { % normal link entry
+%/annotate  ( normal link entry:)  def				
+anonAddr pAddr print (: ) print		
+( normal link entry: ) print
+						DYNSymbolNameF begin
+						NextSymbol
+						/NextSymbol NextSymbol 1 add def				
+						end
+						pLblA
+						/SymbolName exch def
+						/flag flag LBL or def
+						/opDict currentdict def
+SymbolName ==						
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+						
+						functionTrace begin
+						AnonFunc anonAddr opDict put
+
+						/functionStack [ anonAddr functionStack {} forall ] def
+
+
+						end
+
+					}{
+
+						op_Word 16#800C0000 eq { % possible pointer glue code
+%/annotate  ( pointer glue code:)  def
+(branch link ) print
+%next_PC ==
+(###) =
+currentdict dfa
+(---) =
+pstack 
+stop
+									%/ptrGlueEP [mem_PC ptrGlueEP{} forall ] def
+						}{	
+%(branch link ) print
+%next_PC ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+						
+									
+						}ifelse
+					}ifelse
+				}ifelse 
+				}if
+			}ifelse
+		end
+		/anonAddr anonAddr 4 add def
+	} forall
+	
+
+%(###) =
+%currentdict dfa
+%(---) =
+
+%pstack stop
+	
+		
+		
+(pass: 1) =		
+		%/* general defines */
+		/PPCIDXMASK 	16#fc000000 def
+		/PPCIDX2MASK	16#000007fe def
+		/PPCDMASK   	16#03e00000 def
+		/PPCAMASK   	16#001f0000 def
+		/PPCBMASK   	16#0000f800 def
+		/PPCCMASK   	16#000007c0 def
+		/PPCMMASK   	16#0000003e def
+		/PPCCRDMASK 	16#03800000 def
+		/PPCCRAMASK 	16#001c0000 def
+		/PPCLMASK   	16#00600000 def
+		/PPCOE      	16#00000400 def
+		/PPCVRC     	16#00000400 def
+		/PPCDST     	16#02000000 def
+		/PPCSTRM    	16#00600000 def
+
+		/PPCIDXSH        26 def
+		/PPCDSH          21 def
+		/PPCASH          16 def
+		/PPCBSH          11 def
+		/PPCCSH          6 def
+		/PPCMSH          1 def
+		/PPCCRDSH        23 def
+		/PPCCRASH        18 def
+		/PPCLSH          21 def
+		/PPCIDX2SH       1 def
+
+		/PPCGETIDX {PPCIDXMASK and PPCIDXSH neg bitshift} def
+		/PPCGETD   {PPCDMASK and PPCDSH neg bitshift} def
+		/PPCGETA   {PPCAMASK and PPCASH neg bitshift} def
+		/PPCGETB   {PPCBMASK and PPCBSH neg bitshift}def
+		/PPCGETC   {PPCCMASK and PPCCSH neg bitshift} def
+		/PPCGETM   {PPCMMASK and PPCMSH neg bitshift} def
+		/PPCGETCRD {PPCCRDMASK and PPCCRDSH neg bitshift} def
+		/PPCGETCRA {PPCCRAMASK and PPCCRASH neg bitshift} def
+		/PPCGETL   {PPCLMASK and PPCLSH neg bitshift} def
+		/PPCGETIDX2 {PPCIDX2MASK and PPCIDX2SH neg bitshift} def
+		/PPCGETSTRM {PPCSTRM and PPCDSH neg bitshift} def
+
+	/PPCINSTR_OTHER      0 def   % no additional info for other instr. */
+	/PPCINSTR_BRANCH     1 def   % branch dest. = PC+displacement */
+	/PPCINSTR_LDST       2 def   % load/store instruction: displ(sreg) */
+	/PPCINSTR_IMM        3 def   % 16-bit immediate val. in displacement */
+
+	/PPCF_ILLEGAL   1 0 bitshift def   % illegal PowerPC instruction */
+	/PPCF_UNSIGNED  1 1 bitshift def   % unsigned immediate instruction */
+	/PPCF_SUPER     1 2 bitshift def   % supervisor level instruction */
+	/PPCF_64        1 3 bitshift def   % 64-bit only instruction */
+	/PPCF_ALTIVEC   1 4 bitshift def   % AltiVec instruction */
+
+	/OPTABLES << % >
+	
+		2 << /f_type /trapi 	/p2 (tdi) 		/flags PPCF_64 		>> %  /* tdi */
+    	3 << /f_type /trapi 	/p2 (twi)    	/flags 0       		>> %  /* twi */
+    	4 << /f_type /type_4 	/p2 ()			/flags PPCF_ALTIVEC >>
+
+
+		7 << /f_type /imm 		/p2 (mulli)		/flags 0    >> 
+		8 << /f_type /imm 		/p2 (subfic)	/flags 0    >> 
+
+		10 << /f_type /cmpi 	/p2 (cmpli)		/flags 0    >>
+		11 << /f_type /cmpi 	/p2 (cmpi)		/flags 0    >>
+		12 << /f_type /addi 	/p2 (addic)		/flags 0    >> % to use add/sub op names send only last letters
+		13 << /f_type /addi 	/p2 (addic.)	/flags 0    >>
+		14 << /f_type /addi 	/p2 (addi)		/flags 0    >>
+		15 << /f_type /addi 	/p2 (addis)		/flags 0    >>
+		16 << /f_type /bc	 	/p2 ()			/flags 0    >>
+		17 << /f_type /type_17 	/p2 ()			/flags 0	>>
+		18 << /f_type /bli	 	/p2 ()			/flags 0    >>
+		19 << /f_type /type_19 	/p2 ()			/flags 0	>>
+		20 << /f_type /rlw 		/p2 (imi)		/flags 0	>> % rlwimi
+		21 << /f_type /rlw 		/p2 (inm)		/flags 0	>> % rlwinm
+
+		23 << /f_type /rlw	 	/p2 (nm)		/flags 0	>> % rlwnm
+		24 << /f_type /ori 		/p2 ()			/flags 0	>> % in & ~PPCIDXMASK ? ori : nop 
+		25 << /f_type /ori 		/p2 (oris)		/flags 0	>>
+		26 << /f_type /ori 		/p2 (xori)		/flags 0	>>
+		27 << /f_type /ori 		/p2 (xoris)		/flags 0	>>
+		28 << /f_type /ori 		/p2 (andi.)		/flags 0	>>
+		29 << /f_type /ori 		/p2 (andis.)	/flags 0	>>
+		30 << /f_type /type_30 	/p2 ()			/flags 0	>>
+		31 << /f_type /type_31 	/p2 ()			/flags 0	>>
+		32 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		33 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		34 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		35 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		36 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		37 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		38 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		39 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		40 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		41 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		42 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		43 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		44 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		45 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		46 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0);
+		47 << /f_type /ldst 	/p2 (r)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'r',0); 
+		48 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		49 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		50 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		51 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		52 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		53 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		54 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+		55 << /f_type /ldst 	/p2 (f)	/flags 0			>> % ldst(dp,in,ldstnames[PPCGETIDX(in)-32],'f',0);
+  
+  
+		58 << /f_type /type_58 	/p2 ()	/flags 0			>>
+		59 << /f_type /type_59 	/p2 ()	/flags 0			>>
+
+
+		62 << /f_type /type_62 	/p2 ()	/flags 0			>>
+		63 << /f_type /type_63 	/p2 ()	/flags 0			>>
+
+	>> def
+	
+	/TABLE19 << % >
+
+        0 {
+			() mcrf % mcrf  
+		}
+		
+		16 {
+			(lr) 0 0 branch pop % bclr
+%(3 after skip; ) print count pDec3  print ( ) print
+%(skip to: ) print dup pAddr =							
+  
+		}
+		
+		33 {
+			(nor) (not) crop % crnor  
+		}
+		
+		50 {
+			(rfi) PPCF_SUPER nooper 
+        }
+
+        129 {
+			(andc) NULL crop % crandc  
+		}
+		
+		150 {
+			(isync) 0 nooper 
+        }
+
+        193 {
+			(xor) (clr) crop % crxor  
+		}
+
+		225 {
+			(nand) NULL crop % crnand  
+		}
+
+		257 {
+			(and) NULL crop % crand  
+		}
+		
+		289 {
+			(eqv) (set) crop % creqv  
+		}
+		
+		417 {
+			(orc) NULL crop % crorc  
+		}
+		
+		449 {
+			(or) (move) crop % cror  
+		}
+		
+		528 {
+			(ctr) 0 0 branch pop % bcctr */
+%(4 after skip; ) print count pDec3  print ( ) print
+%(skip to: ) print dup pAddr =							
+
+        }
+
+	>> def
+	
+ 	/TABLE31 << %>
+ 	
+        0 {
+        	op_Word 1 and 1 eq {
+        		illegal
+        	}{
+        		cmp % cmp, cmpl
+        	}ifelse
+        }
+        32 1 index
+
+        4 {
+        	op_Word 1 and 1 eq {
+        		illegal
+        	}{
+        		0 trap	% tw */
+        	}ifelse       
+        }
+
+        6 { (lvsl)  vldst } % AltiVec
+        7 { (lvebx) vldst } % AltiVec
+
+        8 { (subc) 7 0 1 -1 0  dab}
+        PPCOE -1 bitshift 8 add 1 index
+		9 { (mulhdu) 7 0 0 -1 PPCF_64 dab}
+        10 {(addc) 7 0 1 -1 0 dab}
+        PPCOE -1 bitshift 10 add 1 index
+		11 {(mulhwu) 7 0 0 -1 0 dab}
+		
+		19 { 
+			op_Word PPCAMASK PPCBMASK or and 0 eq
+			{
+				(mfcr) 4 0 0 0 0 dab
+			}{
+				illegal
+            }ifelse
+		}
+		
+		20 { (lwarx) 7 0 0 0 0 dab}
+		21 { (ldx) 7 0 0 0 PPCF_64 dab}
+		23 { (lwzx) 7 0 0 0 0 dab}
+		24 { (slw) 7 1 0 -1 0 dab}
+		26 {
+			op_Word PPCBMASK and 0 eq
+			{
+				(cntlzw) 6 1 0 -1 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+		
+		27 { (sld) 7 1 0 -1 PPCF_64 dab}
+		28 { (and) 7 1 0 -1 0 dab}
+		38 { (lvsr)  vldst} % AltiVec 
+		39 { (lvehx) vldst} % AltiVec 
+
+        40 { op_Word swapab (sub) 7 0 1 -1 0 dab} % may need work decoding swapab
+        PPCOE -1 bitshift 40 add 1 index
+
+		53 { (ldux) 7 0 0 0 PPCF_64 dab}
+		54 {
+			op_Word PPCBMASK and 0 eq
+			{
+				(dcbst) 3 0 0 0 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+
+		55 { (lwzux) 7 0 0 0 0 dab}
+		58 {
+			op_Word PPCBMASK and 0 eq
+			{
+				(cntlzd) 6 1 0 -1 PPCF_64 dab
+			}{
+				illegal
+			}ifelse
+		}
+		60 { (andc) 7 1 0 -1 0 dab}
+		
+		68 { PPCF_64 trap} % td 
+
+        71 { (lvewx) vldst} % AltiVec 
+        
+        73 { (mulhd) 7 0 0 -1 PPCF_64 dab}
+		75 { (mulhw) 7 0 0 -1 0 dab}
+		
+		83 {
+			op_Word PPCAMASK PPCBMASK or and 0 eq
+			{
+				(mfmsr) 4 0 0 0 PPCF_SUPER dab
+			}{
+				illegal
+            }ifelse
+		}
+
+		84 { (ldarx) 7 0 0 0 PPCF_64 dab}
+		86 {
+			op_Word PPCDMASK and 0 eq
+			{
+				(dcbf) 3 0 0 0 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+
+		87 { (lbzx) 7 0 0 0 0 dab}
+		
+		103 { (lvx)  vldst} % AltiVec
+
+        104 {
+ 			op_Word PPCBMASK and 0 eq
+			{
+				(neg) 6 0 1 -1 0 dab
+			}{
+				illegal
+			}ifelse
+       	}
+        PPCOE -1 bitshift 104 add 1 index
+
+		119 { (lbzux) 7 0 0 0 0 dab}
+		124 {
+			op_Word PPCGETD op_Word PPCGETB eq {
+				(not) 6 1 0 -1 0 dab
+			}{
+				(nor) 7 1 0 -1 0 dab
+			}ifelse
+		}
+		135 { (stvebx) vldst} % AltiVec
+		
+        136 {(subfe) 7 0 1 -1 0 dab}
+        PPCOE -1 bitshift 136 add 1 index
+        
+		138 {(adde) 7 0 1 -1 0 dab}
+        PPCOE -1 bitshift 138 add 1 index
+
+		144 {mtcr}
+		
+		146 {
+			op_Word PPCAMASK PPCBMASK or and 0 eq
+			{
+				(mtmsr) 4 0 0 0 PPCF_SUPER dab
+			}{
+				illegal
+            }ifelse
+		}
+		149 { (stdx) 7 0 0 0 PPCF_64 dab}
+		150 { (stwcx.) 7 0 0 1 0 dab}
+		151 { (stwx) 7 0 0 0 0 dab}
+		167 { (stvehx) vldst} % AltiVec
+		
+        181 { (stdux) 7 0 0 0 PPCF_64 dab}
+		183 { (stwux) 7 0 0 0 0 dab}
+		199 { (stvewx) vldst} % AltiVec
+		
+        200 {
+ 			op_Word PPCBMASK and 0 eq
+			{
+				(subfze) 6 0 1 -1 0 dab
+			}{
+				illegal
+			}ifelse
+        }
+        PPCOE -1 bitshift 200 add 1 index
+        202 {
+ 			op_Word PPCBMASK and 0 eq
+			{
+				(addze) 6 0 1 -1 0 dab
+			}{
+				illegal
+			}ifelse
+        }
+        PPCOE -1 bitshift 202 add 1 index
+       
+		210 { 1 msr} % mfsr
+
+        214 { (stdcx.) 7 0 0 1 PPCF_64 dab}
+		215 { (stbx) 7 0 0 0 0 dab}
+		231 { (stvx) vldst} % AltiVec
+		
+        232 {
+			op_Word PPCBMASK 0 eq
+			{
+				(subfme) 6 0 1 -1 0 dab
+			}{
+				illegal
+            }ifelse
+		}
+        233 {
+			op_Word PPCBMASK 0 eq
+			{
+				(mulld) 7 0 1 -1 PPCF_64 dab
+			}{
+				illegal
+            }ifelse
+		}
+		PPCOE -1 bitshift 233 add 1 index
+		
+        234 {
+			op_Word PPCBMASK 0 eq
+			{
+				(addme) 6 0 1 -1 0 dab
+			}{
+				illegal
+            }ifelse
+		}
+ 
+ 		235 {(mullw) 7 0 1 -1 0 dab} 
+ 		PPCOE -1 bitshift 235 add 1 index
+
+		242 {
+			op_Word PPCAMASK 0 eq
+			{
+				(mtsrin) 5 0 0 0 PPCF_SUPER dab
+			}{
+				illegal
+            }ifelse
+		}
+
+		246 {
+			op_Word PPCDMASK 0 eq
+			{
+				(dcbtst) 3 0 0 0 0 dab
+			}{
+				illegal
+            }ifelse
+		}
+
+		247 { (stbux) 7 0 0 0 0 dab}
+		
+		266 { (add) 7 0 1 -1 0 dab}
+ 		PPCOE -1 bitshift 266 add 1 index
+
+		278 {
+			op_Word PPCDMASK 0 eq
+			{
+				(dcbt) 3 0 0 0 0 dab
+			}{
+				illegal
+            }ifelse
+		}
+
+		279 { (lhzx) 7 0 0 0 0 dab}
+		284 { (eqv) 7 1 0 -1 0 dab}
+		
+		306 {
+			op_Word PPCDMASK PPCAMASK or and 0 eq
+			{
+				(tlbie) 1 0 0 0 PPCF_SUPER dab
+			}{
+				illegal
+            }ifelse
+		}
+
+		310 { (eciwx) 7 0 0 0 0 dab}
+		311 { (lhzux) 7 0 0 0 0 dab}
+		316 { (xor) 7 1 0 -1 0 dab}
+		339 { 0 mspr} % mfspr
+		
+        341 { (lwax) 7 0 0 0 PPCF_64 dab}
+		342 { (st) dstrm} % AltiVec Stream
+		
+        343 { (lhax) 7 0 0 0 0 dab}
+		359 { (lvxl) vldst} % AltiVec
+		
+        370 { (tlbia) PPCF_SUPER nooper}
+		371 { mtb} % mftb
+
+        373 { (lwaux) 7 0 0 0 PPCF_64 dab}
+		374 { (stst)  dstrm} % AltiVec Stream
+		
+        375 { (lhaux) 7 0 0 0 0 dab}
+		407 { (sthx) 7 0 0 0 0 dab}
+		412 { (orc) 7 1 0 -1 0 dab}
+		413 {  sradi} % sradi 
+		
+        434 {
+			op_Word PPCDMASK PPCAMASK or and 0 eq
+			{
+				(slbie) 1 0 0 0 PPCF_SUPER PPCF_64 or dab
+			}{
+				illegal
+            }ifelse
+		}
+
+		438 { (ecowx) 7 0 0 0 0 dab}
+		439 { (sthux) 7 0 0 0 0 dab}
+		444 {   
+			op_Word PPCGETD op_Word PPCGETB eq {
+				(mr) 6 1 0 -1 0 dab
+          	}{
+          		(or) 7 1 0 -1 0 dab
+          	}ifelse
+        }
+        
+		457 { (divdu) 7 0 1 -1 PPCF_64 dab}
+		PPCOE -1 bitshift 457 add 1 index
+		
+		459 { (divwu) 7 0 1 -1 0 dab}
+		PPCOE -1 bitshift 459 add 1 index
+
+		467 { 1 mspr} % mtspr 
+		
+        470 {
+			op_Word PPCDMASK 0 eq
+			{
+				(dcbi) 3 0 0 0 0 dab
+			}{
+				illegal
+            }ifelse
+		}
+		476 { (nand) 7 1 0 -1 0 dab}
+		487 { (stvxl) vldst} % AltiVec
+
+        489 {(divd) 7 0 1 -1 PPCF_64 dab}
+ 		PPCOE -1 bitshift 489 add 1 index
+
+		491 {(divw) 7 0 1 -1 0 dab}
+ 		PPCOE -1 bitshift 491 add 1 index
+
+		498 { (slbia) PPCF_SUPER PPCF_64 or nooper}
+		
+		512 {
+			op_Word 16#007ff801 and 0 eq {
+				 %strcpy(dp->opcode "mcrxr"
+				 %sprintf(dp->operands "cr%d) (int)PPCGETCRD(in)
+			}{
+				illegal
+			}ifelse
+		}
+		533 { (lswx) 7 0 0 0 0 dab}
+		534 { (lwbrx) 7 0 0 0 0 dab}
+		535 { (lfsx) 7 fdab}
+		536 { (srw) 7 1 0 -1 0 dab}
+		539 { (srd) 7 1 0 -1 PPCF_64 dab}
+		566 { (tlbsync) PPCF_SUPER nooper}
+		567 { (lfsux) 7 fdab}
+		595 { 0 msr} % mfsr
+		
+        597 { (lswi) 0 0 0 0 rrn}
+		598 { (sync) PPCF_SUPER nooper}
+		599 { (lfdx) 7 fdab}
+		631 { (lfdux) 7 fdab}
+		
+		659 {
+			op_Word PPCAMASK and 0 eq {
+				 (mfsrin) 5 0 0 0 PPCF_SUPER dab
+			}{
+				illegal
+			}ifelse
+		}
+		
+		661 { (stswx) 7 0 0 0 0 dab}
+		662 { (stwbrx) 7 0 0 0 0 dab}
+		663 { (stfsx) 7 fdab}
+		695 { (stfsux) 7 fdab}
+		725 { (stswi) 0 0 0 0 rrn}
+		727 { (stfdx) 7 fdab}
+		759 { (stfdux) 7 fdab}
+		790 { (lhbrx) 7 0 0 0 0 dab}
+		792 { (sraw) 7 1 0 -1 0 dab}
+		794 { (srad) 7 1 0 -1 PPCF_64 dab}
+		822 { (ss) dstrm} % AltiVec Stream
+		824 { (srawi) 1 0 -1 0 rrn}
+		854 { (eieio) PPCF_SUPER nooper}
+		918 { (sthbrx) 7 0 0 0 0 dab}
+		922 {
+			op_Word PPCBMASK and 0 eq {
+				 (extsh) 6 1 0 -1 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+
+		954 {
+			op_Word PPCBMASK and 0 eq {
+				 (extsb) 6 1 0 -1 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+
+		982 {
+			op_Word PPCDMASK and 0 eq {
+				 (icbi) 3 0 0 0 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+
+		983 { (stfiwx) 7 fdab}
+		986 {
+			op_Word PPCDMASK and 0 eq {
+				 (extsw) 6 1 0 -1 PPCF_64 dab
+			}{
+				illegal
+			}ifelse
+		}
+		
+		1014 {
+			op_Word PPCDMASK and 0 eq {
+				 (dcbz) 3 0 0 0 0 dab
+			}{
+				illegal
+			}ifelse
+		}
+
+	>> def
+	
+	/MSPRTABLE << %>
+	
+		1  { /x (xer) def}
+		8  { /x (lr) def}
+		9  { /x (ctr) def}
+		18 { /x (dsisr) def}
+		19 { /x (dar) def}
+		22 { /x (dec) def}
+		25 { /x (sdr1) def}
+		26 { /x (srr0) def}
+		27 { /x (srr1) def}
+
+      	275 {
+      		/x (sprg) def
+        	/spr spr 272 sub def
+        	/fmt 1 def
+		}
+		272 1 index
+		273 1 index
+		274 1 index
+    
+		280 { /x (asr) def}
+		282 { /x (ear) def}
+		284 { /x (tbl) def}
+		285 { /x (tbu) def}
+
+
+		534 {
+    		/x (ibatu) def
+    		/spr spr 528 sub -1 bitshift def
+        	/fmt 1 def
+        }
+ 		528 1 index
+		530 1 index
+		532 1 index
+       
+		535 {
+			/x (ibatl) def
+        	/spr spr 529 sub -1 bitshift def
+        	/fmt 1 def
+        }
+		529 1 index
+		531 1 index
+		533 1 index
+      		
+		542 {
+			/x (dbatu) def
+        	/spr spr 536 sub -1 bitshift def
+        	/fmt 1 def
+        }
+		536 1 index
+		538 1 index
+		540 1 index
+        
+		543 {
+			/x (dbatl) def
+        	/spr spr 537 sub -1 bitshift def
+        	/fmt 1 def
+        }
+		537 1 index
+		539 1 index
+		541 1 index
+        
+		1013{ /x (dabr) def}
+
+ 	>> def
+ 	
+    /TABLE59 << % >
+        36 {(divs) 6 0 fdabc}
+		40 {(subs) 6 0 fdabc}
+		42 {(adds) 6 0 fdabc}
+		44 {(sqrts) 2 0 fdabc}
+		48 {(res) 2 0 fdabc}
+		50 {(muls) 5 0 fdabc}
+		56 {(msubs) 7 0 fdabc}
+		58 {(madds) 7 0 fdabc}
+		60 {(nmsubs) 7 0 fdabc}
+		62 {(nmadds) 7 0 fdabc}
+	>> def
+	   
+ 	
+ 	/TABLE63_A << % >
+        
+        4 {(div) 6 0 fdabc}
+		8 {(sub) 6 0 fdabc}
+		10 {(add) 6 0 fdabc}
+		12 {(sqrt) 2 0 fdabc}
+		14 {(sel) 7 0 fdabc}
+		18 {(mul) 5 0 fdabc}
+		20 {(sqrte) 2 0 fdabc}
+		24 {(msub) 7 0 fdabc}
+		26 {(madd) 7 0 fdabc}
+		28 {(nmsub) 7 0 fdabc}
+		30 {(nmadd) 7 0 fdabc}
+
+	>> def
+
+ 	/TABLE63_B << % >
+
+        0 {(u) fcmp}
+		12 {(rsp) 10 0 fdabc}
+		14 {(ctiw) 10 0 fdabc}
+		15 {(ctiwz) 10 0 fdabc}
+		32 {(o) fcmp}
+		38 {1 mtfsb}
+		40 {(neg) 10 0 fdabc}
+
+		64 {(s) mcrf}  % mcrfs 
+        70 {0 mtfsb}
+
+		72 {(mr) 10 0 fdabc}
+
+		134 {
+			%if (!(in & 0x006f0800)) 
+			op_Word 16#006f0800 and 0 eq {
+            	%sprintf(dp->opcode "mtfsfi%s) rcsel[in&1]);
+            	/op_text (mtfsfi) rcsel op_Word 1 and get strcat def
+              	%sprintf(dp->operands "%d %d) (int)PPCGETCRD(in) 
+                 %     (int)(in & 0xf000)>>12);
+                /operands (d) op_Word PPCGETCRD 12 string cvs strcat (,d) strcat
+                	op_Word 16#f000 and -12 bitshift 12 string cvs strcat def
+            }{
+            	illegal
+			} ifelse
+		}
+		
+		136 {(nabs) 10 0 fdabc}
+		264 {(abs) 10 0 fdabc}
+
+		583 {
+			%if (!(in & (PPCAMASK|PPCBMASK))) 
+			op_Word PPCAMASK PPCBMASK or and 0 eq {
+        		%sprintf(dp->opcode "mffs%s) rcsel[in&1]);
+            	/op_text (mffs) rcsel op_Word 1 and get strcat def
+             	%sprintf(dp->operands "f%d) (int)PPCGETD(in));
+            	/operands (d) op_Word PPCGETCRD 12 string cvs strcat def
+            }{
+            	illegal
+			} ifelse
+        }
+        
+		711 {
+			%if (!(in & 0x 02010000)) {
+			op_Word 16#02010000 and 0 eq {
+       			%sprintf(dp->opcode "mtfsf%s) rcsel[in&1]);
+             	/op_text (mtfsf) rcsel op_Word 1 and get strcat def
+              	%sprintf(dp->operands "%d %d) (int)PPCGETCRD(in) 
+ 
+                 /operands (d) op_Word PPCGETCRD 12 string cvs strcat (,d) strcat
+                	op_Word 16#01fe0000 and -17 bitshift 12 string cvs strcat def
+            }{
+            	illegal
+			} ifelse
+        }
+		814 {(fctid) 10 PPCF_64 fdabc}
+		815 {(fctidz) 10 PPCF_64 fdabc}
+		846 {(fcfid) 10 PPCF_64 fdabc}
+ 
+
+ 	
+ 	>> def
+
+	/cmpname[(cmpw) (cmpd) (cmplw) (cmpld)] def
+	
+	/b_ext [() (l) (a) (la)] def
+
+	/b_condition[(ge) (le) (ne) (ns) (lt) (gt) (eq) (so)] def
+	
+	/NULL 1 array 0 get def
+	
+	/b_decr [(nzf) (zf) NULL NULL (nzt) (zt) NULL NULL 
+  		(nz) (z) NULL NULL (nz) (z) NULL NULL] def
+
+	/regsel[() (r)] def
+		
+	/oesel << %>
+		true  ()
+		false (o)
+
+		0 ()
+		1 (o)
+
+	>> def
+
+	/rcsel << %>
+		true  (.)
+		false ()
+
+		0 ()
+		1 (.)
+	>> def	
+
+	/ldstnames [
+	  (lwz) (lwzu) (lbz) (lbzu) (stw) (stwu) (stb) (stbu) (lhz) (lhzu)
+	  (lha) (lhau) (sth) (sthu) (lmw) (stmw) (lfs) (lfsu) (lfd) (lfdu)
+	  (stfs) (stfsu) (stfd) (stfdu)
+	] def
+
+	/vmnames[
+		(mhaddshs) (mhraddshs) (mladduhm) (NULL) (msumubm) (msummbm)
+		(msumuhm) (msumuhs) (msumshm) (msumshs) (sel) (perm)
+		(sldoi) (NULL) (maddfp) (nmsubfp)
+	] def
+
+	
+	/illegal {
+	
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop
+	
+		/annotate (Invalid instruction ) def
+		/op_text (.dw) def
+		/flag flag empty not and def
+		/flag flag CODE INSTCODE or not and def % not code
+		/flag flag DATAL or def % mark as word
+		
+		functionTrace begin
+		/illegalInst [ mem_PC illegalInst {} forall] def
+		end
+	
+	} def
+	
+	/rd_ra_rb {
+		%static char *rd_ra_rb(char *s,ppc_word in,int mask)
+		/mask exch def
+		/in exch def
+		/s exch def
+
+	  	% static const char *fmt = "r%d,";
+
+  		%if (mask) 
+  		mask 0 ne {
+			% if (mask & 4)
+  			mask 4 and 4 eq {
+      			%s += sprintf(s,fmt,(int)PPCGETD(in));
+    			/s s (r) strcat in PPCGETD 12 string cvs strcat (,) strcat def
+    		}if
+			%if (mask & 2)
+			mask 2 and 2 eq {
+				%s += sprintf(s,fmt,(int)PPCGETA(in));
+				/s s (r) strcat in PPCGETA 12 string cvs strcat (,) strcat def
+			}if
+			%if (mask & 1)
+      		mask 1 and 1 eq {
+      			%s += sprintf(s,fmt,(int)PPCGETB(in));
+      			/s s (r) strcat in PPCGETB 12 string cvs strcat (,) strcat def
+    		}if
+    		%*--s = '\0';
+    		/s s 0 1 index length 1 sub getinterval def
+  		}{
+  			%else
+    		%*s = '\0';
+    		/s () def
+    	}ifelse
+  		%return (s);
+		s
+
+
+%(###) =
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack stop		
+	
+	} def
+	
+	/ra_rb {
+		%static void ra_rb(char *s,ppc_word in)
+		/in exch def
+		/s exch def
+
+ 		%sprintf(s,"r%d,r%d",(int)PPCGETA(in),(int)PPCGETB(in));
+		/s s (r) strcat in PPCGETA 12 string cvs strcat (,r) strcat 
+		in PPCGETB 12 string cvs strcat def
+		s
+	} def
+
+	
+	/swapda {
+	%  return ((w&0xfc00ffff)|((w&PPCAMASK)<<5)|((w&PPCDMASK)>>5));
+		/w exch def
+		w 16#fc00ffff and
+		w PPCAMASK and 5 bitshift
+		w PPCDMASK and -5 bitshift
+		or or /w exch def
+%(###) =
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack stop				
+		w
+	} def
+	
+	
+	/swapab {
+	%  return ((w&0xffe007ff)|((w&PPCBMASK)<<5)|((w&PPCAMASK)>>5));
+		/w exch def
+		w 16#fc00ffff and
+		w PPCBMASK and 5 bitshift
+		w PPCAMASK and -5 bitshift
+		or or /w exch def
+		w
+	} def
+	
+	
+	/dab {
+		% standard instruction: xxxx rD,rA,rB 
+		/dmode exch def
+		/chkrc exch def
+		/chkoe exch def
+		/smode exch def
+		/mask exch def
+		/name exch def
+		
+		/in op_Word def
+		
+		sub_op 40 eq {
+			/in exch def
+		}if
+
+		chkrc 0 eq in 1 and chkrc ne and {
+				illegal
+		}{
+    		/ppc_flags ppc_flags dmode or def
+
+			smode 0 ne {
+     			/in in swapda def  % rA,rS,rB 
+      		}if
+			/op_text name oesel chkoe in PPCOE and and 
+
+			get strcat
+			rcsel chkrc 0 lt in 1 and 1 eq and get strcat def
+		
+			/operands operands in mask rd_ra_rb def
+
+  		}ifelse
+  		
+  		/flag flag empty not and def
+  		/flag flag CODE or INSTCODE or def % mark as code
+
+  		
+	} def
+	
+	/mspr {
+%static void mspr(DisasmPara_PPC *dp,ppc_word in,int smode)
+		/smode exch def
+
+  		/d op_Word PPCGETD def
+  		/spr op_Word PPCGETB 5 bitshift op_Word PPCGETA add def
+
+		/fmt 0 def
+  		% char *x;
+
+		op_Word 1 and 1 eq {
+			illegal
+		}{
+		
+			spr 1 ne spr 8 ne spr 9 ne or or{
+				/ppc_flags ppc_flags PPCF_SUPER or def
+			}if
+ 
+ 			MSPRTABLE spr 2 copy known {
+ 				get exec
+ 			}{
+				pop pop
+        		/x (spr) def
+        		/fmt 1 def
+ 			}ifelse
+ 			
+ 			% sprintf(dp->opcode,"m%c%s",smode?'t':'f',x);
+ 			/op_text (m) <<true (t) false (f)  >> smode 0 ne get strcat x strcat def
+ 
+ 			
+    		fmt 0 ne {
+    			smode 0 ne {
+        			%sprintf(dp->operands,"%d,r%d",spr,d);
+        			/operands spr 12 string cvs (,r) strcat d 12 string cvs strcat def  
+      			}{
+        			%sprintf(dp->operands,"r%d,%d",d,spr);
+        			/operands (r) d 12 string cvs (,) strcat spr 12 string cvs strcat def  
+    			}ifelse
+    		}{
+		      %sprintf(dp->operands,"r%d",d);
+		      /operands (r) d 12 string cvs strcat def
+  			}ifelse
+	
+		  	/flag flag empty not and def
+	  		/flag flag CODE or INSTCODE or def % mark as code
+	  		
+	  		op_text (mflr) eq {
+DBGInstDec {							
+wrtlin		
+}if					
+	  			/flag flag LINK or def  %mark as start of stack link frame
+	  			
+	  			% this can be used with the symbol table to trace
+	  			% parameter and local variable offsets
+
+	  		
+	  			/funcRootDict currentdict def
+	  			
+	  			functionTrace begin
+				/inFunc true def 
+				/r0 mem_PC def		% define a link register to this function
+				entryPoints r0 funcRootDict put % mark as traced
+				
+
+				end
+%mem_PC 0 ne 
+false {
+mem_PC pAddr writef
+wrtlin
+(###) =			
+currentdict dfa
+(---) =
+data_fork closefile
+%pstack 
+stop
+} if		
+				
+				% create an entry point symbol if one does not exist
+				flag LBL and 0 eq {
+					functionTrace begin
+					ImportLib mem_PC 2 copy known {
+						get begin
+						SymbolName
+						end
+					}{
+						pop pop
+						DYNSymbolNameF begin
+						NextSymbol
+						/NextSymbol NextSymbol 1 add def				
+						end
+						pLblF
+					}ifelse
+					end
+					/SymbolName exch def
+					/flag flag LBL or def
+		  			functionTrace begin
+					AnonFunc mem_PC funcRootDict put
+					end
+
+				}if
+
+			} if
+
+		}ifelse
+	} def
+	
+	/ldst {
+%static void ldst(DisasmPara_PPC *dp,ppc_word in,char *name, char reg,unsigned char dmode)
+		/dmode exch def
+		/reg exch def
+		/name ldstnames op_Word PPCGETIDX 32 sub get  def
+
+		/s op_Word PPCGETD def
+		/a op_Word PPCGETA def
+		/d op_Word 16#ffff and def
+
+  		/ppc_type (PPCINSTR_LDST) def
+  		/ppc_flags ppc_flags dmode or def
+  		
+  		/ppc_sreg a def
+
+		d 16#8000 ge {
+			/d d 16#10000 sub def
+		}if
+
+  		/ppc_displacement d def
+  		
+  		/op_text name def
+
+		a 2 eq {
+		
+			d 4 ne {
+				/annotate 
+				%annotate ( RTOC + ) strcat
+				d 12 string cvs %strcat 
+				% target RTOC seems to be 8000 
+				( ) strcat 16#8000 d add pAddr strcat	
+				
+				SectionOrder 1 get begin
+				( -> ) strcat
+				mem  16#8000 d add 4 div cvi 
+%(# blach) =
+				1 index length 2 copy gt {
+					pop pop pop
+					( #invalid indirect# ) strcat 0
+					
+
+%pstack stop
+				}{
+					pop
+					get begin
+					lw
+					end
+				}ifelse
+				
+				end
+				/indirect exch def
+				indirect pAddr strcat
+				
+				indirect 0 gt {
+				
+					
+					% could be data
+					
+					mem length indirect 4 div cvi gt {
+					
+					
+						mem indirect 4 div cvi get begin
+						
+						
+						flag DATASTR and DATASTR eq {
+							( ") strcat
+							StrTableIDX indirect 2 copy known {
+								get 
+								dup length 72 gt {
+									0 72 getinterval
+								}if
+							}{	
+								pop pop
+								($.NA. 16#) localRoot pAddr strcat
+								% not aligned in string table
+							}ifelse
+							strcat
+							(") strcat 
+						
+
+						}{
+
+							flag CODE and CODE eq {
+							
+								flag LBL and LBL eq {
+									pop
+									indirect pAddr ( ) strcat
+									
+									SymbolName strcat
+
+%wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack 
+%count ==
+%stop	
+								}{
+									( \133) strcat
+									flag pWord strcat (\135) strcat
+									( Unlabled Code) strcat
+								}ifelse
+							}{	
+								flag DEBUG and DEBUG eq {
+										% ignore (not indirect)
+								
+								}{
+									flag empty and empty eq {
+										% could add data marker	
+										/op_Word$ rawData$ indirect 4 getinterval def
+										/op_Word <84> op_Word$ strcat cvx exec def
+										%/flag flag empty not and def
+										%/flag flag DATAL or def
+						
+										( ) strcat
+										 op_Word pLong strcat
+										( ') strcat
+										[ op_Word$
+										{
+											dup 32 lt 1 index 126 gt or {
+												pop 46
+											}if
+										}forall] makestring strcat									
+										(') strcat
+
+									}{
+										( \133) strcat
+										flag pWord strcat (\135) strcat
+										op_Word pLong strcat
+										( ') strcat
+										[ op_Word$
+										{
+											dup 32 lt 1 index 126 gt or {
+												pop 46
+											}if
+										}forall] makestring strcat									
+										(') strcat
+
+
+%wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack 
+%count ==
+%stop		
+
+									}ifelse
+								}ifelse
+							}ifelse
+						}ifelse
+						end
+					}if
+				
+				}{
+					% might be glue code
+					s 12 eq {
+						% could be glue code
+
+						TraceSymbolImport 16#8000 d add 2 copy known {
+
+							flag LBL and LBL eq {
+								% move name to traceback symbol list
+								currentdict /symList known {
+									/symList [ SymbolName symList {} forall ] def
+		
+								}{
+									/symList [SymbolName] def
+								}ifelse
+							}{
+								/flag flag LBL or def
+							}ifelse
+							get /SymbolName exch def
+
+							functionTrace begin
+							
+							%/libGlue [libGlue {} forall mem_PC] def
+
+							/inGlue true def
+							/r12 d 16#FFFF and def
+							/glueAddr mem_PC def
+						
+			
+							end
+%wrtlin					
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack 
+%count ==
+%stop		
+
+
+						}{
+							pop pop
+						}ifelse
+						
+						
+			
+			
+					} if
+				
+				}ifelse
+							
+				def
+			}{
+				/annotate annotate ( base pointer) strcat def
+			
+			} ifelse
+			
+		
+		}if
+		
+		a 12 eq {
+		
+		/annotate annotate ( TVEC + ) strcat d 16#FFFF and pAddr strcat def
+
+
+		}if
+
+		/Assign2Reg reg s 12 string cvs strcat def
+
+op_text (stwu) eq Assign2Reg (r1) eq and {
+		/Assign2Reg (SP) def
+		/flag flag LINK or def % mark as code
+%(###) =
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack 
+%stop				
+} if
+
+
+		/operands Assign2Reg (,) strcat 
+		a 1 eq {
+			d 12 string cvs strcat (\(SP\)) strcat def
+		}{
+			d 0 lt {
+				(-) strcat d pWord strcat
+			}{
+				d pWord strcat
+			}ifelse
+		
+			a 2 eq {
+			(\(RTOC\)) strcat def
+			}{
+				(\(r) strcat a 12 string cvs strcat (\)) strcat def
+			}ifelse
+		}ifelse
+			
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+
+
+	} def
+	
+	
+	/bli {
+		pop pop
+		
+  		/d op_Word 16#3fffffc and def
+
+  		d  16#2000000 ge {
+    		/d d 16#4000000 sub def
+    	}if
+    	
+    	/op_text (b) b_ext op_Word 3 and get strcat def
+    	
+ 
+ 		op_Word 2 and 2 eq {  % AA ? 
+ 			/operands (16#) d pLong strcat def
+ 			/next_PC d def 
+			%/flag flag BRANCH or def
+			 d 4 div cvi mem length gt
+			 
+			  {
+			 	/next_PC exch def
+			 }if
+
+% op_text (bla) eq {
+% (###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack
+%count ==
+% stop	  			
+
+ 
+% } if   	
+
+			
+ 		}{
+  			%if( gPrefs.decimalAddr )
+				%sprintf(dp->operands,"%-8ld          %9ld",(unsigned long)d, (unsigned long)((char *)dp->iaddr + d));
+  			/next_PC mem_PC d add def 
+
+			/operands (16#) d pWord strcat ( iaddr + ) strcat d 12 string cvs strcat def
+  			  			
+  			op_text (bl) eq {
+  				/opDict currentdict def
+
+				/annotate ( -> b) next_PC pAddr strcat def
+  				
+  				functionTrace begin
+  				mem length 4 mul next_PC gt {
+  				
+  					branchto next_PC 2 copy known {
+  						pop pop
+  					}{
+  						opDict put
+  					}ifelse
+ 
+
+ 					mem next_PC 4 div cvi get begin
+ 										
+ 					currentdict /branchfrom 2 copy known {
+ 						get begin
+ 					}{
+ 						10 dict begin
+ 						currentdict put
+ 					}ifelse
+ 					currentdict mem_PC opDict put
+ 					end
+ 					
+					flag LBL and LBL eq {
+					
+						SymbolName
+					}{
+
+
+						op_Word 16#FFFF0000 and 16#81820000 eq {
+/annotate  ( glue code with offset:)  def				
+						}{
+							
+							op_Word 16#7C0802A6 eq { % normal link entry
+/annotate  ( normal link entry:)  def				
+							}{
+
+								op_Word 16#800C0000 eq { % possible pointer glue code
+/annotate  ( pointer glue code:)  def
+									%/ptrGlueEP [mem_PC ptrGlueEP{} forall ] def
+								}{	
+%(branch link ) print
+%next_PC ==
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack 
+%stop
+						
+									
+								}ifelse
+							}ifelse
+						}ifelse 
+						operands 				
+					}ifelse
+					end
+					
+				}{
+					operands
+				} ifelse
+				end
+				/operands exch def
+  			}if
+			
+
+
+			%sprintf(dp->operands,"0x%-8lX        0x%08lX",(unsigned long)d, (unsigned long)((char *)dp->iaddr + d));
+   			%/operands (16#) d pLong strcat ( iaddr + ) strcat d 12 string cvs strcat def
+   		
+   		}ifelse
+  		/ppc_type (PPCINSTR_BRANCH) def
+  		/displacement d def
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or BRANCH or def % mark as branch code
+	
+	} def
+	
+
+	/branch {
+		%static int branch(DisasmPara_PPC *dp,ppc_word in,
+        %            char *bname,int aform,int bdisp)
+		/bdisp exch def
+		/aform exch def
+		/bname exch def
+
+		% build a branch instr. and return number of chars written to operand 
+
+  		/bo op_Word PPCGETD def
+  		/bi op_Word PPCGETA def
+  		/y bo 1 and def
+  
+  		%int opercnt = 0;
+  
+  		/ext  b_ext aform 2 mul op_Word 1 and add get def 
+  		
+  		%if (bdisp < 0)
+    	%y ^= 1;
+  		%y = y ? '+':'-';
+
+  		%if (bo & 4)
+  		bo 4 and 4 eq { 
+    		% standard case - no decrement 
+    		%if (bo & 16) 
+    		bo 16 and 16 eq {
+      			% branch always 
+      			%if (PPCGETIDX(in) != 16) 
+      			op_Word PPCGETIDX 16 ne {
+        			%sprintf(dp->opcode,"b%s%s",bname,ext);
+        			/op_text (b) bname strcat ext strcat def
+        			        			       			
+        		}{
+        			%sprintf(dp->opcode,"bc%s",ext);
+        			/op_text (b) ext strcat def
+        			%opercnt = sprintf(dp->operands,"%d,%d",bo,bi);
+        			/operands bo 12 string cvs (,) strcat bi 12 string cvs strcat def
+      			}ifelse
+    		}{
+				% branch conditional 
+      			%sprintf(dp->opcode,"b%s%s%s%c",b_condition[((bo&8)>>1)+(bi&3)],bname,ext,y);
+      			/op_text (b) b_condition bo 8 and -1 bitshift bi 3 and add get strcat
+      			bname strcat ext strcat  def 
+      			
+      			%if (bi >= 4)
+      			bi 4 ge {
+        			%opercnt = sprintf(dp->operands,"cr%d",bi>>2)
+        			/operands (cr) bi -2 bitshift 12 string cvs strcat def
+        		}if
+    		}ifelse
+  		}{
+    		% CTR is decremented and checked 
+    		%sprintf(dp->opcode,"bd%s%s%s%c",b_decr[bo>>1],bname,ext,y);
+    		/op_text (bd) b_decr bo -1 bitshift get strcat 
+    		bname strcat ext strcat  def
+
+    
+    		%if (!(bo & 16))
+    		bo 16 and 0 eq {
+      			%opercnt = sprintf(dp->operands,"%d",bi);
+      			/operands bi 12 string cvs def 
+      		}if
+
+  		}ifelse
+
+		operands length
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or BRANCH or def % mark as code
+
+op_text (blr) eq {
+	  	/flag flag RETF or def
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack
+%count ==
+% stop	  			
+}if
+
+	} def
+
+	/bc {
+		%static void bc(DisasmPara_PPC *dp,ppc_word in)
+		pop pop
+
+ 		% int d = (int)(in & 0xfffc);
+ 		/d op_Word 16#fffc and def
+
+		%char *oper = dp->operands;
+		%/oper () def
+
+  		d  16#8000 ge {
+    		/d d 16#10000 sub def
+    	}if
+		
+		%  if( (offs = branch(",(in&2)?1:0,d)) != 0 ) 
+
+		/offs () op_Word 2 and 0 ne{1}{0}ifelse d  branch def
+%(bc after skip; ) print count pDec3  print ( ) print
+%(skip to: ) print dup pAddr =							
+
+		offs 0 ne {
+		
+
+			%oper += offs;
+    		%*oper++ = ',';
+    		/operands operands (,) strcat def
+    	} if
+
+ 		op_Word 2 and 2 eq {  % AA ? 
+ 			/operands operands (16#)strcat d pLong strcat def
+ 			/next_PC d def 
+			%/flag flag BRANCH or def
+			 d 4 div cvi mem length gt {
+			 	/next_PC mem_PC 4 add def
+			 }if
+ 		}{
+ 			% label both conditions
+ 			mem mem_PC 4 add 4 div cvi get begin
+
+ 			flag LBL and 0 eq {
+				DYNSymbolName begin
+				NextSymbol
+				/NextSymbol NextSymbol 1 add def
+				end
+				/flag flag LBL or def
+				pLbl
+				/SymbolName exch def
+			}if
+			
+ 			end
+ 			
+ 			/next_PC mem_PC d add def 
+
+ 			/xAddr  next_PC 4 div cvi def 
+
+			% check jump range
+  			xAddr 0 lt xAddr mem length gt or
+  			{
+  				pop pop
+   				(memory branch out of range: ) op_text strcat (,) strcat operands strcat
+   				( 16#) strcat next_PC pAddr strcat
+ 				%illegal
+  				/annotate  exch def
+  			
+  			}{
+			
+				mem xAddr get begin
+			
+				flag LBL and 0 eq {
+					DYNSymbolName begin
+					NextSymbol
+					/NextSymbol NextSymbol 1 add def
+					end
+					/flag flag LBL or def
+					pLbl
+					/SymbolName exch def
+				}if
+
+				currentdict /GraphFrom known {
+					/GraphFrom [mem_PC GraphFrom {} forall ] def
+				}{
+					/GraphFrom [mem_PC] def
+				}ifelse
+			
+				SymbolName
+				end
+				/operands exch def
+			
+				/annotate d 12 string cvs (\() strcat mem_PC pAddr strcat (\) 16#) strcat next_PC pAddr strcat def
+
+	%			op_Word PPCGETD 16 and 16 eq {
+					% branch always
+	%				/flag flag BRANCH or def
+					% mem_PC + 4 is an edge
+	%wrtlin
+	%(###) =			
+	%currentdict dfa
+	%(---) =
+	%data_fork closefile
+	%pstack stop		
+	%			} if
+			
+			%if( gPrefs.decimalAddr )
+			%	sprintf(dp->operands,"%-8ld          %9ld",(unsigned long)d, (unsigned long)((char *)dp->iaddr + d));
+			%else
+			%	sprintf(dp->operands,"0x%-8lX        0x%08lX",(unsigned long)d, (unsigned long)((char *)dp->iaddr + d));
+			} ifelse
+   		} ifelse
+
+
+   		
+  		/ppc_type (PPCINSTR_BRANCH) def
+  		/ppc_displacement d def
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or BRANCH or def % mark as code
+
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack
+%count ==
+% stop	  			
+	
+	} def
+
+
+
+	/imm {
+		%(DisasmPara_PPC *dp,ppc_word in,int uimm,int type)
+		/imm_type exch def
+		/uimm exch def
+		
+		op_inst 7 eq op_inst 8 eq or {
+
+	  		/flag flag empty not and def
+	  		/flag flag CODE or INSTCODE or def % mark as code
+			
+			/op_text uimm def
+
+			/imm_type 0 def
+			/uimm 0 def
+
+			op_Word
+%wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack stop		
+		
+		}if
+		
+		/in exch def
+		
+		% Generate immediate instruction operand. 
+		% type 0: D-mode, D,A,imm 
+		% type 1: S-mode, A,S,imm 
+		% type 2: S/D register is ignored (trap,cmpi) 
+		% type 3: A register is ignored (li) 
+
+
+		/i in 16#ffff and def
+
+ 	 	/annotate annotate (16#) strcat i pWord strcat def 
+
+		/ppc_type (PPCINSTR_IMM) def
+
+  		uimm 0 eq {
+  			i 16#7fff gt {
+  				/i i 16#10000 sub def
+  			}if
+  		}{
+  			/ppc_flags ppc_flags PPCF_UNSIGNED or def
+  		}ifelse
+ 
+ 	 	/ppc_displacement i def
+ 	 	
+ 	 	
+ 	 	<< % >
+ 	 	0 {
+      		%sprintf(dp->operands,"r%d,r%d,%d",(int)PPCGETD(in),(int)PPCGETA(in),i);
+			/operands (r) in PPCGETD 12 string cvs strcat (,r) strcat
+			in PPCGETA  12 string cvs strcat (,) strcat
+			i 12 string cvs strcat def
+		}
+
+		1 {
+      		%sprintf(dp->operands,"r%d,r%d,%d",(int)PPCGETA(in),(int)PPCGETD(in),i);
+			/operands (r) in PPCGETA 12 string cvs strcat (,r) strcat
+			in PPCGETD  12 string cvs strcat (,) strcat
+			i 12 string cvs strcat def
+		}
+
+		2 {
+      		%sprintf(dp->operands,"r%d,%d",(int)PPCGETA(in),i);
+			/operands (r) in PPCGETA 12 string cvs strcat (,) strcat
+			i 12 string cvs strcat def
+		}
+
+		3 {
+     		% sprintf(dp->operands,"r%d,%d",(int)PPCGETD(in),i);
+			/operands (r) in PPCGETD 12 string cvs strcat (,) strcat
+			i 12 string cvs strcat def
+      	}
+    	>> imm_type 2 copy known {
+    		get exec
+    	}{
+    		/annotate ()  ( ierror\("imm\(\): Wrong type"\)) strcat def
+ 			/flag flag CODE INSTCODE or not and def % not code
+			/flag flag DATAL or def % mark as word
+   		
+      	} ifelse
+	} def
+	
+
+	
+	/addi {
+%addi(DisasmPara_PPC *dp,ppc_word in,char *ext)
+		pop
+		/ext exch def
+
+		op_Word 16#08000000 and 0 ne 
+		op_Word PPCGETA 0 eq and {
+			/op_text (l) ext strcat def
+			op_Word 0 3 imm
+		}{
+			% make the format look like oda -- data is signed
+			
+			% sprintf(dp->opcode,"%s%s",(in&0x8000)?"sub":"add",ext);
+			%/op_text op_Word 16#8000 and 0 ne {(sub)}{(add)}ifelse ext strcat def
+			/op_text ext def
+			%op_Word 16#8000 and 0 ne {
+			%	/in  op_Word not 1 add def
+			%}if
+			%op_Word 1 0 imm
+			op_Word 0 0 imm  
+		}ifelse
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+
+	
+	} def
+	
+	/cmpi {
+%	static void cmpi(DisasmPara_PPC *dp,ppc_word in,int uimm)
+		/uimm exch def
+		/name exch def
+
+  		%char *oper = dp->operands;
+  		/oper () def
+  
+  		%int i = (int)PPCGETL(in);
+		/i op_Word PPCGETL def
+
+  		%if (i < 2) {
+  		i 2 lt {
+  			%if (i)
+  			i 0 ne {
+      			/ppc_flags ppc_flags PPCF_64 or def
+      		}if
+      		
+    		%sprintf(dp->opcode,"%si",cmpname[uimm*2+i]);
+    		/op_text cmpname uimm 2 mul i add get (i) strcat def
+    		
+    		%if( (i = (int)PPCGETCRD(in)) != 0 ) {
+      		/i op_Word PPCGETCRD def
+      		i 0 ne {
+      			%sprintf(oper,"cr%c,",'0'+i);
+      			/oper (cr) i 12 string cvs strcat (,) strcat def
+      			%dp->operands += 4;
+    		}if
+    		op_Word uimm 2 imm
+     		%dp->operands = oper;
+ 	  		oper () ne {
+    			/operands oper operands strcat def
+    		}if
+ 		}{
+ 			illegal
+ 		}ifelse
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+
+	} def
+
+	/ori {
+		%static void ori(DisasmPara_PPC *dp,ppc_word in,char *name)
+		pop
+		/op_text exch def
+		
+		op_inst 24 eq {
+		
+		op_Word PPCIDXMASK not and 0 ne {
+			/op_text (ori) def
+        	op_Word 1 1 imm % recursibe call to ori
+      	}{
+        	/op_text (nop) def
+      	}ifelse
+
+%wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+%data_fork closefile
+%pstack stop
+		
+		}{
+			op_Word 1 1 imm	
+		} ifelse		
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+	
+	} def
+
+	/rlw {
+		%static void rlw(DisasmPara_PPC *dp,ppc_word in,char *name,int i)
+
+		/i exch def
+		/name exch def
+		
+  		/s op_Word PPCGETD def
+  		/a op_Word PPCGETA def
+  		/bsh op_Word PPCGETB def
+  		/mb op_Word PPCGETC def
+  		/me op_Word PPCGETM def
+
+		% sprintf(dp->opcode,"rlw%s%c",name,in&1?'.':'\0');
+		/op_text (rlw) name strcat op_Word 1 and 1 eq {(.) strcat}if def
+		
+		% sprintf(dp->operands,"r%d,r%d,%s%d,%d,%d",a,s,regsel[i],bsh,mb,me);
+		/operands (r) a 12 string cvs strcat (,f) strcat
+					s 12 string cvs strcat (,) strcat
+					regsel 1 get strcat bsh 12 string cvs strcat (,) strcat
+					mb 12 string cvs strcat (,) strcat me 12 string cvs strcat def
+					
+					
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+	
+	} def
+
+	/cmp {
+		% static void cmp(DisasmPara_PPC *dp,ppc_word in)
+
+		%char *oper = dp->operands;
+		/oper () def
+
+		%int i = (int)PPCGETL(in);
+		/i op_Word PPCGETL def
+
+		%if (i < 2) 
+		i 2 lt {
+			%if (i)
+			i 0 ne {
+				/ppc_flags ppc_flags PPCF_64 or def
+			}if
+			
+			%strcpy(dp->opcode,cmpname[((in&PPCIDX2MASK)?2:0)+i]);
+			/op_text cmpname op_Word PPCIDX2MASK and 0 ne {2}{0}ifelse i add get def
+
+			%if( (i = (int)PPCGETCRD(in)) != 0 )
+			/i op_Word PPCGETCRD def
+			i 0 ne {
+				%oper += sprintf(oper,"cr%c,",'0'+i);
+				/oper (cr) i 12 string cvs strcat (,) strcat def
+			} if	
+			%ra_rb(oper,in);
+			oper op_Word ra_rb
+			/operands exch def
+  		}{
+  			illegal
+    	}ifelse
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+	} def
+
+	/rrn {
+		%static void rrn(DisasmPara_PPC *dp,ppc_word in,char *name,
+        %        int smode,int chkoe,int chkrc,unsigned char dmode)
+		/dmode exch def
+		/chkrc exch def
+		/chkoe exch def
+		/smode exch def
+		/name exch def
+		% Last operand is no register: xxxx rD,rA,NB */
+
+		/in op_Word def
+  		%char *s;
+
+  		%if (chkrc>=0 && (in&1)!=chkrc) 
+    	chkrc 0 ge in 1 and chkrc ne and {
+    		illegal
+  		}{
+    		/ppc_flags ppc_flags dmode or def
+    		%if (smode)
+    		smode 0 ne {
+      			/in in swapda def %(in);  /* rA,rS,NB */
+      		}if
+      		
+    		%sprintf(dp->opcode,"%s%s%s",name,
+            %oesel[chkoe&&(in&PPCOE)],rcsel[(chkrc<0)&&(in&1)]);
+            /op_text name oesel chkoe in PPCOE and and get strcat
+            rcsel chkrc 0 lt in 1 and 1 eq and get strcat def
+   
+   			% s = rd_ra_rb(dp->operands,in,6);
+    		/operands operands in 6 rd_ra_rb def
+    		
+    		%sprintf(s,",%d",(int)PPCGETB(in));
+    		/operands operands (,) strcat in PPCGETB 12 string cvs strcat def
+  		}ifelse
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+  		
+	} def
+	
+	/fdabc {
+		%static void fdabc(DisasmPara_PPC *dp,ppc_word in,char *name,
+        %          int mask,unsigned char dmode)
+		/dmode exch def
+		/mask exch def
+		/name exch def
+
+		% standard floating point instruction: xxxx fD,fA,fC,fB */
+
+		% static const char *fmt = "f%d,";
+  		% char *s = dp->operands;
+  		% int err = 0;
+  		/err 0 def
+
+  		/ppc_flags ppc_flags dmode or def
+  		
+  		%sprintf(dp->opcode,"f%s%s",name,rcsel[in&1]);
+  		/op_text (f) name strcat rcsel op_Word 1 and get strcat def
+  		
+  		%s += sprintf(s,fmt,(int)PPCGETD(in));
+  		/operands (f) op_Word PPCGETD 12 string cvs strcat (,) strcat def
+  
+  		%if (mask & 4)
+    	mask 4 and 0 ne {
+    		%s += sprintf(s,fmt,(int)PPCGETA(in));
+			/operands operands (f) strcat op_Word PPCGETA  12 string cvs strcat (,) strcat def
+		}{
+			/err err op_Word PPCGETA or def
+		} ifelse
+
+    	mask 1 and 0 ne {
+    		%s += sprintf(s,fmt,(int)PPCGETA(in));
+			/operands operands (f) strcat op_Word PPCGETC  12 string cvs strcat (,) strcat def
+		}{
+			mask 8 and 0 eq {
+				/err err op_Word PPCGETC or def
+			}if
+		} ifelse
+
+    	mask 2 and 0 ne {
+    		%s += sprintf(s,fmt,(int)PPCGETA(in));
+			/operands operands (f) strcat op_Word PPCGETB  12 string cvs strcat (,) strcat def
+		}{
+			op_Word PPCGETB 0 ne {
+				/err err op_Word PPCGETB or def
+			}if
+		} ifelse
+
+		/operands operands 0 1 index length 1 sub getinterval def
+		
+		err 0 ne {
+			illegal
+			/annotate (Not shure why this checks for error) def
+		} if
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+	
+	} def
+
+	/fcmp {
+		%(DisasmPara_PPC *dp,ppc_word in,char c)
+		%/dmode exch def
+		%/mask exch def
+		/name exch def
+		
+		op_Word 16#00600001 and 0 ne {
+			illegal
+		}{
+    		%sprintf(dp->opcode,"fcmp%c",c);
+			/op_text (fcmp) name strcat def
+   
+    		%sprintf(dp->operands,"cr%d,f%d,f%d",(int)PPCGETCRD(in),
+            %(int)PPCGETA(in),(int)PPCGETB(in));
+  			/operands  (cr)  op_Word PPCGETCRD  12 string cvs strcat (,f) strcat 
+  			op_Word PPCGETA  12 string cvs strcat (,) strcat
+  			op_Word PPCGETB  12 string cvs strcat
+  			def
+		  	/flag flag empty not and def
+		  	/flag flag CODE or INSTCODE or def % mark as code
+
+  		}ifelse
+	} def
+
+
+	/mtfsb {
+		%(DisasmPara_PPC *dp,ppc_word in,int n)
+		/n exch def
+		
+		op_Word PPCAMASK PPCBMASK or and 0 ne {
+			illegal
+		}{
+    		%sprintf(dp->opcode,"mtfsb%d%s",n,rcsel[in&1]);
+    		/op_text (mtfsb) n 12 string cvs strcat rcsel op_Word 1 and get strcat def
+    		%sprintf(dp->operands,"%d",(int)PPCGETD(in));
+    		/operands op_Word PPCGETD 12 string cvs  def
+  		} ifelse
+  		
+  		/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+	} def
+
+	
+	/fd_ra_rb {
+		%static char *fd_ra_rb(char *s,ppc_word in,int mask)
+
+  		%static const char *ffmt = "f%d,";
+  		%static const char *rfmt = "r%d,";
+		/s () def
+		
+  		%if (mask)
+  		mask 0 ne { 
+    		%if (mask & 4)
+    		mask 4 and 0 ne {
+      			%s += sprintf(s,ffmt,(int)PPCGETD(in));
+    			/s s (f) strcat op_Word PPCGETD 12 string cvs strcat (,) strcat def
+    		}if
+
+   			mask 2 and 0 ne {
+      			%s += sprintf(s,rfmt,(int)PPCGETA(in));
+    			/s s (r) strcat op_Word PPCGETA 12 string cvs strcat (,) strcat def
+    		}if
+
+  			mask 1 and 0 ne {
+      			%s += sprintf(s,rfmt,(int)PPCGETB(in));
+    			/s s (r) strcat op_Word PPCGETB 12 string cvs strcat (,) strcat def
+    		}if
+			/s s 0 1 index length 1 sub getinterval def
+  		}if
+  		
+  		s
+	} def
+
+	/fdab {
+		%static void fdab(DisasmPara_PPC *dp,ppc_word in,char *name,int mask)
+		/mask exch def /op_text exch def
+		% indexed float instruction: xxxx fD,rA,rB 
+
+		%mask  
+		/operands fd_ra_rb def
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+
+	} def
+	
+	/mtcr {
+		%static void mtcr(DisasmPara_PPC *dp,ppc_word in)
+
+  		/s op_Word PPCGETD def
+  		/crm op_Word 16#000ff000 and -12 bitshift def
+  
+  		%char *oper = dp->operands;
+  		/operands () def
+
+  		%if (in & 0x00100801)
+  		op_Word 16#00100801 and 0 ne {
+  			illegal
+  		}{
+    		%sprintf(dp->opcode,"mtcr%c",crm==0xff?'\0':'f');
+    		/op_text (mtcr) crm 16#ff and 0 eq {(f) strcat} if def
+    		%if (crm != 0xff)
+        	crm 16#ff ne {
+			    %  oper += sprintf(oper,"0x%02x,",crm);
+				/operands operands (0x) strcat crm pHex strcat (,) strcat def
+			} if
+    		%sprintf(oper,"r%d",s);
+    		/operands operands (r) strcat s 12 string cvs strcat def
+  		} ifelse
+
+	  	/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+
+	} def
+	
+	/nooper {
+		pop 
+		( stub nooper) strcat
+		/op_text exch def 
+		/annotate (stub till we need it) def
+
+		/flag flag empty not and def
+
+	} def
+
+	/crop {
+		/n2 exch def
+		/n1 exch def
+		
+		%( ) strcat strcat 
+		%( stub crop) strcat
+		%/op_text exch def 
+		/annotate (double check group decode -- crop) def
+
+
+%static void crop(DisasmPara_PPC *dp,ppc_word in,char *n1,char *n2)
+%{
+%  int crd = (int)PPCGETD(in);
+		/crd op_Word PPCGETD def
+%  int cra = (int)PPCGETA(in);
+		/cra op_Word PPCGETA def
+%  int crb = (int)PPCGETB(in);
+		/crb op_Word PPCGETB def
+
+%  if (!(in & 1)) {
+		op_Word 1 and 0 eq {
+%    sprintf(dp->opcode,"cr%s",(cra==crb && n2)?n2:n1);
+%    if (cra == crb && n2)
+%      sprintf(dp->operands,"%d,%d",crd,cra);
+%    else
+%      sprintf(dp->operands,"%d,%d,%d",crd,cra,crb);
+%  }
+			n2 NULL eq {
+				/op_text (cr) n1 strcat 
+				(,) strcat crd 12 string cvs strcat
+				(,) strcat cra 12 string cvs strcat
+				(,) strcat crb 12 string cvs strcat def
+			}{
+				cra crb eq {
+					/op_text (cr) n2 strcat 
+					(,) strcat crd 12 string cvs strcat
+					(,) strcat cra 12 string cvs strcat def
+				}{
+					/op_text (cr) n1 strcat 
+					(,) strcat crd 12 string cvs strcat
+					(,) strcat cra 12 string cvs strcat
+					(,) strcat crb 12 string cvs strcat def
+				}ifelse
+			}ifelse
+		}{
+%  else
+%    ill(dp,in);
+  			illegal
+		} ifelse
+%}
+%wrtlin
+%(###) =
+%currentdict dfa
+%(---) = 
+%pstack 
+%stop
+
+
+		/flag flag empty not and def
+	  	/flag flag CODE or INSTCODE or def % mark as code
+
+
+	} def
+
+	
+	/trapi {
+		pop 
+		( stub trapi) strcat
+		/op_text exch def 
+		/annotate (stub till we need it) def
+
+		/flag flag empty not and def
+
+	} def
+	
+	/mcrf {
+		pop pop 
+		( stub mcrf)
+		/op_text exch def 
+		/annotate (stub till we need it) def
+
+		/flag flag empty not and def
+
+	} def
+	
+
+/type_4 {
+	pop pop
+	/op_text (stub type 4) def
+	/annotate (stub till we need it) def
+
+	/flag flag empty not and def
+
+
+
+} def
+	
+	
+
+/type_17 {
+	pop pop
+	%if ((in & ~PPCIDXMASK) == 2)
+	op_Word PPCIDXMASK not and 2 eq {
+		/op_text (sc) def
+	}{
+		illegal
+	} ifelse
+} def
+
+
+/type_19 {
+	/flags exch def
+	/p2 exch def
+	
+	/sub_op op_Word PPCGETIDX2 def
+
+	TABLE19 sub_op 2 copy known {
+		get exec
+	}{
+		pop pop
+		illegal
+	}ifelse
+ 
+} def
+
+/type_30 {
+	pop pop
+	/op_text (stub type 30) def
+	/annotate (stub till we need it) def
+
+	/flag flag empty not and def
+
+
+} def
+	
+/type_31 {
+	/flags exch def
+	/p2 exch def
+	
+	/sub_op op_Word PPCGETIDX2 def
+
+	TABLE31 sub_op 2 copy known {
+		get exec
+	}{
+		pop pop
+		illegal
+	}ifelse
+ 
+} def
+
+/type_58 {
+	pop pop
+	/op_text (stub type 58) def
+	/annotate (stub till we need it) def
+
+	/flag flag empty not and def
+
+
+} def
+
+/type_59 {
+	pop pop
+%     switch (in & 0x3e) {
+	/sub_op op_Word 16#3e and def
+
+	TABLE59 sub_op 2 copy known {
+		get exec
+	}{
+		pop pop
+		illegal
+	}ifelse
+
+}def
+
+/type_62 {
+	pop pop
+	/op_text (stub type 62) def
+	/annotate (stub till we need it) def
+
+	/flag flag empty not and def
+
+
+} def
+
+/type_63 {
+	pop pop
+ 	
+ 	op_Word 32 and  32 eq {
+		
+		/sub_op op_Word 16#1e and def
+
+		TABLE63_A sub_op 2 copy known {
+			get exec
+		}{
+			pop pop
+			illegal
+		}ifelse
+	}{	
+		/sub_op op_Word PPCGETIDX2 def
+		TABLE63_B sub_op 2 copy known {
+			get exec
+		}{
+			pop pop
+			illegal
+		}ifelse
+ 			
+	}ifelse
+
+} def 
+
+
+
+% Disassemble PPC instruction and return a pointer to the next */
+% instruction, or NULL if an error occured. */
+
+/PPC_Disassemble1 %(DisasmPara_PPC *dp)
+{
+
+%   ppc_word in = *(dp->instr);
+	/mem_PC exch def
+	
+	mem_PC 4 div cvi mem length ge {
+(past end of memory block: ) print mem_PC pAddr ==
+exit
+	
+	}if
+	
+	mem mem_PC 4 div cvi 
+%dup pAddr ==	
+	get begin
+	flag empty and empty eq {
+	
+		/ppc_flags 0 def
+	
+			
+		/operands () def
+		/annotate () def
+	
+		/op_Word$ rawData$ mem_PC 4 getinterval def
+		/op_Word <84> op_Word$ strcat cvx exec def
+
+		
+		op_Word 0 eq {
+			traceBackAddr 
+			
+			
+DBGTraceBack {								
+%8 wrtpos
+macsBugDebug pAddr writef  (: ) writef traceback pLong writef
+( ) writef macsBugDebug 4 mod =string cvs writef
+wrtlin
+} if
+%pstack stop			
+			
+			dup 0 eq {
+				pop
+			}if
+			
+			macsBugDebug macsBugDebug 4 mod add  % see if this gets to the next word
+			
+		}{
+		
+			/op_inst op_Word PPCIDXMASK and  PPCIDXSH neg bitshift def
+		
+			OPTABLES op_inst 2 copy known {
+				get begin
+				
+				p2
+				flags
+				f_type load
+				
+%(###) =			
+%dfa
+%(---) =
+				end
+				exec
+		
+			}{
+(illegal: ) =
+%pstack stop
+
+pop pop
+			
+				illegal
+				
+				
+			%( ) writef 
+			%exit  % must call function from loop
+		
+			}ifelse
+		
+%count 12 string cvs writef ( ) writef
+%countdictstack  12 string cvs writef ( ) writef
+
+DBGInstDec {		
+			mem_PC pAddr writef (\133) writef
+			flag pWord writef (\135:) writef
+			13 wrtpos 
+			% this section is the hex and ascii dump of the instruction or data word
+			op_Word pLong writef
+			23 wrtpos (') writef
+			[ op_Word$
+			{
+				dup 32 lt 1 index 126 gt or {
+					pop 46
+				}if
+			}forall] makestring writef
+			(') writef
+			flag LBL and LBL eq {
+				30 wrtpos
+				SymbolName writef (:) writef
+			}if
+			47 wrtpos
+			op_text writef
+			operands () ne {
+				(,) writef
+				operands writef
+			}if
+			annotate () ne {
+				67 wrtpos
+				(; ) writef
+				annotate writef
+			}if
+			wrtlin
+} if
+%count 0 gt {
+%(next after skip; ) print count pDec3  print ( ) print
+%(skip to: ) print dup pAddr print ( current flags) print flag pHex =
+%} if
+		
+			flag RETF and RETF eq {
+
+DBGInstDec {
+	wrtlin	% marker to emphasize branch
+}if
+
+%data_fork closefile
+%(---) =
+%pstack stop
+				% let the system buffer the return trace
+			}{
+				% mark next return instruction if code
+				flag CODE and CODE eq {		
+					mem_PC 4 add % this may need adjustment if instructions are more than 32 bytes
+				}if
+			}ifelse
+
+false {				
+			% set next instruction to dissasemble
+			flag BRANCH and BRANCH eq {
+%(5 after skip; ) print count pDec3  print ( ) print
+%(skip to: ) print dup pAddr ( branch to: ) print next_PC pAddr writef 							
+				/flag flag BRANCH not and def
+				next_PC
+DBGInstDec {
+	wrtlin	% marker to emphasize branch
+}if
+			}if
+} if
+
+		}ifelse
+
+	}{
+		% skip over already traced data
+		%mem_PC 4 add
+	}ifelse
+	
+	end
+
+% catch any debug notes that are written while disasembling
+writedict begin
+	lp 0 gt {
+DBGInstDec {
+	lp pAddr writef
+}if
+		wrtlin
+	} if
+end
+
+	
+} def		
+
+%RoutineRecords 0 get
+% SectionOrder 2 get begin
+
+%/annotate (.find me.) def
+%/DebugName (.notdef.) def
+
+%		0	% place entry points on stack to disassemble blocks
+		%2048 
+		functionTrace begin
+		functionStack {} forall
+		/functionStack [] def
+		end
+%		0
+		{
+			PPC_Disassemble1
+			count 0 eq { 
+				functionTrace begin
+				functionStack length 0 gt {
+					functionStack {} forall
+					/functionStack [] def
+				} if
+				end
+				count 0 eq { exit } if
+			
+			 
+			} if % there are no branches to travel
+		} loop
+
+
+
+wrtlin
+(% pass 2) writef
+wrtlin
+		functionTrace begin
+		
+		illegalInst {
+			/traceAddr exch def
+			mem traceAddr 4 div cvi get begin
+			10 wrtpos							
+			traceAddr pAddr writef 
+
+			18 wrtpos 
+			% this section is the hex and ascii dump of the instruction or data word
+			op_Word pLong writef
+			27 wrtpos (') writef
+			[ op_Word$
+			{
+				dup 32 lt 1 index 126 gt or {
+					pop 46
+				}if
+			}forall] makestring writef
+			(') writef
+			end
+			wrtlin
+		} forall
+		
+		end
+
+		/outAddr 0 def
+		
+		mem length {
+			outAddr 4 mul pAddr writef (:) writef
+			8 wrtpos
+			/HEX$ (<) def
+			/FLAG$ () def
+			/ASCII$ () def
+			/Notes () def
+			4{
+				
+				mem outAddr get begin
+				flag LBL and LBL eq {
+					flag LINK and LINK eq {
+						/dataWord ( .link. ) def
+					}{
+						flag BRANCH and BRANCH eq {
+							/dataWord ( .lbBr. ) def
+						}{
+							/dataWord ( .label.) def
+						}ifelse
+					}ifelse
+					flag empty and empty eq {
+						/op_Word$ rawData$ outAddr 4 mul 4 getinterval def
+						/op_Word  <84> op_Word$ strcat cvx exec def
+					}if
+					SymbolName	
+					currentdict end
+					Notes ( ) strcat  2 index strcat /Notes exch def
+					begin
+				
+					pop
+					
+				}{
+					flag CODE and CODE eq {
+						flag RETF and RETF eq {
+							/dataWord ( .retf. ) def
+						}{
+							flag BRANCH and BRANCH eq {
+								% could submark for jumps and conditional codes
+								/dataWord ( .      ) 8 string copy dup
+								2 op_text (.) strcat putinterval 
+								 def
+								
+																
+
+							}{
+								flag LINK and LINK eq {
+									/dataWord ( .link. ) def
+								}{
+									/dataWord ( .code. ) def
+								}ifelse
+							}ifelse
+						}ifelse
+
+					}{
+						flag DATAL and DATAL eq {
+							/dataWord ( .data. ) def
+							
+						}{
+							flag DATASTR and DATASTR eq {
+								/dataWord (.string.) def
+							}{
+								flag DEBUG and DEBUG eq {
+									/dataWord ( .debug.) def
+									/op_Word$ rawData$ outAddr 4 mul 4 getinterval def
+									/op_Word  <84> op_Word$ strcat cvx exec def
+								}{
+								
+									flag empty and empty eq {
+										/dataWord ( .empty.) def
+										/op_Word$ rawData$ outAddr 4 mul 4 getinterval def
+										/op_Word  <84> op_Word$ strcat cvx exec def
+
+										flag LBL and LBL eq {
+											/dataWord ( .label.) def
+					
+										}if
+%functionTrace begin
+%entryPoints outAddr 4 mul cvi known {
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop
+
+%}if
+%end
+									}{
+										/dataWord op_Word pLong def
+%(###) =
+%currentdict dfa
+%(---) =
+%pstack stop
+									}ifelse
+								}ifelse
+							}ifelse
+						}ifelse
+					}ifelse
+				}ifelse
+				
+				op_Word$
+				dataWord
+				end
+				/dataWord exch def
+				/op_Word$ exch def
+				/ASCII$ ASCII$ op_Word$ strcat def
+				%/HEX$ HEX$ op_Word pLong strcat ( ) strcat def
+				/FLAG$ FLAG$ dataWord strcat ( ) strcat def  	
+				
+				/outAddr outAddr 1 add def
+				outAddr mem length ge {exit} if
+			} repeat
+			FLAG$ writef
+			%/ASCII$ HEX$ (>) strcat cvx exec def
+
+			48 wrtpos (% ') writef
+			[ ASCII$
+			{
+				dup 32 lt 1 index 126 gt or {
+					pop 46 % 38 is & like PEF Viewer
+				}if
+			}forall] makestring writef
+			(') writef
+
+			Notes () ne {
+				72 wrtpos
+				Notes writef
+				/Notes () def
+			}if 
+			 
+		
+			wrtlin
+			outAddr mem length ge {exit} if
+
+		} repeat	
+
+		
+		% data memory
+%		16#0006AC % entry vector addresses indirect from RTOC?
+%		16#001DD4 
+%		16#008000 % RTOC
+		
+		
+
+
+%		functionTrace dfa
+%pstack stop
+		
+
+%pstack stop
+wrtlin
+(% pass 3) writef
+wrtlin
+
+% 2c90 -- main offset raw
+
+		ClassNames {
+			exch (\n% ) print ==
+() =
+			%{
+				begin
+				functions { 
+					begin
+
+
+%(instructions: ) print					
+%					endTraceAddr traceAddress sub 4 div cvi
+%					==
+ListByClass {
+outRef 0 get 46 eq {
+	outRef 1 1 index length 1 sub getinterval
+}{
+	outRef
+}ifelse
+writef  (\173) writef
+wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+%pstack stop
+
+					/AppleIdx 0 def
+					traceAddress 4 endTraceAddr {
+						/traceAddr exch def
+
+						mem traceAddr 4 div cvi get begin 
+						flag CODE and CODE eq {
+						
+							(+) writef AppleIdx pAddr writef	
+							10 wrtpos							
+							traceAddr pAddr writef 
+
+%(\133) writef
+
+false {						
+		flag pWord writef (\135:) writef
+}if
+							18 wrtpos 
+							% this section is the hex and ascii dump of the instruction or data word
+							op_Word pLong writef
+							27 wrtpos (') writef
+							[ op_Word$
+							{
+								dup 32 lt 1 index 126 gt or {
+									pop 46
+								}if
+							}forall] makestring writef
+							(') writef
+							
+							AppleIdx 0 ne {
+								currentdict /op_Word known {
+									op_Word 16#7C0802A6 eq {
+										writedict begin
+											/lp 0 def
+											linbfr 0 blnkbfr putinterval
+										end
+										end
+										exit
+									}if
+								}{
+wrtlin
+(###) =			
+currentdict dfa
+(---) =
+pstack stop
+								
+								}ifelse
+									% could look ahead and see if this really is the end	
+
+							
+								flag LBL and LBL eq {
+									34 wrtpos
+									SymbolName writef (:) writef
+								}if
+							}if
+									
+							50 wrtpos
+						
+							% if function branch lookup where we go
+							% there is no error checking
+							
+						
+							op_text (bl) eq {
+								op_text writef
+								(, ) writef next_PC pAddr writef
+								67 wrtpos
+																
+								mem next_PC 4 div cvi get begin
+								%(, ) writef SymbolName writef 
+								currentdict /longPrototype$ known {
+									longPrototype$ length 52 gt {
+										longPrototype$ 0 52 getinterval 
+									}{
+										longPrototype$
+									}ifelse
+									writef
+								}{
+									flag LBL and LBL eq {
+currentdict /SymbolName known not {
+(branch link ) print
+next_PC ==
+(###) =
+currentdict dfa
+(---) =
+pstack 
+stop
+
+}{
+									SymbolName writef
+
+}ifelse
+					
+
+									} if
+
+								}ifelse
+							
+%wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+%pstack stop
+						
+								end
+							}{
+								op_text writef
+								operands () ne {
+									(,) writef
+									operands writef
+								}if
+
+								op_text (blr) ne {
+									annotate () ne {
+										67 wrtpos
+										(; ) writef
+										annotate writef
+									}if
+								}if
+
+							}ifelse
+							wrtlin
+
+							currentdict /op_Word known {
+								op_Word 16#4E800020 eq {
+									end
+									exit
+									% could look ahead and see if this really is the end	
+								}if
+							}{
+wrtlin
+(###) =			
+currentdict dfa
+(---) =
+pstack stop
+								
+							}ifelse
+
+
+						}if 
+						
+
+
+						end
+						/AppleIdx AppleIdx 4 add def
+					
+					} for
+(\175) writef
+wrtlin
+wrtlin
+}{
+					traceAddress pAddr writef (: ) writef
+					8 wrtpos
+					outRef writef wrtlin
+					 
+
+}ifelse
+					end
+				}forall
+				end
+			%} forall
+			
+
+		} forall
+
+(unclassed functions: ) =
+
+		%end
+		
+		% for some reason this address is not logged as a function
+		% it seems to be some sort of glue function
+		
+%		mem 16#1260F0 4 div cvi get begin
+		
+ListByClass {		
+		%/functionTrace libGlue
+		%[16#126168 16#1260F0 16#13986C] 
+		[
+			functionTrace /AnonFunc get {pop} forall
+			functionTrace /ImportLib get {pop} forall
+		
+		]{
+		
+			/traceAddr exch def
+			
+			/AppleIdx 0 def
+			255 % find this empirically  -- we could use a directive table
+			{
+				mem traceAddr 4 div cvi get begin
+				(+) writef AppleIdx pAddr writef	
+				10 wrtpos							
+				traceAddr pAddr writef 
+
+				18 wrtpos 
+				% this section is the hex and ascii dump of the instruction or data word
+				op_Word pLong writef
+				27 wrtpos (') writef
+				[ op_Word$
+				{
+					dup 32 lt 1 index 126 gt or {
+						pop 46
+					}if
+				}forall] makestring writef
+				(') writef
+
+			
+				flag LBL and LBL eq {
+					34 wrtpos
+					SymbolName writef (:) writef
+				}if
+
+				50 wrtpos
+
+				op_text writef
+				operands () ne {
+					(,) writef
+					operands writef
+				}if
+
+				op_text (blr) ne {
+					annotate () ne {
+						67 wrtpos
+						(; ) writef
+						annotate writef
+					}if
+				}{
+					end
+wrtlin
+					exit
+				}ifelse
+				
+				op_text (bctr) eq {
+					end
+					exit
+				}if
+				
+				end
+				/traceAddr traceAddr 4 add def
+				/AppleIdx AppleIdx 4 add def
+wrtlin
+			} repeat 
+wrtlin
+		} forall
+}if	
+%wrtlin
+%(###) =			
+%currentdict dfa
+%(---) =
+		
+%		end
+
+		end
+		end
+() =
+
+				
+	}if % fragment is pef
+	
+	
+	data_fork closefile
+%}if
+(EOF:) ==

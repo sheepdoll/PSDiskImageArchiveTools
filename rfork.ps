@@ -1,0 +1,1441 @@
+	/rf TFRN (r) file def
+
+% should be a separate file subsection
+
+% some common PICT Handling functions
+
+/PixMapHeader {
+						
+Verbose {
+(PixMapHeader: ) =
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_rowBytes: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /pixMap_rowBytes exch def
+	/mem_PC mem_PC 2 add def
+	
+	pixMap_rowBytes 16#8000 and 0 eq {
+Verbose {
+(one bit per pixel ) print
+} if
+		/rowBytes pixMap_rowBytes def
+
+	}{
+		/rowBytes pixMap_rowBytes 16#3FFF and def
+	}ifelse
+	
+Verbose {
+	(16#) print
+	pixMap_rowBytes pWord print rowBytes ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_bounds.top: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_bounds.top exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_bounds.top ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_bounds.left: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_bounds.left exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_bounds.left ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_bounds.bottom: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_bounds.bottom exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_bounds.bottom ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_bounds.right: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_bounds.right exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_bounds.right ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_pmVersion: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_pmVersion exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_pmVersion ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_packType: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_packType exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_packType ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_packSize: ) print
+} if
+	[16#84 rawData$ mem_PC 4 getinterval {} forall ] makestring cvx exec /pixMap_packSize exch def
+	/mem_PC mem_PC 4 add def
+Verbose {
+	pixMap_packSize ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_hRes: ) print
+} if
+	[16#84 rawData$ mem_PC 4 getinterval {} forall ] makestring cvx exec /pixMap_hRes exch def
+	/mem_PC mem_PC 4 add def
+Verbose {
+	pixMap_hRes ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_vRes: ) print
+} if
+	[16#84 rawData$ mem_PC 4 getinterval {} forall ] makestring cvx exec /pixMap_vRes exch def
+	/mem_PC mem_PC 4 add def
+Verbose {
+	pixMap_vRes ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_pixelType: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_pixelType exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_pixelType ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_packType: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_pixelSize exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_pixelSize ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_cmpCount: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_cmpCount exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_cmpCount ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_cmpSize: ) print
+} if
+	[16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec /pixMap_cmpSize exch def
+	/mem_PC mem_PC 2 add def
+Verbose {
+	pixMap_cmpSize ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_planeBytes: ) print
+} if
+	[16#84 rawData$ mem_PC 4 getinterval {} forall ] makestring cvx exec /pixMap_planeBytes exch def
+	/mem_PC mem_PC 4 add def
+Verbose {
+	pixMap_planeBytes ==
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_pmTable: ) print
+} if
+	[16#84 rawData$ mem_PC 4 getinterval {} forall ] makestring cvx exec /pixMap_pmTable exch def
+	/mem_PC mem_PC 4 add def
+Verbose {
+	pixMap_pmTable pLong =
+} if
+
+Verbose {
+mem_PC pAddr print (: ) print
+(pixMap_pmReserved: ) print
+} if
+	[16#84 rawData$ mem_PC 4 getinterval {} forall ] makestring cvx exec /pixMap_pmReserved exch def
+	/mem_PC mem_PC 4 add def
+Verbose {
+	pixMap_pmReserved ==
+} if
+
+Verbose {
+() =
+} if
+
+	pixMap_pixelSize 8 le {
+		/bytesPerPixel 1 def
+	}{
+		pixMap_pixelSize 32 eq {
+			/bytesPerPixel  pixMap_cmpCount def
+		}{
+		
+			/bytesPerPixel pixMap_pixelSize 8 div cvi
+		}ifelse
+	}ifelse
+
+Verbose {
+(\tpixel size: ) print pixMap_pixelSize ==
+(\tbytesPerPixel: ) print bytesPerPixel ==
+(\trowBytes: ) print rowBytes ==
+} if
+
+} def
+
+
+/PackBitsHeader {
+
+(\nPackBitsHeader: ) =
+
+	/packBitsData_srcRect.top <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_srcRect.left <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_srcRect.bottom <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_srcRect.right <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_dstRect.top <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_dstRect.left <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_dstRect.bottom <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_dstRect.right <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	/packBitsData_mode <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+
+(source: ) print [ packBitsData_srcRect.top packBitsData_srcRect.left packBitsData_srcRect.bottom packBitsData_srcRect.right ] ==			
+(dest: ) print [ packBitsData_dstRect.top packBitsData_dstRect.left packBitsData_dstRect.bottom packBitsData_dstRect.right ] ==			
+
+%	uint16 width = packBitsData_srcRect.width();
+	/width packBitsData_srcRect.right packBitsData_srcRect.left sub def
+(width: ) print width ==
+
+
+/bytesPerDecode bytesPerPixel 2 eq {2 }{1} ifelse def
+
+(bytesPerDecode: ) print bytesPerDecode ==
+
+pixMap_pixelSize 8 lt {
+	%/pixelBytes rowBytes def
+	/pixelBytes pixMap_pixelSize width mul 8 div cvi def
+
+}{
+	/pixelBytes width bytesPerPixel mul def
+}ifelse
+(pixelBytes: ) print pixelBytes ==
+
+
+} def
+
+/unpackBitsBlock {
+
+Verbose {
+(\nunpackBitsBlock: ) =
+} if
+
+	%/width rgn_right rgn_left sub def
+%	uint16 height = packBitsData_srcRect.height();
+
+
+%uint32 lineSize = MAX<int>(width * bytesPerPixel + (8 * 2 / packBitsData.pixMap_pixelSize),
+%	packBitsData.pixMap.rowBytes);
+
+(alt buffer size  1: ) print	
+	/altBufferSize1 pixMap_pixelSize 2 8 mul div bytesPerPixel width mul add cvi def
+	altBufferSize1 ==
+
+(alt buffer size  2: ) print	
+	/altBufferSize2 rowBytes def  
+	altBufferSize2 ==
+	
+	/lineSize altBufferSize1 altBufferSize2 max def
+
+(lineSize: ) print lineSize ==					
+
+
+
+} def
+
+/PICT_Opcodes << % > 
+
+	16#0000 {
+
+	}
+		
+	16#0001 {
+		/rgnSize <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def			
+(rgnSize: ) print rgnSize ==
+
+
+		/rgn_top  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+
+		/rgn_left  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+
+		/rgn_bottom  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+
+		/rgn_right  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+
+(rgnBounds: ) print [ rgn_top rgn_left rgn_bottom rgn_right ] ==
+
+		/rgnData$ rawData$ mem_PC rgnSize 10 sub getinterval def
+		/mem_PC mem_PC rgnSize 10 sub add def
+(rgnData: <) print 	rgnData$ $ = 		
+
+
+}
+		
+	16#001A {
+		(RGB Forground color: ) =
+		
+		rawData$ mem_PC 12 getinterval $ =
+		
+			
+pstack stop			
+			
+			
+	}
+		
+	16#001E {
+		(Use Default Hilite Color: ) =
+	}
+		
+	16#0090 {
+(\n % copybits Rectangle clip ) =
+		% rowbyte less than 8
+
+		PixMapHeader
+
+Verbose {
+(\tbounds: ) print [ pixMap_bounds.top pixMap_bounds.left pixMap_bounds.bottom pixMap_bounds.right ] ==			
+} if
+
+
+(colorTableSeed?: ) print 		
+		/colorTableSeed <84> rawData$ mem_PC 4 getinterval strcat cvx exec def
+		/mem_PC mem_PC 4 add def
+		colorTableSeed pLong =	
+
+(colorTableFlag: ) print 	
+		/colorTableFlag <86> rawData$ mem_PC 2 getinterval strcat cvx exec def			
+		/mem_PC mem_PC 2 add def
+		colorTableFlag pWord =		
+		
+(colorTableSize: ) print 
+		/colorTableSize <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+		colorTableSize pWord =
+
+		/indexedColor$ () def
+		colorTableSize 1 add {
+			/idx <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+			/mem_PC mem_PC 2 add def
+Verbose {
+idx pWord  print ( ) print
+} if
+			/redComp <86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FF and def
+			/mem_PC mem_PC 2 add def
+			/greenComp <86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FF and def
+			/mem_PC mem_PC 2 add def
+			/blueComp <86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FF and def
+			/mem_PC mem_PC 2 add def
+
+Verbose {
+[redComp greenComp blueComp ] ==
+} if
+			/indexedColor$ indexedColor$ [redComp greenComp blueComp ] makestring strcat def	
+			%/mem_PC mem_PC 6 add def
+		} repeat
+		
+DumpHex {			
+(<) print indexedColor$ $ =			
+} if
+%			rawData$ mem_PC 16 getinterval $ =
+
+%pstack stop
+
+		
+
+		pixMap_packType 1 eq rowBytes 8 lt or { 
+(%// Unpacked, Pad-Byte \(on 24-bit\):) =
+			/data_size  rowBytes  pixMap_bounds.bottom  pixMap_bounds.top sub mul def
+			% only support 1 bpp for now as there is currently only one known
+			%  SCI pict that requires any unpacked support.
+			bytesPerPixel  1 eq pixMap_pixelSize 8 eq and {
+				(stream.read\(&buffer[i * width], width\);) =
+
+				width rowBytes lt {
+					%// skip padding and/or clipped bytes
+					(stream.seek\(packBitsData.pixMap.rowBytes - width, SEEK_CUR\);) =
+				
+				}if
+			}{
+				% // TODO: Finish this. Hasn't been needed (yet).
+				(Unpacked DirectBitsRect data \(padded\) with bytes per pixel: ) print
+				bytesPerPixel =string cvs print
+				( and pixel size: ) print
+				pixMap_pixelSize ==
+				
+				PackBitsHeader
+
+/width pixMap_bounds.right pixMap_bounds.left sub def
+(width: ) print width ==
+pixMap_pixelSize 8 lt {
+%/pixelBytes rowBytes def
+/pixelBytes pixMap_pixelSize width mul 8 div cvi def
+
+}{
+/pixelBytes width bytesPerPixel mul def
+}ifelse
+(pixelBytes: ) print pixelBytes ==
+
+
+				/dataSource$ () def
+				/ptr mem_PC def
+				pixMap_bounds.bottom pixMap_bounds.top sub { 
+					/dataSource$ dataSource$ rawData$ ptr pixelBytes getinterval strcat def
+					%dataSource$ $ =
+					/ptr ptr pixelBytes add def	
+				} repeat
+
+
+			}ifelse
+		}{
+
+(packedLine: ) =
+
+%byteCount =string cvs print (\133) print								
+
+%				/packedLine rawData$ mem_PC byteCount getinterval def
+%				/mem_PC mem_PC byteCount add def
+
+			
+			PACK_TYPE pixMap_packType 2 copy known {
+				get exec
+			}{
+				exch pop
+				(invalid packing type: ) print ==
+			}ifelse
+
+		
+
+		}ifelse
+
+		[ /Indexed /DeviceRGB colorTableSize indexedColor$ ] setcolorspace
+		45 140 translate
+		/w pixMap_bounds.right pixMap_bounds.left sub def
+		/h pixMap_bounds.bottom pixMap_bounds.top sub def
+
+		w  h  scale
+
+		<< %>
+			/ImageType 1
+			/Width w 
+			/Height h
+			/BitsPerComponent pixMap_pixelSize
+			/Decode [0 2 pixMap_pixelSize exp 1 sub cvi] 
+			/ImageMatrix [w 0 0 h neg 0 h]
+			/DataSource dataSource$
+		>> image
+	
+	
+	}
+		
+	16#0098 {
+
+(packBitsRect: ) =
+
+		PixMapHeader
+		
+(\n\tbounds: ) print [ pixMap_bounds.top pixMap_bounds.left pixMap_bounds.bottom pixMap_bounds.right ] ==			
+
+
+		/colorTableSeed <84> rawData$ mem_PC 4 getinterval strcat cvx exec def
+		/mem_PC mem_PC 4 add def
+		/colorTableFlag <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+		/colorTableSize <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+
+(colorTableSeed: ) print colorTableSeed pLong =			
+(colorTableFlag: ) print colorTableFlag pWord =			
+(colorTableSize: ) print colorTableSize pWord =
+		
+		/indexedColor$ () def
+		colorTableSize 1 add {
+			/idx <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+			/mem_PC mem_PC 2 add def
+Verbose {
+idx pWord  print ( ) print
+} if
+			/redComp <86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FF and def
+			/mem_PC mem_PC 2 add def
+			/greenComp <86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FF and def
+			/mem_PC mem_PC 2 add def
+			/blueComp <86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FF and def
+			/mem_PC mem_PC 2 add def
+
+Verbose {
+[redComp greenComp blueComp ] ==
+} if
+
+			/indexedColor$ indexedColor$ [redComp greenComp blueComp ] makestring strcat def	
+			%/mem_PC mem_PC 6 add def
+		} repeat
+		
+DumpHex {			
+(<) print indexedColor$ $ =			
+} if
+
+
+
+
+		pixMap_packType 1 eq rowBytes 8 lt or { %// Unpacked, Pad-Byte (on 24-bit)
+			/data_size  rowBytes  pixMap_bounds.bottom  pixMap_bounds.top sub mul def
+			% only support 1 bpp for now as there is currently only one known
+			%  SCI pict that requires any unpacked support.
+			bytesPerPixel  1 eq pixMap_pixelSize 8 eq and {
+				(stream.read\(&buffer[i * width], width\);) =
+
+				width rowBytes lt {
+					%// skip padding and/or clipped bytes
+					(stream.seek\(packBitsData.pixMap.rowBytes - width, SEEK_CUR\);) =
+				
+				}if
+			}{
+				% // TODO: Finish this. Hasn't been needed (yet).
+				(Unpacked DirectBitsRect data \(padded\) with bytes per pixel: ) print
+				bytesPerPixel =string cvs print
+				( and pixel size: ) print
+				pixMap_pixelSize ==
+			}ifelse
+		}{
+
+%byteCount =string cvs print (\133) print								
+
+%				/packedLine rawData$ mem_PC byteCount getinterval def
+%				/mem_PC mem_PC byteCount add def
+
+			
+			
+			PACK_TYPE pixMap_packType 2 copy known {
+				get exec
+			}{
+				exch pop
+				(invalid packing type: ) print ==
+			}ifelse
+() =
+
+
+			/shortCount pixelBytes pixMap_pixelSize div cvi def
+
+Verbose {
+(short$ ) print shortCount ==
+} if
+
+DumpHex {
+
+
+
+			%dataSource$ $ =
+			/ptr 0 def
+			packBitsData_srcRect.bottom packBitsData_srcRect.top sub  {
+				
+				dataSource$ ptr 31 pixelBytes min getinterval $ =
+				
+				/ptr ptr pixelBytes add def
+			
+			} repeat
+			
+} if
+		
+
+		}ifelse
+		
+() =
+
+		[ /Indexed /DeviceRGB colorTableSize indexedColor$ ] setcolorspace
+		45 140 translate
+		/w pixMap_bounds.right pixMap_bounds.left sub def
+		/h pixMap_bounds.bottom pixMap_bounds.top sub def
+
+(Bounds: \133) print w =string cvs print (,) print h =string cvs print (\135) =	
+(srcBounds: \133) print pixelBytes =string cvs print (,) print packBitsData_srcRect.bottom packBitsData_srcRect.top sub =string cvs print (\135) =	
+
+
+		w  h  scale
+
+		<< %>
+			/ImageType 1
+			/Width pixelBytes
+			/Height h
+			/BitsPerComponent pixMap_pixelSize
+			/Decode [0 2 pixMap_pixelSize exp 1 sub cvi] 
+			/ImageMatrix [w 0 0 h neg 0 h]
+			/DataSource dataSource$
+		>> image
+	
+%(\n###) =
+%currentdict dfa
+%(---) =
+%showpage
+%pstack stop			
+
+	
+	
+	}
+
+	16#009A {
+	
+(Packed bits planar? ) =
+
+		/pixMap_baseAddr <84> rawData$ mem_PC 4 getinterval strcat cvx exec def %hasBaseAddr ? stream.readUint32BE() : 0;
+		/mem_PC mem_PC 4 add def
+
+		PixMapHeader
+
+
+		/pixMap_rowBytes pixMap_rowBytes 16#3FFF and def
+
+		PackBitsHeader
+
+%unpackBitsBlock
+
+		/dataSource$ () def
+		/dataSourceR$ () def
+		/dataSourceG$ () def
+		/dataSourceB$ () def
+		/overflow 0 def
+	
+		/idx 1 def
+		
+		
+		pixMap_bounds.bottom pixMap_bounds.top sub {
+
+
+			pixMap_packType 1 eq pixMap_rowBytes 8 lt or { %// Unpacked, Pad-Byte (on 24-bit)
+				/data_size  rowBytes  pixMap_bounds.bottom  pixMap_bounds.top sub mul def
+				% only support 1 bpp for now as there is currently only one known
+				%  SCI pict that requires any unpacked support.
+				bytesPerPixel  1 eq pixMap_pixelSize 8 eq and {
+					(stream.read\(&buffer[i * width], width\);) =
+
+					width pixMap_rowBytes lt {
+						%// skip padding and/or clipped bytes
+						(stream.seek\(packBitsData.pixMap.rowBytes - width, SEEK_CUR\);) =
+					
+					}if
+				}{
+					% // TODO: Finish this. Hasn't been needed (yet).
+					(Unpacked DirectBitsRect data \(padded\) with bytes per pixel: %d and pixel size: %d", bytesPerPixel, packBitsData.pixMap_pixelSize;\)) =
+				}ifelse
+			} if
+			
+			pixMap_packType 2 eq { %// Unpacked, No Pad-Byte (on 24-bit)
+					%// TODO: Finish this. Hasn't been needed (yet).
+					(Unpacked DirectBitsRect data \(not padded\);) =
+					/data_size  3 4 div rowBytes mul  pixMap_bounds.bottom pixMap_bounds.top sub mul def
+			
+			}if
+			
+			pixMap_packType 2 gt { %// Packed
+				
+Verbose {
+mem_PC pAddr print (: ) print									 
+} if
+				pixMap_rowBytes 250 gt { 
+					<86> rawData$ mem_PC 2 getinterval strcat cvx exec 16#FFFF and
+					/mem_PC mem_PC 2 add def
+				}{ 
+					%(stream.readByte ) 
+					rawData$ mem_PC get
+					/mem_PC mem_PC 1 add def
+				} ifelse
+				/byteCount exch def
+			}if
+			
+
+%idx pDec3 print ( ) print
+%/idx idx 1 add def
+
+Verbose {
+byteCount =string cvs print (\133) print								
+} if
+
+			/packedLine rawData$ mem_PC byteCount getinterval def
+			/mem_PC mem_PC byteCount add def
+			
+			
+			PACK_TYPE pixMap_packType 2 copy known {
+				get exec
+			}{
+				exch pop
+				(invalid packing type: ) print ==
+			}ifelse
+						
+
+		} repeat
+
+		% render by packing type
+				
+		<< % >
+			
+			0 {
+			
+			
+			}
+			
+			1 {
+			
+			
+			}
+			
+			2 {
+			
+			}
+			
+			3 {
+		
+				/DeviceRGB setcolorspace
+				45 140 translate
+				/w pixMap_bounds.right pixMap_bounds.left sub def
+				/h pixMap_bounds.bottom pixMap_bounds.top sub def
+	
+				w  h  scale
+	
+				<< %>
+					/ImageType 1
+					/Width w 
+					/Height h
+					/BitsPerComponent 8
+					/Decode [0 1 0 1 0 1]
+					/ImageMatrix [w 0 0 h neg 0 h]
+					/DataSource dataSource$
+	
+	
+				>> image
+
+
+{
+w h 8
+[w 0 0 h neg 0 h]
+{dataSource$}
+false 3
+colorimage		
+} pop		
+showpage
+%pstack stop
+
+%							(<) print rawData$ mem_PC 31 getinterval $ =
+%							/mem_PC mem_PC pixMap_rowBytes add def 						
+		
+			
+			}
+			
+			
+			4 {
+
+DumpHex {
+																
+				/ptr 0 def
+				
+				/rdBkLen width 31 ge {31}{width} ifelse def
+				
+				dataSourceR$ length width div cvi {
+					dataSourceR$ ptr rdBkLen getinterval $ =
+() =
+					/ptr ptr width add def
+				} repeat
+				/ptr 0 def
+				dataSourceG$ length width div cvi {
+					dataSourceG$ ptr rdBkLen getinterval $ =
+() =
+					/ptr ptr width add def
+				} repeat
+				/ptr 0 def
+				dataSourceB$ length width div cvi {
+					dataSourceB$ ptr rdBkLen getinterval $ =
+() =
+					/ptr ptr width add def
+				} repeat
+} if
+
+				/DeviceRGB setcolorspace
+				45 140 translate
+				/w pixMap_bounds.right pixMap_bounds.left sub def
+				/h pixMap_bounds.bottom pixMap_bounds.top sub def
+
+	
+				w  h  scale
+
+%{	
+				<< %>
+					/ImageType 1
+					/Width w 
+					/Height h
+					/BitsPerComponent 8
+					/Decode [0 1 0 1 0 1]
+					/ImageMatrix [w 0 0 h neg 0 h]
+					/MultipleDataSources true
+					/DataSource [
+						dataSourceR$ 
+						dataSourceG$ 
+						dataSourceB$ 
+					]
+
+
+				>> image
+				
+%} pop
+%					w h 8
+%					[w 0 0 h neg 0 h]
+%					dataSourceR$ 
+%					dataSourceG$ 
+%					dataSourceB$ 
+%					true 3
+%					colorimage
+			}		
+		>> pixMap_packType 2 copy known {
+				get exec
+		}{
+			exch pop
+			(pixMap_packType: ) print pWord print ( not found.) = 
+			
+		}ifelse
+
+
+	}
+	
+	
+	16#00A1 {
+		(Long Comment: ) =
+
+mem_PC pAddr print (: ) print
+(LongCommentKind: ) print
+		[ 16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /LongCommentKind exch def
+		/mem_PC mem_PC 2 add def
+LongCommentKind pWord print ( ) print LongCommentKind ==
+
+mem_PC pAddr print (: ) print
+(LongCommentSize: ) print
+		[ 16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec 16#FFFF and /LongCommentSize exch def
+		/mem_PC mem_PC 2 add def
+		LongCommentSize ==
+
+		/LongCommentBaseAddr mem_PC def
+		
+		rawData$ mem_PC LongCommentSize getinterval /LongComment$ exch def
+		/mem_PC mem_PC LongCommentSize add def
+		
+		LongComment$ LongCommentBaseAddr dumpHex
+						
+			
+	}
+
+		
+	16#00FF {
+		(Pict_EOF:) =
+		exit
+	}
+>> def
+
+
+
+%Packing type Meaning
+/PACK_TYPE << %>
+
+	0 {
+		% Use default packing
+Verbose {
+(\nDefault packing) =
+} if
+		PackBitsHeader
+
+		unpackBitsBlock
+	
+Verbose {	
+() =
+} if
+		/dataSource$ () def
+			
+		pixMap_bounds.bottom pixMap_bounds.top sub {
+
+Verbose {
+mem_PC pAddr print (: ) print
+} if									 
+			rowBytes 250 gt { 
+				[ 16#86 rawData$ mem_PC 2 getinterval {} forall ] makestring cvx exec 16#FFFF and
+				/mem_PC mem_PC 2 add def
+			}{ 
+				%(stream.readByte ) 
+				rawData$ mem_PC get
+				/mem_PC mem_PC 1 add def
+			} ifelse
+			/byteCount exch def
+				
+
+%idx pDec3 print ( ) print
+%/idx idx 1 add def
+
+Verbose {
+byteCount =string cvs print (\133) print								
+} if
+			/packedLine rawData$ mem_PC byteCount getinterval def
+			/mem_PC mem_PC byteCount add def
+				
+			UnpackBitsLine
+			
+			/dataSource$ dataSource$ unpackedLine strcat def
+
+			%unpackedLine 0 31 getinterval $ =
+
+							
+
+		} repeat
+	}
+
+	1 {
+			% Use no packing
+(\nNo Packing) =
+		PackBitsHeader
+	}
+
+	2 {
+			% Remove pad byte—supported only for 32-bit pixels (24-bit data)
+
+(remove pad byte 24 bit data ) =
+	}
+
+	3 {
+			% Run length encoding by pixelSize chunks, one scan line at a time—
+			% supported only for 16-bit pixels
+		
+		
+(unpackBitsLine\(buffer + i * ) print
+
+			%width =string cvs print (,) print
+			width bytesPerPixel mul =string cvs print (,) print
+			pixMap_rowBytes =string cvs print (,) print
+
+(stream.readStream\() print byteCount =string cvs print (\)) print (,) print
+			pixMap_pixelSize =string cvs print (,) print
+			bytesPerPixel =string cvs print(\)) =
+			/dataDecoded 0 def 
+		
+
+			/opNeg 0 def
+			/opPos 0 def
+		
+			UnpackBitsLine
+				
+			/dataSource$ dataSource$ unpackedLine strcat def				
+
+
+{
+unpackedLine length 31 ge {
+(u <) print unpackedLine 0 31 getinterval $ print 
+}{
+(s <) print unpackedLine $ print 
+}ifelse
+%(<) print
+%unpackedLine 860 2 getinterval $ print
+
+( ) print unpackedLine length ==
+} pop
+
+
+		
+
+	}
+
+	4 {	
+		% Run length encoding one component at a time, one scan line at
+		% a time, red component first—supported only for
+		% 32-bit pixels (24-bit data)
+
+
+		UnpackBitsLine
+		
+		
+		/dataChannel [
+			3 {
+				unpackedLine 0 width getinterval
+				/unpackedLine unpackedLine width 1 index length width sub getinterval  def
+			} repeat
+		] def
+%									
+		
+Verbose {		
+dataDecoded  ==
+} if
+		/dataSourceR$ dataSourceR$ dataChannel 0 get strcat def
+		/dataSourceG$ dataSourceG$ dataChannel 1 get strcat def
+		/dataSourceB$ dataSourceB$ dataChannel 2 get strcat def
+
+
+
+	}
+>> def
+
+
+
+/UnpackBitsLine {
+
+	/dataDecoded 0 def
+	/channel 0 def
+	/dataChannel [ () () () ]def
+	/channelName [ (R\135) (G\135) (B\135) ]def
+	
+%width ==								
+	/unpackedLine () def
+	{
+		packedLine () eq {
+			%/channel channel 1 add def
+			 exit
+		} if
+		
+		unpackedLine length pixelBytes ge {exit} if
+		
+		/pack_op packedLine 0 get def
+		/packedLine packedLine 1 1 index length 1 sub getinterval def 
+
+pack_op 16#80 eq {
+(\{) print pack_op pHex print (\} ) print
+packedLine () eq {
+rawData$ mem_PC 8 getinterval $ =
+pstack stop 
+}{
+/pack_op packedLine 0 get def
+/packedLine packedLine 1 1 index length 1 sub getinterval def 
+}ifelse
+%pstack stop
+}{
+	
+	
+		pack_op 16#80 and 0 ne {
+		
+Verbose {
+pack_op pHex print ( ) print
+} if		
+			/runsize pack_op 255 xor 2 add def
+%dataDecoded runsize add width gt {
+%dataDecoded dataDecoded runsize add width sub sub 
+%=string cvs print (\135\133) print	
+%dataDecoded runsize add width sub  =string cvs print ( ) print	
+
+%pstack stop	
+%}{
+%dataDecoded =string cvs print ( ) print	
+%}ifelse
+			packedLine () eq {
+				/data 0 def
+			}{
+				/data packedLine 0 get def
+				/packedLine packedLine 1 1 index length 1 sub getinterval def
+			}ifelse
+			
+			/dataRun$ [ runsize {data} repeat ] makestring def
+		}{
+			/runsize pack_op 1 add def
+
+			runsize packedLine length gt {
+Verbose {
+(\() print packedLine length =string cvs print
+(.) print runsize packedLine length sub =string cvs print
+(\) ) print
+} if	
+				/dataRun$ packedLine 
+				[ runsize packedLine length sub {0}repeat] makestring strcat def
+				/packedLine () def
+			}{
+%dataDecoded runsize add width gt {
+%dataDecoded dataDecoded runsize add width sub sub 
+%(\() print =string cvs print (\)\135\133\() print	
+%dataDecoded runsize add width sub  =string cvs print (\) ) print	
+
+%pstack stop	
+%}{
+Verbose {
+(\() print pack_op pHex print (\).) print
+runsize =string cvs print ( ) print	
+%}ifelse
+} if
+				/dataRun$ packedLine 0 runsize getinterval def
+				/packedLine packedLine runsize 1 index length runsize sub getinterval def
+			}ifelse
+		}ifelse
+}ifelse
+											
+		/dataDecoded dataDecoded runsize add def
+		/unpackedLine unpackedLine dataRun$ strcat def
+
+	}loop
+
+	pixelBytes unpackedLine length gt {
+(\{) print pixelBytes unpackedLine length sub =string cvs print (\} ) print	
+		/unpackedLine unpackedLine 
+		[ pixelBytes unpackedLine length sub {0} repeat] makestring strcat def
+	}{
+		/unpackedLine unpackedLine 0 pixelBytes getinterval def 
+	}ifelse 
+
+Verbose {
+(\135 ) print unpackedLine length ==
+} if
+
+} def
+
+	
+	rf 16 string readstring {/RSRCHeader$ exch def} if
+	RSRCHeader$ $ =
+	
+	/rbPtr RSRCHeader$ def
+	
+	<84> rbPtr 0 4 getinterval strcat cvx exec /ResourceDataOffset exch def
+	/rbPtr rbPtr 4 1 index length 4 sub getinterval def
+
+	<84> rbPtr 0 4 getinterval strcat cvx exec /ResourceMapOffset exch def
+	/rbPtr rbPtr 4 1 index length 4 sub getinterval def
+
+	<84> rbPtr 0 4 getinterval strcat cvx exec /ResourceDataLen exch def
+	/rbPtr rbPtr 4 1 index length 4 sub getinterval def
+
+	<84> rbPtr 0 4 getinterval strcat cvx exec /ResourceMapLen exch def
+	/rbPtr rbPtr 4 1 index length 4 sub getinterval def
+
+(ResourceDataOffset: 0x) print ResourceDataOffset pAddr print
+( ResourceDataLen: ) print ResourceDataLen ==
+(ResourceMapOffset: 0x) print  ResourceMapOffset pAddr print
+( ResourceMapLen: ) print  ResourceMapLen ==
+
+	% buffer the data as a big string as it is not usually sequential
+	
+	rf ResourceDataOffset setfileposition
+	
+	rf ResourceDataLen string readstring {/ResourceData$ exch def} if
+
+
+	rf ResourceMapOffset setfileposition
+	rf 16 string readstring {/reservedHeader$ exch def} if
+(reservedHeader: ) print reservedHeader$ $ ==
+	rf 4 string readstring {/reservedHandle$ exch def} if
+(reservedHandle: ) print reservedHandle$ $ ==
+
+	rf 4 string readstring {/FileRef_Attributes$ exch def} if
+(FileRef_Attributes: ) print FileRef_Attributes$ $ ==
+
+	rf 2 string readstring {/MapBlockTypeList$ exch def} if
+	rf 2 string readstring {/MapBlockNameList$ exch def} if
+
+	% file is designed to be memory mapped, so there is a bit of random access involved
+
+
+	ResourceMapOffset <86> MapBlockTypeList$ strcat cvx exec  add /MapBlockTypeListAddr exch def
+	ResourceMapOffset <86> MapBlockNameList$ strcat cvx exec  add /MapBlockNameListAddr exch def
+
+(MapBlockTypeListAddr: 0x) print MapBlockTypeListAddr pAddr =
+(MapBlockNameList: 0x) print MapBlockNameListAddr pAddr =
+
+	% MapBlockTypeList fileposition root may be here
+	/MapBlockTypeLen MapBlockNameListAddr MapBlockTypeListAddr sub def
+	
+(\nLength to MapBlockNameListAddr: ) print MapBlockTypeLen ==
+
+	% if we did this right the file is now pointed to the refernce list address
+	/ResourceTypeListAddr rf fileposition def
+(ResourceTypeListAddr: ) print ResourceTypeListAddr pAddr =
+
+	% buffer the count, type list and the reference list to a string
+	rf MapBlockTypeLen string readstring {/ResourceTypeRefrence$ exch def} if
+
+	/rbPtr ResourceTypeRefrence$ def  % this gets reset to here to find offsets in the 
+									  % reference lists
+									  
+	% now we should have enough data to compute the size of the string name data
+	
+	/MapBlockNameListSize ResourceMapLen MapBlockTypeLen sub 28 sub def						  
+(MapBlockNameListSize: ) print MapBlockNameListSize ==	
+	MapBlockNameListSize 0 gt {
+		/MapBlockNameList$ rf MapBlockNameListSize string readstring pop def
+	}{
+		/MapBlockNameList$ () def
+	}ifelse
+	rf closefile % everything is now buffered
+		
+%		MapBlockNameList$ =						  
+
+	<86> rbPtr 0 2 getinterval strcat cvx exec 1 add /MapTypeCount exch def
+	/rbPtr rbPtr 2 1 index length 2 sub getinterval def
+
+%	<86> MapTypeCount$ strcat cvx exec 1 add /MapTypeCount exch def
+	
+	/ReferenceTypeSize MapTypeCount 8 mul def
+
+	% block buffer the lists
+	
+(resource types in map: ) print MapTypeCount ==
+	/ResourceTypeList$ rbPtr 0 ReferenceTypeSize getinterval def
+%	/rbPtr rbPtr ReferenceTypeSize 1 index length ReferenceTypeSize sub getinterval def	
+%	ResourceTypeList$ ==
+
+	% unpack the type lists
+	/rbPtr ResourceTypeList$ def
+
+	/Resources 10 dict def
+	
+	MapTypeCount {
+	
+		rbPtr 0 4 getinterval /ResourceType$ exch def
+		/rbPtr rbPtr 4 1 index length 4 sub getinterval def
+	
+		ResourceType$ 
+		10 dict begin
+		
+		/ResouceList [] def % add a list for using forall on the enclosed resources
+		
+		/ResourceType$ exch def
+		/RsrcType ResourceType$ cvn def
+		Resources RsrcType currentdict put
+	
+	
+
+		<86> rbPtr 0 2 getinterval strcat cvx exec /ResourcCount exch def
+		/rbPtr rbPtr 2 1 index length 2 sub getinterval def
+
+		<86> rbPtr 0 2 getinterval strcat cvx exec /RefListOffsetAddr exch def
+		/rbPtr rbPtr 2 1 index length 2 sub getinterval def
+
+%(Resource type: ) print ResourceType$ ==
+%(Resource count -1: ) print ResourcCount ==
+%(Ref list offset: ) print RefListOffsetAddr pAddr ==
+	
+		rbPtr
+		end
+		/rbPtr exch def
+	
+	
+	} repeat
+	
+%	Resources dfa
+	
+
+% expand the resources into the dictionaries for later use
+
+	
+Resources {
+	exch pop
+	begin
+
+Verbose not {		
+(\nResource type: ) print ResourceType$ ==
+(Resource count -1: ) print ResourcCount ==
+(Ref list offset: 0x) print RefListOffsetAddr pAddr =
+} if		
+	/RefListPtr RefListOffsetAddr def
+
+		
+	ResourcCount 1 add {
+		/rbPtr ResourceTypeRefrence$  RefListOffsetAddr 12 getinterval def
+Verbose {
+(rbPtr: ) =
+rbPtr RefListOffsetAddr dumpHex
+} if
+		<86> rbPtr 0 2 getinterval strcat cvx exec  /curId exch def
+		
+		/ResouceList [ ResouceList {} forall curId ] def
+		curId
+%(###)
+%currentdict dfa
+%(---) =
+%pstack stop
+
+		/rbPtr rbPtr 2 1 index length 2 sub getinterval def
+		currentdict exch
+		10 dict begin
+		dup /ResourceID exch def
+		currentdict put
+%ResourceID ==
+		<86> rbPtr 0 2 getinterval strcat cvx exec /NameOffsetAddr exch def
+		/rbPtr rbPtr 2 1 index length 2 sub getinterval def
+%NameOffsetAddr ==
+		rbPtr 0 get /ResourceAttributes exch def
+		/rbPtr rbPtr 1 1 index length 1 sub getinterval def
+%ResourceAttributes ==	
+		<8400> rbPtr 0 3 getinterval strcat cvx exec /DataOffsetAddr exch def
+		/rbPtr rbPtr 3 1 index length 3 sub getinterval def
+%DataOffsetAddr ==		
+		<84> rbPtr 0 4 getinterval strcat cvx exec /ReservedHandle exch def
+
+
+ResourceType$ print ( - ) print
+ResourceID pDec print ( ") print
+		NameOffsetAddr -1 ne {
+			%NameOffsetAddr pAddr print
+			MapBlockNameList$ dup NameOffsetAddr get NameOffsetAddr 1 add exch 
+			getinterval print				 
+		}if
+		(" 0x) print
+		DataOffsetAddr pAddr print (: ) print
+		<84> ResourceData$ DataOffsetAddr 4 getinterval strcat
+		cvx exec /RsrcDataLen exch def
+		RsrcDataLen ==
+		
+		% can block buffer the data for expansion post process --
+		% this is where the dissasembler can happen
+		
+		% alternative is to create filters for conversion to
+		% more modern resource groups.  We can render the
+		% windows and graphics for an overview.
+		/rawData$ ResourceData$ DataOffsetAddr 4 add RsrcDataLen getinterval def
+		
+		%rawData$ $ =  %postscript formatter
+
+			
+DumpHex {
+	rawData$ 0 dumpHex
+}if
+
+() =
+
+ResourceType$ (PICT) eq 
+RenderPict and {
+			
+	/mem_PC 0 def
+	
+	/picSize <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	
+	/bb_top  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+
+	/bb_left  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+
+	/bb_bottom  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+
+	/bb_right  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+
+(bounding box: ) print [ bb_top bb_left bb_bottom bb_right ] ==
+	
+	/opVersion  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+
+	/versionNo  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+	/mem_PC mem_PC 2 add def
+	
+
+	versionNo 16#02FF ne {
+(not version 2) =			
+	}{
+(Version: ) print versionNo pWord =
+
+		/opHeader  <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+		/mem_PC mem_PC 2 add def
+		
+		opHeader 16#0C00 eq {
+(has header;) =
+%					/size <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+%					/mem_PC mem_PC 2 add def
+					
+%(size: ) print size ==
+%					/fBBox rawData$	mem_PC 16 getinterval def
+%					/mem_PC mem_PC 16 add def
+%(fBBox: <) print fBBox $ =
+
+			/reserved$  rawData$ mem_PC 24 getinterval def % strcat cvx exec def
+			/mem_PC mem_PC 24 add def			
+(reserved: <) print 	reserved$ $ = % pWord =				
+		}if
+				
+				
+		3 {
+		
+			/NextOP rawData$ mem_PC rawData$ length mem_PC sub 	getinterval def
+			
+			NextOP length 1 gt {			
+
+
+				/op_Word <86> rawData$ mem_PC 2 getinterval strcat cvx exec def
+				/mem_PC mem_PC 2 add def			
+
+(\nop_Word: ) print op_Word pWord ==
+
+				PICT_Opcodes op_Word 2 copy known {
+						get exec
+				}{
+					exch pop
+					(op code: ) print pWord print ( not found.) = 
+					exit
+				}ifelse
+			}{
+NextOP $ =
+exit
+
+			
+			}ifelse	
+		} repeat
+					
+%(###) =
+%currentdict dfa			
+%(---) =
+showpage			
+%pstack stop
+
+	}ifelse
+
+} if
+
+			
+		end
+		/RefListOffsetAddr RefListOffsetAddr 12 add def
+
+	}repeat
+	
+	end
+} forall
+
+RenderPict {	
+showpage stop	
+} if

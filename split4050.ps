@@ -1,0 +1,613 @@
+%!PS
+
+% pretty much a one off.  Merge of blockHex and dcin to get filenames
+
+
+
+% blown file  (smi?  Sea? ) -- to far gone to recover?
+/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_1) def
+
+/SplitFileDir (/Volumes/Arethusa/Documents/PCDDocs&Tools/split4050) def
+
+%segment_F000004_0x02C9F800
+
+% waterfalls are around 016A3E44
+/cinOffsets [
+16#015B0000 % image data? 015B1ED0
+16#015B1570 % change of pattern  -- not block boundry 1F07
+16#015B1EC0 % change of pattern  -- 81EC> 2 above
+16#015B3570 % change of pattern  -- <1EC7
+16#015B3EC0 % change of pattern  -- 81EC>
+16#015B5570 % change of pattern  -- <1E87
+16#0169BA00 % header of some sort?
+16#0169FC00	% 19
+16#02061A00
+16#02065A00
+16#0206FC00 % 17
+16#02C9FC00 % 20
+16#038CFC00 % 18
+16#044FDA00
+16#044FFC00 % 21
+16#0512FC00 % 19
+16#05D5FC00 % 22
+0
+] def
+
+
+/verbose false def
+/verbose1 true def
+
+/writeLog false def
+
+/writeFile 	false def
+
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/lzw {dup length 2 mul dup 60 idiv add 1 add string dup 
+/LZWEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/flate {dup length 2 mul dup 60 idiv add 1 add string dup 
+/FlateEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 ge { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+
+	/hasRSRC true def
+
+(->) =
+pstack	
+	}{
+( no file resource.) =
+		/hasRSRC false def
+	}ifelse
+
+
+
+	/tf BlockFileName (r) file def
+%	/tf BlockFileName (r) file /RunLengthDecode filter def
+%	/tf BlockFileName (r) file /LZWDecode filter def
+
+% 22 MB before image
+
+% some pattern data at 015B0000  -- looks like 982016 or just under 1mb
+
+
+
+	/blockBuffer 512 string def
+	
+	/maxBlocks fStatsData 0 get def
+
+	/interestingAddr 0 def
+
+	interestingAddr 0 ne {
+		tf interestingAddr 512 div cvi 512 mul setfileposition  % align to block boundry
+	
+		/xAddr tf fileposition def
+
+	}{
+
+		/xAddr 0 def
+
+	} ifelse
+	
+	/breakcount 0 def
+	
+	/SplitPathName SplitFileDir (/segment_) breakcount pLblF (_0x) xAddr pLong strcat strcat strcat strcat def
+	(SplitPathName: ) print SplitPathName =
+
+writeFile {
+	%open next split
+	/of SplitPathName (w) file def
+} if
+	
+	/isInCin false def
+	
+	maxBlocks 0 gt {
+	
+	
+		maxBlocks {
+
+	
+			tf blockBuffer readstring {
+				/rawData$ exch def
+
+				[ 16#84 rawData$ 0 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Magic exch def	
+				Magic 16#802A5FD7 eq 
+				xAddr cinOffsets breakcount get eq or {
+			
+				% close old section file
+isInCin { 
+(ClosePath: ) print CineonPathName =
+}{
+(ClosePath: ) print SplitPathName =
+}ifelse		
+
+writeFile {
+					of closefile
+} if
+					/breakcount breakcount 1 add def
+
+
+verbose1 {
+%() =
+xAddr  pLong print (: ) print
+(Magic number:\t16#) print				
+} if
+					[ 16#84 rawData$ 0 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Magic exch def	
+					Magic pLong print Magic 16#802A5FD7 eq {
+
+verbose1 {
+		(\tCineon 'draft' image file.) =
+xAddr 4 add pLong print (: ) print
+(Offset:\t16#) print				
+} if
+						[ 16#84 rawData$ 4 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Offset exch def
+verbose1 {
+	Offset pLong print (\tOffset to image data in bytes: ) print Offset ==
+} if
+
+verbose1 {
+xAddr 20 add pLong print (: ) print
+(Total: \t16#) print				
+} if
+						[ 16#84 rawData$ 20 4 getinterval {} forall ] makestring cvx exec 16#FFFFFFFF and /Total exch def
+verbose1 {
+	Total pLong print (\tTotal image file size in bytes:) print Total ==
+} if
+
+verbose1 {
+xAddr 32 add pLong print (: ) print
+(ImageName: \t) print				
+} if
+						rawData$ 32 100 getinterval  /ImageName$ exch def
+						[
+						ImageName$ {
+							dup 255 eq {pop exit}if
+							dup 0 eq { pop exit} if
+	
+						} forall
+						] makestring /ImageName$ exch def
+verbose1 {
+	(") print ImageName$ =
+} if
+						/isInCin true def
+						/cinBytesRead Total def
+
+						% does not really work since the first 19 file contains part
+						% of the 17 file
+
+
+						% back up 512 bytes
+						%tf dup fileposition 512 sub setfileposition
+				
+						% read whole file
+						%tf Total string readstring /EOF exch def /CineonBuf exch def
+				
+				
+						%/xAddr tf fileposition def  % set for next read	
+						% write cineon file -- we can retain old path must exist
+
+						/CineonPathName SplitFileDir ImageName$ strcat def
+						
+						% this really only works as a one off - or else 
+						% the directories need to be erased before running.
+	
+(CineonPathName: ) print CineonPathName =
+
+						% dows cineon path exits?  file 19 is seen twice
+						CineonPathName status {
+(file exists: ) print
+							4 array astore /fStatsData exch def  % file is readable 
+							fStatsData ==
+(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+(created timestamp: ) print fStatsData 2 get unix2c idate ==
+
+							% might be best to keep the suffix
+
+							/CineonPathName SplitFileDir ImageName$ 0 ImageName$ length 4 sub getinterval
+							 (_0x) xAddr pLong strcat strcat strcat (.cin) strcat def
+(CineonPathName: ) print CineonPathName =
+						
+						}if
+						% open next write file
+writeFile {
+						/of CineonPathName (w) file def
+}if			
+
+						% does not work -- files may be fragmented				
+
+						%tf blockBuffer readstring /EOF exch def /rawData$ exch def
+
+
+
+%						exit % -- for testing
+
+
+					}{
+						( not a Cineon file.) =
+%		pstack stop
+						/SplitPathName SplitFileDir (/segment_) breakcount pLblF (_0x) xAddr pLong strcat strcat strcat strcat def
+						(SplitPathName: ) print SplitPathName =
+
+writeFile {				
+						% open next write file
+						/of SplitPathName (w) file def
+}if
+
+					}ifelse
+
+
+
+
+			
+				}if
+
+	
+				rawData$ xAddr dumpHex
+				
+writeFile {
+				%write buffer				
+				of rawData$ writestring
+}if	
+				
+				isInCin {
+					/cinBytesRead cinBytesRead 512 sub def
+				
+					cinBytesRead 0 le {
+						/isInCin false def
+(ClosePath: ) print CineonPathName  print ( overlap: ) print cinBytesRead ==
+					
+writeFile {
+						of closefile
+}if					
+						/SplitPathName SplitFileDir (/segment_) breakcount pLblF (_0x) xAddr 512 add pLong strcat strcat strcat strcat def
+						(SplitPathName: ) print SplitPathName =
+
+writeFile {						
+						%open next split
+						/of SplitPathName (w) file def
+}if					
+					}if
+				
+				} if
+				
+				
+	
+			}{
+		(% last block) =
+				/rawData$ exch def
+	
+				rawData$ xAddr dumpHex
+			
+				% write buffer
+			
+				% close the file and re open it for later
+			
+				tf closefile
+			
+				/tf BlockFileName (r) file def
+				
+				exit
+	
+			}ifelse
+			
+			/xAddr xAddr 512 add def
+		
+		} repeat
+		
+	}{
+		% small file
+
+		tf fStatsData 1 get string readstring {
+			/rawData$ exch def
+	
+			rawData$ xAddr dumpHex
+	
+		}{
+	(% can not read data from file) =
+	
+		}ifelse
+
+	}ifelse
+		
+	tf closefile	
+
+(ClosePath: ) print SplitPathName =
+writeFile {
+	of closefile
+}if

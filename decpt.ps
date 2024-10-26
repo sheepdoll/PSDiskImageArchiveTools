@@ -1,0 +1,666 @@
+%!PS
+
+% blown file  (smi?  Sea? ) -- to far gone to recover?
+/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_1) def
+
+% file found in above
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/kodak_lut_cineon_2_Film_Scan/5242/0001.cin) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Install Disc/Installation/PCD4050 Utilities/CAL Instructions.bmp) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/CAL Instructions.bmp) def
+
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Kodak Build-It/MAC/ARRANGIT/ARRANGIT.SEA;1) def
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/exe_extrations/Kodak ICC Photo CD.sea) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/Maurice/4050_mac_os9.zip) def
+
+%/BlockFileName (/Users/arethusa/Documents/PCDDocs&Tools/4050/PCD4050 Utilities/scnMCal.PPC) def
+
+
+% backcheck some compression variations
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/0019.cin.sit) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon.zip) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon133.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon152.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/cineon152.sea) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.PPC.sit) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal.zip) def
+
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/trace.cpt) def
+%/BlockFileName (/Volumes/Noah24/CalibrationTrace/scnMCal133.cpt) def
+
+
+/verbose false def
+
+/writeLog false def
+
+/DBGPatData false def
+/DBGLoader false def
+
+/DBGMemPtr false def
+/ListByClass true def
+
+/DBGTraceBack false def
+
+/DBGInstDec false def
+/DBGInstEdge false def
+
+/thisdict (root block) def
+
+% end of user options 
+%================================================================================
+/dfa {{ exch =string cvs print (: ) print ==} forall} bind def
+
+/=$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile =} bind def
+
+/$ {dup length 2 mul dup 60 idiv add 1 add string dup 
+/ASCIIHexEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/lzw {dup length 2 mul dup 60 idiv add 1 add string dup 
+/LZWEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/flate {dup length 2 mul dup 60 idiv add 1 add string dup 
+/FlateEncode filter 3 -1 roll 3 copy writestring 2 
+index flushfile pop pop  closefile } bind def
+
+
+/Word$ <860000> def			% high first
+/Long$ <8400000000> def		% high first
+
+/Word_l$ <870000> def			% low first
+/Long_l$ <8500000000> def		% low first
+
+/pHex { 2 string dup 0 (00) putinterval dup 3 -1 roll 16#FF and 16 =string cvrs 2 1 index length sub exch putinterval } bind def
+
+/pWord { 4 string dup 0 (0000) putinterval dup 3 -1 roll 16#FFFF and 16 =string cvrs 4 1 index length sub exch putinterval } bind def
+
+/pAddr { 6 string dup 0 (000000) putinterval dup 3 -1 roll 16#FFFFFF and 16 =string cvrs 6 1 index length sub exch putinterval } bind def
+
+/pLong { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 16#FFFFFFFF and 16 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pOct { 3 string dup 0 (000) putinterval dup 3 -1 roll 16#FF and 8 =string cvrs 3 1 index length sub exch putinterval } bind def
+
+/pBin { 8 string dup 0 (00000000) putinterval dup 3 -1 roll 2 =string cvrs 8 1 index length sub exch putinterval } bind def
+
+/pDec { dup 0 gt { (       ) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval
+		}{
+			 (     ) 5 string copy dup 3 -1 roll  =string cvs 5 1 index length sub exch putinterval
+		
+		}ifelse
+
+ } bind def
+
+/pDec3 { (   ) 3 string copy dup 3 -1 roll 16#03FF and =string cvs 3 1 index length sub exch putinterval } bind def
+
+/pDec5 { (     ) 5 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 5 1 index length sub exch putinterval } bind def
+
+
+/pLbl { (L000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblF { (F000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblD { (D000000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+/pLblA { (ANON000) 7 string copy dup 3 -1 roll 16#FFFFFF and =string cvs 7 1 index length sub exch putinterval } bind def
+
+
+/ljust {cvi 16#FF and dup 128 ge {16#FF xor not} if 
+		4 string dup 0 (    ) putinterval dup 3 -1 roll cvi =string cvs 0 exch putinterval } bind def
+
+/checksum 0 def
+
+
+/makestring { 
+	dup length string       % new string of right size
+	dup /NullEncode filter      % make a file out of string
+	2 index                 % array to stack top
+    { 2 copy write pop }         % integers to string
+	forall
+    flushfile exch pop                   % clean up
+} bind def
+
+/strcat {
+	dup length 2 index length add string
+	2 index length 3 -1 roll 3 copy putinterval pop pop 
+	0 3 -1 roll 3 copy putinterval pop pop 
+
+} bind def
+
+/toupper {
+	[ exch
+	{dup 95 gt {16#5F and} if} forall
+	] makestring
+} bind def
+
+/flip_bits {
+%  n = n & 0b11110000 >> 4 | n & 0b00001111 << 4;  // efghabcd
+	dup 2#11110000 and -4 bitshift exch 2#00001111 and 4 bitshift or 
+%  n = n & 0b11001100 >> 2 | n & 0b00110011 << 2;  // ghefcdab 
+	dup 2#11001100 and -2 bitshift exch 2#00110011 and 2 bitshift or 
+%  n = n & 0b10101010 >> 1 | n & 0b01010101 << 1;  // hgfedcba
+	dup 2#10101010 and -1 bitshift exch 2#01010101 and 1 bitshift or
+} bind def
+
+
+% calendar utilities
+/unix2c {
+	/utime exch def 
+	/idate 6 array def
+
+%*utime  input  Unix system time, seconds since 1970.0
+%*idate  output Array: 1=year, 2=month, 3=date, 4=hour, 5=minute, 6=secs
+%based on code by  Clive Page, Leicester University, UK.   1995-MAY-2
+%      integer mjday, nsecs
+%      real day
+%*Note the MJD algorithm only works from years 1901 to 2099.
+	10 dict begin 
+      /mjday    utime 86400 div cvi 40587 add def
+       
+      idate 0   1858 mjday 321.51 add 365.25 div cvi add put
+      /day      mjday 100 mul 26225 add cvi 36525 mod 100 div cvi 0.5 add def
+
+%      idate(2) = 1 + int(mod(day / 30.6 + 2.0, 12.0) ) 
+      idate 1	1 day 30.6 div 2.0 add 10 mul cvi 120 mod 10 div cvi add put
+      idate 2 	1 day 10 mul cvi 306 mod 10 div cvi add put
+      /nsecs    utime 86400 mod def
+      idate 5	nsecs 60 mod put
+      /nsecs    nsecs 60 div cvi def
+      idate 4	nsecs 60 mod put
+      idate 3	nsecs 60 div cvi put
+    end
+} bind def
+
+/isNumber << % >>
+	48 0
+	49	1
+	50	2
+	51	3
+	52	4
+	53	5
+	54	6
+	55	7
+	56 8
+	57 9
+>> def
+
+
+%/*****************************************************************************\
+%|                                                                             |
+%|                                  File IO                                    |
+%|                                                                             |
+%\*****************************************************************************/
+/backShow /print load def
+
+/writedict << % >
+/lp 0  %= linbfr;
+/linbfr [ 511 {32} repeat ] makestring 
+/blnkbfr [ 511 {32} repeat ] makestring 
+>> def
+
+/writef {
+	writeLog {
+		lf exch writestring
+	}{
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 510 gt {wrtlin} if
+
+		end
+	}ifelse
+} bind def
+
+/writem {
+		writedict begin
+		/wrkstr exch def
+		linbfr lp wrkstr putinterval
+		/lp lp wrkstr length add def
+		% flush the buffer when overflow is imminent
+		lp 200 gt {wrtlin} if
+
+	end
+} bind def
+
+/wrtlin {
+	writedict begin
+	linbfr lp 16#0D put /lp lp 1 add def
+	linbfr lp 16#0A put /lp lp 1 add def
+	linbfr 0 lp getinterval
+	print
+	/lp 0 def
+	linbfr 0 blnkbfr putinterval
+	end
+} bind def
+
+/wrtlin33 {
+	writeLog {
+		lf <0D0A> writestring lf flushfile
+	}{
+		writedict begin
+		linbfr lp 16#0D put /lp lp 1 add def
+		linbfr lp 16#0A put /lp lp 1 add def
+		linbfr 0 lp getinterval
+		print flush
+		/lp 0 def
+		linbfr 0 blnkbfr putinterval
+		end
+	}ifelse
+} bind def
+
+/wrtNum {
+	writeLog {
+		lf exch write 
+	}{
+		(16#) print pHex =
+	}ifelse
+} bind def 
+
+/wrtpos 
+{
+	writedict begin
+
+	/lp exch def
+	end
+} bind def
+
+/writeRawBinary {
+	writefile {
+		of exch writestring
+	}{
+		(<) print =$	
+	%	writedict begin
+	%	/wrkstr exch def
+	%	linbfr lp wrkstr putinterval
+	%	/lp lp wrkstr length add def
+	%	% flush the buffer when overflow is imminent
+	%	lp 96 gt {wrtlin} if
+	%	end
+	}ifelse
+} bind def
+
+
+/dumpHex {
+	/xAddrx exch def
+	/dumpData$ exch def			
+	% make a pretty block
+	/rbPtr dumpData$ def
+	dumpData$ length 16 div cvi {
+		xAddrx 512 mod 0 eq {
+			(Block: ) print xAddrx 512 div cvi ==
+		}if
+		xAddrx pLong print (:) print
+		/xAddrx xAddrx 16 add def
+		rbPtr 0 16 getinterval dup
+		(<) print $ print ( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}{
+				dup 16#80 ge {
+					pop 46
+				}if
+			} ifelse	
+				
+		}forall] makestring =
+		/rbPtr rbPtr 16 1 index length 16 sub getinterval def
+		
+	} repeat
+	
+	rbPtr length 0 gt {
+		rbPtr dup
+		xAddrx pLong print (:) print
+		(<) print $ print
+		dup length 16 exch sub 2 mul { ( ) print} repeat
+		( % ) print
+		[ exch
+		{
+			dup 32 lt {
+				pop 46
+			}if
+		}forall] makestring =
+	} if
+} def
+
+
+	/TFRN BlockFileName (/..namedfork/rsrc) strcat def
+	
+
+BlockFileName print
+	BlockFileName status {
+( data fork: ) =
+	4 array astore /fStatsData exch def  % file is readable 
+	fStatsData ==
+	(modified timestamp: ) print fStatsData 2 get unix2c idate ==
+	(created timestamp: ) print fStatsData 2 get unix2c idate ==
+pstack	
+	}{
+( no data fork) =
+	}ifelse
+
+TFRN print
+	TFRN status {
+( resource fork: ) =
+	4 array astore /fStatsRSRC exch def  % file is readable 
+	fStatsRSRC ==
+
+	/hasRSRC true def
+
+(->) =
+pstack	
+	}{
+( no file resource.) =
+		/hasRSRC false def
+	}ifelse
+
+%<< /PageSize [ 612 792] >> setpagedevice % default  -- should restore for normal use
+
+
+
+	% could it be that simple? 
+%	/tf BlockFileName (r) file  def
+%	/tf BlockFileName (r) file /RunLengthDecode filter def
+%	/tf BlockFileName (r) file /LZWDecode filter def
+	
+	%/xAddr tf fileposition def
+	/xAddr  0 def
+
+%			+--- treeBytes 256
+%			|  +------- len 4
+%			|  |
+%			|  |
+%			|  |
+%			|  |
+%			|  |
+%			v  v
+/cpt_char$ <80 46 66 67 77 78 87 67> /ReusableStreamDecode filter def
+
+% 1000 0000 0100 0110 0110 0110 0110 0111 0111 0111 1000 0111 0110 0111
+
+
+% probably a waste of time, but one never knows if a corruped archive will be found
+%% converted from /Users/arethusa/Downloads/macutils-master/macunpack/cpt ...
+%/* Based on unimplod from unzip; difference are noted below. */
+%typedef struct sf_entry {
+%    int Value;
+%    int BitLength;
+%} sf_entry;
+
+/SLACK 6 def
+
+%static node cpt_Hufftree[512 + SLACK], cpt_LZlength[128 + SLACK],
+%	    cpt_LZoffs[256 + SLACK];
+
+
+%/* See routine LoadTree.  The parameter tree (actually an array and
+%   two integers) are only used locally in this version and hence locally
+%   declared.  The parameter nodes has been renamed Hufftree.... */
+%static void cpt_readHuff(size, Hufftree)
+%int size;
+%struct node *Hufftree;
+/cpt_readHuff {
+	/Hufftree exch def  % nodes may be a good candidate for dictionary keys, they are recursive
+					% the values are flag and byte, they are self referenced as one and zero
+	/size exch def
+
+    %sf_entry tree_entry[256 + SLACK]; /* maximal number of elements */
+    % this may work as an array of dicts with dynamic allocation
+    
+    /tree_entry [256 SLACK add {<</Value 0 /BitLength 0>>} repeat ] def
+    
+    %int tree_entries;
+    %int tree_MaxLength; /* finishes local declaration of tree */
+
+   % int treeBytes, i, len;  /* declarations from ReadLengths */
+
+   % /* declarations from SortLengths */
+   % sf_entry *ejm1; // these then would be dicts 
+   % int j;
+   % sf_entry *entry;
+%/*  int i already above */
+   % sf_entry tmp;
+   % int entries;
+   % unsigned a, b;
+
+%    /* declarations from GenerateTrees */
+%    int codelen, lvlstart, next, parents;
+%/*  int i, j already above */
+
+%    /* for Compactor */
+%    int tree_count[32];
+	/tree_count [ 32{0} repeat] def
+%    /* end declarations */
+
+
+
+% /* next paraphrased from ReadLengths with adaption for Compactor. */
+
+	
+%PS for testing use a filter on a string either /SubFileDecode or /ReusableStreamDecode 
+
+%    treeBytes = *cpt_char++;
+(treeBytes: 16#) print	
+	/treeBytes cpt_char$ read pop def
+	treeBytes pHex print ( ) print treeBytes ==
+%    if(size < treeBytes * 2) { /* too many entries, something is wrong! */
+    
+    
+%	(void)fprintf(stderr, "Bytes is: %d, expected: %d\n", treeBytes,
+%		size / 2);
+%#ifdef SCAN
+%	do_error("macunpack: error in coding tree");
+%#endif /* SCAN */
+%	exit(1);
+%    }
+
+% done above in init 
+%   for(i = 0; i < 32; i++) {
+%	tree_count[i] = 0;
+%    }
+ 
+ 
+ %   i = 0;
+ %   tree_MaxLength = 0;
+ %   tree_entries = 0;
+ 
+	/i 0 def
+ 	/tree_MaxLength 0 def
+    /tree_entries 0 def
+
+ 
+%    while(treeBytes-- > 0) { /* adaption for Compactor */
+
+%	len = (*cpt_char) >> 4;
+(cpt_char: 16#) print
+	/cpt_char cpt_char$ read pop def
+	cpt_char pHex print ( ) print cpt_char ==
+(len: ) print	
+	/len cpt_char -4 bitshift def
+	len ==
+
+%	if(len != 0) { /* only if length unequal zero */
+	len 0 ne {
+%	    if(len > tree_MaxLength) {
+		len tree_MaxLength gt {
+%		tree_MaxLength = len;
+			/tree_MaxLength len def
+%	    }
+		}if
+%	    tree_count[len]++;
+		tree_count len 2 copy get 1 add put
+
+%	    tree_entry[tree_entries].Value = i;
+		tree_entry tree_entries get begin
+		/Value i def
+		/BitLength len def
+		end
+%	    tree_entry[tree_entries++].BitLength = len;
+		/tree_entries tree_entries 1 add def
+%	}
+	} if
+%	i++;
+	/i i 1 add def
+%	len = *cpt_char++ & NIBBLEMASK;
+(len: ) print	
+	/len cpt_char 16#0F and def
+	len ==
+	
+%	if(len != 0) { /* only if length unequal zero */
+	len 0 ne {
+%	    if(len > tree_MaxLength) {
+		len tree_MaxLength gt {
+%		tree_MaxLength = len;
+			/tree_MaxLength len def
+%	    }
+		}if
+%	    tree_count[len]++;
+		tree_count len 2 copy get 1 add put
+
+%	    tree_entry[tree_entries].Value = i;
+		tree_entry tree_entries get begin
+		/Value i def
+		/BitLength len def
+		end
+%	    tree_entry[tree_entries++].BitLength = len;
+		/tree_entries tree_entries 1 add def
+%	}
+	} if
+%	i++;
+	/i i 1 add def
+%   }
+(tree_count: ) print tree_count ==
+(i: ) print i ==
+(tree_entry: ) print
+tree_entry ==
+
+
+%    /* Compactor allows unused trailing codes in its Huffman tree! */
+%    j = 0;
+%    for(i = 0; i <= tree_MaxLength; i++) {
+%	j = (j << 1) + tree_count[i];
+%    }
+%    j = (1 <<tree_MaxLength) - j;
+%    /* Insert the unused entries for sorting purposes. */
+%    for(i = 0; i < j; i++) {
+%	tree_entry[tree_entries].Value = size;
+%	tree_entry[tree_entries++].BitLength = tree_MaxLength;
+%    }
+
+%    /* adaption from SortLengths */
+%    entry = &(tree_entry[0]);
+%    entries = tree_entries;
+%    for(i = 0; ++i < entries;) {
+%	tmp = entry[i];
+%	b = tmp.BitLength;
+%	j = i;
+%	while((j > 0) && ((a = (ejm1 = &(entry[j - 1]))->BitLength) >= b)) {
+%	    if((a == b) && (ejm1->Value <= tmp.Value)) {
+%		break;
+%	    }
+%	    *(ejm1 + 1) = *ejm1;
+%	    --j;
+%	}
+%	entry[j] = tmp;
+%   }
+
+%    /* Adapted from GenerateTrees */
+%    i = tree_entries - 1;
+%    /* starting at the upper end (and reversing loop) because of Compactor */
+%    lvlstart = next = size * 2 + SLACK - 1;
+%    /* slight adaption because of different node format used */
+%    for(codelen = tree_MaxLength; codelen >= 1; --codelen) {
+%	while((i >= 0) && (tree_entry[i].BitLength == codelen)) {
+%	    Hufftree[next].byte = tree_entry[i].Value;
+%	    Hufftree[next].flag = 1;
+%	    next--;
+%	    i--;
+%	}
+%	parents = next;
+%	if(codelen > 1) {
+%	    /* reversed loop */
+%	    for(j = lvlstart; j > parents + 1; j-= 2) {
+%		Hufftree[next].one = &(Hufftree[j]);
+%		Hufftree[next].zero = &(Hufftree[j - 1]);
+%		Hufftree[next].flag = 0;
+%		next--;
+%	    }
+%	}
+%	lvlstart = parents;
+%    }
+%    Hufftree[0].one = &(Hufftree[next + 2]);
+%    Hufftree[0].zero = &(Hufftree[next + 1]);
+%    Hufftree[0].flag = 0;
+} def
+
+
+
+%/*---------------------------------------------------------------------------*/
+%/*	Run length encoding plus LZ compression plus Huffman encoding	     */
+%/*---------------------------------------------------------------------------*/
+%static void cpt_rle_lzh()
+%{
+%    int block_count;
+%    unsigned int bptr;
+%    int Huffchar, LZlength, LZoffs;
+%
+%    get_bit = cpt_getbit;
+%cpt_LZbuff[CIRCSIZE - 3] = 0;
+%    cpt_LZbuff[CIRCSIZE - 2] = 0;
+%    cpt_LZbuff[CIRCSIZE - 1] = 0;
+%    cpt_LZptr = 0;
+%    while(cpt_outlength != 0) {
+
+% does not look promising since the tables are at the
+% start of the file
+%	cpt_readHuff(256, cpt_Hufftree);
+	256 10 dict cpt_readHuff
+
+%	cpt_readHuff(64, cpt_LZlength);
+%	cpt_readHuff(128, cpt_LZoffs);
+
+%	block_count = 0;
+%	cpt_newbits = (*cpt_char++ << 8);
+%	cpt_newbits = cpt_newbits | *cpt_char++;
+%	cpt_newbits = cpt_newbits << 16;
+%	cpt_bitsavail = 16;
+%	while(block_count < cpt_blocksize && cpt_outlength != 0) {
+%	    if(cpt_getbit()) {
+%		Huffchar = gethuffbyte(cpt_Hufftree);
+%		cpt_outch((unsigned char)Huffchar);
+%		block_count += 2;
+%	    } else {
+%		LZlength = gethuffbyte(cpt_LZlength);
+%		LZoffs = gethuffbyte(cpt_LZoffs);
+%		LZoffs = (LZoffs << 6) | cpt_get6bits();
+%		bptr = cpt_LZptr - LZoffs;
+%		while(LZlength-- > 0) {
+%		    cpt_outch(cpt_LZbuff[bptr++ & (CIRCSIZE - 1)]);
+%		}
+%		block_count += 3;
+%	    }
+%	}
+%    }
+%}
+
+
+
+%<4A6F7921706566667077706300000001> flate $ =
+
+%<80128DE79109C0CA66331C0EE70318021C018080000000000000000000000000> %lzw
+%<789CF3CAAF542C484D4B2B282F486660606004002FF604B00000000000000000> %flate
+
+
+
+
+
